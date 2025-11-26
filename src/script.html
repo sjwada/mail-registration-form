@@ -484,7 +484,7 @@
 
     showLoading(true);
 
-    fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${postalCode}`)
+    fetch('https://zipcloud.ibsnet.co.jp/api/search?zipcode=' + postalCode)
       .then(response => response.json())
       .then(data => {
         showLoading(false);
