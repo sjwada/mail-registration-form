@@ -8,31 +8,6 @@
  * @return {HtmlOutput} HTML出力
  */
 function doGet(e) {
-  // デバッグモード: ファイルパス調査
-  if (e.parameter.debug === 'paths') {
-    const paths = [
-      'index',
-      'frontend/index',
-      'src/frontend/index',
-      'frontend/index.html',
-      'src/frontend/index.html',
-      'src/index',
-      'src/index.html',
-      '../frontend/index',
-      'backend/../frontend/index',
-      '/frontend/index'
-    ];
-    let result = 'File Path Debug Results:\n';
-    paths.forEach(path => {
-      try {
-        HtmlService.createTemplateFromFile(path);
-        result += `[SUCCESS] ${path} found\n`;
-      } catch (err) {
-        result += `[FAILED] ${path} - ${err.message}\n`;
-      }
-    });
-    return ContentService.createTextOutput(result);
-  }
 
   // URLパラメータを取得
   const token = e.parameter.token || '';
@@ -69,7 +44,7 @@ function doGet(e) {
  * @return {HtmlOutput} HTML出力
  */
 function createFormHtml(mode, householdData) {
-  const template = HtmlService.createTemplateFromFile('src/frontend/index');
+  const template = HtmlService.createTemplateFromFile('frontend/index');
   template.mode = mode;
   template.household = householdData ? householdData.household : null;
   template.guardians = householdData ? householdData.guardians : [];
