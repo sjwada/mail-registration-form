@@ -17,11 +17,11 @@ const CONFIG = {
   // アクセス制限設定
   // ===========================================
   // URLトークン（変更してください）
-  ACCESS_TOKEN: 'secret-token-2025',
+  ACCESS_TOKEN: 'mebio-parent-reg-2025-k7m3x9p4',
   
   // 受付期間
   ALLOW_START_DATE: '2025-04-01',  // YYYY-MM-DD形式
-  ALLOW_END_DATE: '2025-12-31',    // YYYY-MM-DD形式
+  ALLOW_END_DATE: '2026-03-31',    // YYYY-MM-DD形式
   
   // ===========================================
   // フォーム設定
@@ -36,10 +36,10 @@ const CONFIG = {
   // メール設定
   // ===========================================
   // 管理者通知先メールアドレス
-  ADMIN_EMAIL: 'admin@example.com',  // ※要変更
+  ADMIN_EMAIL: 'wada@mebio-labo.com',
   
   // 送信元名
-  EMAIL_FROM_NAME: '○○学校 保護者登録システム',  // ※要変更
+  EMAIL_FROM_NAME: '医学部進学予備校メビオ 保護者登録システム',
   
   // ===========================================
   // 郵便番号API設定
