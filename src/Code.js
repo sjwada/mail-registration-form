@@ -13,13 +13,17 @@ function doGet(e) {
   const token = e.parameter.token || '';
   const edit = e.parameter.edit || '';
   const expires = e.parameter.expires || '';
+  const debug = e.parameter.debug || '';
 
-  // アクセス制限チェック
-  if (!isValidToken(token) && !edit) {
+  // デバッグモード（テスト時にトークンチェックをスキップ）
+  const isDebugMode = debug === 'true';
+
+  // アクセス制限チェック（デバッグモード時はスキップ）
+  if (!isDebugMode && !isValidToken(token) && !edit) {
     return HtmlService.createHtmlOutput('アクセスが拒否されました。正しいURLでアクセスしてください。');
   }
 
-  if (!isAccessPeriodValid() && !edit) {
+  if (!isDebugMode && !isAccessPeriodValid() && !edit) {
     return HtmlService.createHtmlOutput('現在、登録受付期間外です。');
   }
 
