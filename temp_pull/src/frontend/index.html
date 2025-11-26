@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    <?= config.emailFromName ?>
+  </title>
+  <?!= include('src/frontend/css/style'); ?>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>
+        <?= config.emailFromName ?>
+      </h1>
+      <p class="subtitle">保護者・生徒情報登録フォーム</p>
+    </header>
+
+    <main>
+      <form id="registrationForm">
+        <!-- モード選択 -->
+        <section class="form-section">
+          <h2>登録方法</h2>
+          <div class="radio-group">
+            <label>
+              <input type="radio" name="mode" value="new" <?=mode==='new' ? 'checked' : '' ?>>
+              新規登録
+            </label>
+            <label>
+              <input type="radio" name="mode" value="edit" <?=mode==='edit' ? 'checked' : '' ?>>
+              登録内容を編集
+            </label>
+          </div>
+        </section>
+
+        <!-- 編集認証セクション -->
+        <section id="editAuthSection" class="form-section" style="display: none;">
+          <h2>編集認証</h2>
+          <div class="form-group">
+            <label for="authEmail">メールアドレス <span class="required">*</span></label>
+            <input type="email" id="authEmail" class="form-control" placeholder="世帯内のいずれかのメールアドレス">
+            <small class="form-text">保護者・生徒のどなたのメールアドレスでも編集できます</small>
+          </div>
+          <div class="form-group">
+            <label for="editCode">編集コード（任意）</label>
+            <input type="text" id="editCode" class="form-control" placeholder="6桁の英数字" maxlength="6">
+            <small class="form-text">確認メールに記載されている編集コードを入力</small>
+          </div>
+          <div class="button-group">
+            <button type="button" class="btn btn-primary" onclick="authenticateEdit()">
+              編集コードで編集開始
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="requestMagicLink()">
+              編集リンクをメールで送信
+            </button>
+          </div>
+        </section>
+
+        <!-- ご自宅住所セクション -->
+        <section id="householdSection" class="form-section" <?=mode==='edit' ? '' : 'style="display:none;"' ?>>
+          <h2>📍 ご自宅住所</h2>
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label for="postalCode">郵便番号 <span class="required">*</span></label>
+              <input type="text" id="postalCode" class="form-control" placeholder="123-4567" maxlength="8" required
+                value="<?= household ? household.postalCode : '' ?>">
+              <button type="button" class="btn btn-sm btn-secondary mt-1" onclick="searchAddress()">住所検索</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label for="prefecture">都道府県 <span class="required">*</span></label>
+              <select id="prefecture" class="form-control" required>
+                <option value="">選択してください</option>
+                <!-- 都道府県リストは省略 -->
+              </select>
+            </div>
+            <div class="form-group col-md-8">
+              <label for="city">市区町村 <span class="required">*</span></label>
+              <input type="text" id="city" class="form-control" placeholder="横浜市青葉区" required
+                value="<?= household ? household.city : '' ?>">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="street">町名・番地・号 <span class="required">*</span></label>
+            <input type="text" id="street" class="form-control" placeholder="美しが丘1-2-3" required
+              value="<?= household ? household.street : '' ?>">
+          </div>
+          <div class="form-group">
+            <label for="building">建物名・部屋番号</label>
+            <input type="text" id="building" class="form-control" placeholder="○○マンション 101号室"
+              value="<?= household ? household.building : '' ?>">
+          </div>
+        </section>
+
+        <!-- 保護者情報セクション -->
+        <section id="guardiansSection" class="form-section" style="display:none;">
+          <h2>👨‍👩‍👧‍👦 保護者情報</h2>
+          <div id="guardiansList">
+            <!-- 保護者フォームが動的に追加される -->
+          </div>
+          <button type="button" class="btn btn-success" onclick="addGuardian()">
+            + 保護者を追加
+          </button>
+        </section>
+
+        <!-- 生徒情報セクション -->
+        <section id="studentsSection" class="form-section" style="display:none;">
+          <h2>👨‍🎓 生徒情報</h2>
+          <div id="studentsList">
+            <!-- 生徒フォームが動的に追加される -->
+          </div>
+          <button type="button" class="btn btn-success" onclick="addStudent()">
+            + 生徒を追加
+          </button>
+        </section>
+
+        <!-- 備考欄 -->
+        <section id="notesSection" class="form-section" style="display:none;">
+          <h2>📝 備考</h2>
+          <div class="form-group">
+            <textarea id="notes" class="form-control" rows="3"
+              placeholder="その他、お伝えしたいことがあればご記入ください"><?= household ? household.notes : '' ?></textarea>
+          </div>
+        </section>
+
+        <!-- 送信ボタン -->
+        <div id="submitSection" class="form-section" style="display:none;">
+          <button type="submit" class="btn btn-primary btn-lg btn-block">
+            登録内容を確認
+          </button>
+        </div>
+      </form>
+
+      <!-- ローディング表示 -->
+      <div id="loading" style="display:none;" class="text-center">
+        <div class="spinner"></div>
+        <p>処理中...</p>
+      </div>
+
+      <!-- メッセージ表示 -->
+      <div id="message" style="display:none;" class="alert"></div>
+    </main>
+  </div>
+
+  <?!= include('src/frontend/js/script'); ?>
+</body>
+
+</html>

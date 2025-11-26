@@ -8,7 +8,6 @@
  * @return {HtmlOutput} HTML出力
  */
 function doGet(e) {
-  return HtmlService.createHtmlOutput('DEBUG MODE: If you see this, code is updating.');
   // URLパラメータを取得
   const token = e.parameter.token || '';
   const edit = e.parameter.edit || '';

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登録内容確認</title>
+  <?!= include('src/frontend/css/style'); ?>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>登録内容確認</h1>
+      <p class="subtitle">以下の内容で登録します</p>
+    </header>
+
+    <main>
+      <!-- ご自宅住所 -->
+      <section class="form-section">
+        <h2>📍 ご自宅住所</h2>
+        <div class="confirm-item">
+          <p class="confirm-label">郵便番号</p>
+          <p class="confirm-value">〒
+            <?= household.postalCode ?>
+          </p>
+        </div>
+        <div class="confirm-item">
+          <p class="confirm-label">住所</p>
+          <p class="confirm-value">
+            <?= household.prefecture ?>
+            <?= household.city ?>
+            <?= household.street ?><br>
+            <?= household.building ? household.building : '' ?>
+          </p>
+        </div>
+      </section>
+
+      <!-- 連絡先（優先順） -->
+      <section class="form-section">
+        <h2>📞 連絡先（優先順）</h2>
+        <? guardians.sort((a, b) => a.contactPriority - b.contactPriority).forEach((guardian, index) => { ?>
+        <div class="contact-priority-item">
+          <div class="priority-badge">
+            <?= guardian.contactPriority ?>位
+          </div>
+          <div class="contact-details">
+            <p class="contact-name">
+              <?= guardian.relationship ?>（
+              <?= guardian.lastName ?>
+              <?= guardian.firstName ?>様）
+            </p>
+            <p class="contact-method">
+              <strong>連絡方法:</strong>
+              <?= guardian.contactMethod ?>
+            </p>
+            <? if (guardian.contactMethod === '電話') { ?>
+            <p class="contact-info">
+              <?= guardian.mobilePhone ? '携帯: ' + guardian.mobilePhone : '' ?>
+              <?= guardian.homePhone ? '自宅: ' + guardian.homePhone : '' ?>
+            </p>
+            <? } else { ?>
+            <p class="contact-info">メール:
+              <?= guardian.email ?>
+            </p>
+            <? } ?>
+          </div>
+        </div>
+        <? }); ?>
+      </section>
+
+      <!-- 保護者情報 -->
+      <section class="form-section">
+        <h2>👨‍👩‍👧‍👦 保護者情報</h2>
+        <? guardians.forEach((guardian, index) => { ?>
+        <div class="info-card">
+          <h3>保護者
+            <?= index + 1 ?>：
+            <?= guardian.lastName ?>
+            <?= guardian.firstName ?>
+          </h3>
+          <table class="info-table">
+            <tr>
+              <th>フリガナ</th>
+              <td>
+                <?= guardian.lastNameKana ?>
+                <?= guardian.firstNameKana ?>
+              </td>
+            </tr>
+            <tr>
+              <th>続柄</th>
+              <td>
+                <?= guardian.relationship ?>
+              </td>
+            </tr>
+            <tr>
+              <th>連絡用メール</th>
+              <td>
+                <?= guardian.email ?>
+              </td>
+            </tr>
+            <? if (guardian.meetingEmail) { ?>
+            <tr>
+              <th>オンライン面談用メール</th>
+              <td>
+                <?= guardian.meetingEmail ?>
+              </td>
+            </tr>
+            <? } ?>
+            <tr>
+              <th>携帯電話</th>
+              <td>
+                <?= guardian.mobilePhone || '未登録' ?>
+              </td>
+            </tr>
+            <tr>
+              <th>自宅電話</th>
+              <td>
+                <?= guardian.homePhone || '未登録' ?>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <? }); ?>
+      </section>
+
+      <!-- 生徒情報 -->
+      <section class="form-section">
+        <h2>👨‍🎓 生徒情報</h2>
+        <? students.forEach((student, index) => { ?>
+        <div class="info-card">
+          <h3>生徒
+            <?= index + 1 ?>：
+            <?= student.lastName ?>
+            <?= student.firstName ?>
+          </h3>
+          <table class="info-table">
+            <tr>
+              <th>フリガナ</th>
+              <td>
+                <?= student.lastNameKana ?>
+                <?= student.firstNameKana ?>
+              </td>
+            </tr>
+            <tr>
+              <th>高校卒業予定年</th>
+              <td>
+                <?= student.graduationYear ?>年
+              </td>
+            </tr>
+            <tr>
+              <th>連絡用メール</th>
+              <td>
+                <?= student.email ?>
+              </td>
+            </tr>
+            <? if (student.classEmail) { ?>
+            <tr>
+              <th>オンライン授業用メール</th>
+              <td>
+                <?= student.classEmail ?>
+              </td>
+            </tr>
+            <? } ?>
+            <tr>
+              <th>携帯電話</th>
+              <td>
+                <?= student.mobilePhone || '未登録' ?>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <? }); ?>
+      </section>
+
+      <!-- 備考 -->
+      <? if (household.notes) { ?>
+      <section class="form-section">
+        <h2>📝 備考</h2>
+        <p class="confirm-value">
+          <?= household.notes ?>
+        </p>
+      </section>
+      <? } ?>
+
+      <!-- ボタン -->
+      <div class="button-group">
+        <button type="button" class="btn btn-secondary btn-lg" onclick="history.back()">
+          ← 修正する
+        </button>
+        <button type="button" class="btn btn-primary btn-lg" onclick="submitForm()">
+          この内容で登録する →
+        </button>
+      </div>
+
+      <!-- ローディング -->
+      <div id="loading" style="display:none;" class="text-center">
+        <div class="spinner"></div>
+        <p>登録中...</p>
+      </div>
+
+      <!-- メッセージ -->
+      <div id="message" style="display:none;" class="alert"></div>
+    </main>
+  </div>
+
+  <script>
+    function submitForm() {
+      if (!confirm('この内容で登録してよろしいですか？')) {
+        return;
+      }
+
+      document.getElementById('loading').style.display = 'block';
+      document.querySelector('.button-group').style.display = 'none';
+
+      google.script.run
+        .withSuccessHandler(function (result) {
+          document.getElementById('loading').style.display = 'none';
+          if (result.success) {
+            // 完了画面へリダイレクト
+            window.location.href = '<?= ScriptApp.getService().getUrl() ?>?page=complete&code=' + result.editCode;
+          } else {
+            showMessage(result.message, 'danger');
+            document.querySelector('.button-group').style.display = 'flex';
+          }
+        })
+        .withFailureHandler(function (error) {
+          document.getElementById('loading').style.display = 'none';
+          showMessage('エラーが発生しました: ' + error.message, 'danger');
+          document.querySelector('.button-group').style.display = 'flex';
+        })
+        .submitRegistration(<?= JSON.stringify(formData) ?>);
+    }
+
+    function showMessage(message, type) {
+      const messageDiv = document.getElementById('message');
+      messageDiv.className = 'alert alert-' + type;
+      messageDiv.textContent = message;
+      messageDiv.style.display = 'block';
+    }
+  </script>
+
+  <style>
+    .confirm-item {
+      margin-bottom: 20px;
+    }
+
+    .confirm-label {
+      font-weight: 600;
+      color: #6c757d;
+      margin-bottom: 5px;
+    }
+
+    .confirm-value {
+      font-size: 1.1rem;
+      color: var(--text-color);
+    }
+
+    .contact-priority-item {
+      display: flex;
+      gap: 15px;
+      padding: 15px;
+      background: white;
+      border-radius: var(--radius);
+      margin-bottom: 15px;
+      box-shadow: var(--shadow);
+    }
+
+    .priority-badge {
+      background: var(--primary-color);
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .contact-details {
+      flex: 1;
+    }
+
+    .contact-name {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 5px;
+    }
+
+    .contact-method,
+    .contact-info {
+      margin: 5px 0;
+      color: #6c757d;
+    }
+
+    .info-card {
+      background: white;
+      padding: 20px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .info-card h3 {
+      color: var(--primary-color);
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .info-table th {
+      background: var(--bg-light);
+      padding: 10px;
+      text-align: left;
+      font-weight: 600;
+      width: 200px;
+      border: 1px solid var(--border-color);
+    }
+
+    .info-table td {
+      padding: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    @media (max-width: 768px) {
+      .info-table th {
+        width: 120px;
+        font-size: 0.9rem;
+      }
+
+      .contact-priority-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+    }
+  </style>
+</body>
+
+</html>
