@@ -17,7 +17,10 @@ function doGet(e) {
       'frontend/index.html',
       'src/frontend/index.html',
       'src/index',
-      'src/index.html'
+      'src/index.html',
+      '../frontend/index',
+      'backend/../frontend/index',
+      '/frontend/index'
     ];
     let result = 'File Path Debug Results:\n';
     paths.forEach(path => {
@@ -25,7 +28,7 @@ function doGet(e) {
         HtmlService.createTemplateFromFile(path);
         result += `[SUCCESS] ${path} found\n`;
       } catch (err) {
-        result += `[FAILED] ${path}\n`;
+        result += `[FAILED] ${path} - ${err.message}\n`;
       }
     });
     return ContentService.createTextOutput(result);
