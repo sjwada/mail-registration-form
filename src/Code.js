@@ -8,7 +8,7 @@
  * @return {HtmlOutput} HTML出力
  */
 function doGet(e) {
-  return HtmlService.createHtmlOutput('DEBUG MODE: If you see this, code is updating.');
+
   // URLパラメータを取得
   const token = e.parameter.token || '';
   const edit = e.parameter.edit || '';
@@ -44,7 +44,7 @@ function doGet(e) {
  * @return {HtmlOutput} HTML出力
  */
 function createFormHtml(mode, householdData) {
-  const template = HtmlService.createTemplateFromFile('src/frontend/index');
+  const template = HtmlService.createTemplateFromFile('index');
   template.mode = mode;
   template.household = householdData ? householdData.household : null;
   template.guardians = householdData ? householdData.guardians : [];
