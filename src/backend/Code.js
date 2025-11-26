@@ -44,7 +44,7 @@ function doGet(e) {
  * @return {HtmlOutput} HTML出力
  */
 function createFormHtml(mode, householdData) {
-  const template = HtmlService.createTemplateFromFile('frontend/index');
+  const template = HtmlService.createTemplateFromFile('src/frontend/index');
   template.mode = mode;
   template.household = householdData ? householdData.household : null;
   template.guardians = householdData ? householdData.guardians : [];
