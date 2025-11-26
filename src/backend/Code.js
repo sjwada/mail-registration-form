@@ -8,7 +8,29 @@
  * @return {HtmlOutput} HTML出力
  */
 function doGet(e) {
-  return HtmlService.createHtmlOutput('DEBUG MODE: If you see this, code is updating.');
+  // デバッグモード: ファイルパス調査
+  if (e.parameter.debug === 'paths') {
+    const paths = [
+      'index',
+      'frontend/index',
+      'src/frontend/index',
+      'frontend/index.html',
+      'src/frontend/index.html',
+      'src/index',
+      'src/index.html'
+    ];
+    let result = 'File Path Debug Results:\n';
+    paths.forEach(path => {
+      try {
+        HtmlService.createTemplateFromFile(path);
+        result += `[SUCCESS] ${path} found\n`;
+      } catch (err) {
+        result += `[FAILED] ${path}\n`;
+      }
+    });
+    return ContentService.createTextOutput(result);
+  }
+
   // URLパラメータを取得
   const token = e.parameter.token || '';
   const edit = e.parameter.edit || '';
