@@ -8,14 +8,19 @@
 function initializeSpreadsheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   
-  // 既存のシートを削除
-  //const sheets = ss.getSheets();
-  //sheets.forEach(sheet => ss.deleteSheet(sheet));
-  
-  // 3つのシートを作成
+  // 3つのシートを作成（既存シートを削除する前に）
   createHouseholdSheet(ss);
   createGuardianSheet(ss);
   createStudentSheet(ss);
+  
+  // 古いシートを削除（新しい3つのシート以外）
+  const allSheets = ss.getSheets();
+  const newSheetNames = ['世帯マスタ', '保護者', '生徒'];
+  allSheets.forEach(sheet => {
+    if (!newSheetNames.includes(sheet.getName())) {
+      ss.deleteSheet(sheet);
+    }
+  });
   
   Logger.log('Spreadsheetの初期化が完了しました');
 }
