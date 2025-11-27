@@ -38,11 +38,11 @@ Cloneまたはcreateが成功すると、`.clasp.json`が自動生成されま�
 ```json
 {
   "scriptId": "YOUR_SCRIPT_ID",
-  "rootDir": "./src/backend"
+  "rootDir": "./src"
 }
 ```
 
-rootDirを設定することで、src/backend配下のファイルのみをGASにpushできます。
+rootDirを設定することで、src配下のファイルのみをGASにpushできます。
 
 ### 4. ファイルをGASにpush
 ```bash
@@ -53,7 +53,7 @@ clasp push
 
 ### 5. GASエディタで確認
 ```bash
-clasp open
+clasp open-script
 ```
 
 ブラウザでGASエディタが開き、pushしたファイルが表示されます。
@@ -81,7 +81,7 @@ clasp pull
 
 ### GASエディタを開く
 ```bash
-clasp open
+clasp open-script
 ```
 
 ### デプロイ（Webアプリとして公開）
