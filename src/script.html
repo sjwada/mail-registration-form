@@ -13,18 +13,33 @@
     });
 
     // 初期モードの設定
-    currentMode = document.querySelector('input[name="mode"]:checked').value;
-    handleModeChange();
+    const modeInput = document.querySelector('input[name="mode"]:checked');
+    if (modeInput) {
+      currentMode = modeInput.value;
+      handleModeChange();
+    }
 
     // フォーム送信イベント
-    document.getElementById('registrationForm').addEventListener('submit', handleSubmit);
+    const form = document.getElementById('registrationForm');
+    if (form) {
+      form.addEventListener('submit', handleSubmit);
+    }
+
+    // 住所検索ボタンイベント
+    const searchBtn = document.getElementById('searchAddressBtn');
+    if (searchBtn) {
+      searchBtn.addEventListener('click', searchAddress);
+    }
   });
 
   // ============================================
   // モード切替
   // ============================================
   function handleModeChange() {
-    const mode = document.querySelector('input[name="mode"]:checked').value;
+    const modeInput = document.querySelector('input[name="mode"]:checked');
+    if (!modeInput) return;
+
+    const mode = modeInput.value;
     currentMode = mode;
 
     const editAuthSection = document.getElementById('editAuthSection');
@@ -125,8 +140,11 @@
   // ============================================
   function loadHouseholdData(householdData) {
     // モードを新規登録に切り替え
-    document.querySelector('input[name="mode"][value="new"]').checked = true;
-    handleModeChange();
+    const newModeRadio = document.querySelector('input[name="mode"][value="new"]');
+    if (newModeRadio) {
+      newModeRadio.checked = true;
+      handleModeChange();
+    }
 
     // 世帯情報
     if (householdData.household) {
@@ -476,7 +494,16 @@
   }
 
   function searchAddress() {
-    const postalCode = document.getElementById('postalCode').value.replace('-', '');
+    console.log('住所検索開始');
+    const postalCodeInput = document.getElementById('postalCode');
+    if (!postalCodeInput) {
+      console.error('郵便番号入力欄が見つかりません');
+      return;
+    }
+
+    const postalCode = postalCodeInput.value.replace(/-/g, '');
+    console.log('検索郵便番号:', postalCode);
+
     if (postalCode.length !== 7) {
       showMessage('郵便番号は7桁で入力してください。', 'danger');
       return;
@@ -500,6 +527,7 @@
       })
       .catch(error => {
         showLoading(false);
+        console.error('住所検索エラー:', error);
         showMessage('住所検索に失敗しました。', 'danger');
       });
   }
