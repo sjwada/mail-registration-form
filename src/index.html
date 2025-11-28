@@ -45,7 +45,7 @@
             <small class="form-text">保護者・生徒のどなたのメールアドレスでも編集できます</small>
           </div>
           <div class="form-group">
-            <label for="editCode">編集コード（任意）</label>
+            <label for="editCode">編集コード(任意)</label>
             <input type="text" id="editCode" class="form-control" placeholder="6桁の英数字" maxlength="6">
             <small class="form-text">確認メールに記載されている編集コードを入力</small>
           </div>
@@ -173,22 +173,33 @@
           </div>
         </section>
 
-        <!-- 送信ボタン -->
-        <div id="submitSection" class="form-section" style="display:none;">
-          <button type="submit" class="btn btn-primary btn-lg btn-block">
-            登録内容を確認
-          </button>
-        </div>
+        <!-- メッセージ表示 -->
+        <div id="message" style="display:none;" class="alert"></div>
+
+        <!-- 送信ボタンセクション -->
+        <section id="submitSection" class="form-section text-center" style="display:none;">
+          <button type="submit" class="btn btn-primary btn-lg">登録内容を確認</button>
+        </section>
       </form>
 
-      <!-- ローディング表示 -->
-      <div id="loading" style="display:none;" class="text-center">
-        <div class="spinner"></div>
-        <p>処理中...</p>
+      <!-- 確認画面セクション -->
+      <div id="confirmationSection" style="display:none;" class="fade-in">
+        <h2 class="text-center mb-4">登録内容の確認</h2>
+        <p class="text-center mb-4">以下の内容で登録します。よろしければ「送信する」ボタンを押してください。</p>
+        <div id="confirmationContent"></div>
+        <div class="button-group mt-4 text-center">
+          <button type="button" class="btn btn-secondary mr-3" onclick="handleBack()">修正する</button>
+          <button type="button" class="btn btn-primary" onclick="handleFinalSubmit()">送信する</button>
+        </div>
       </div>
 
-      <!-- メッセージ表示 -->
-      <div id="message" style="display:none;" class="alert"></div>
+      <!-- ローディング表示 -->
+      <div id="loading" style="display:none;" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <p class="mt-2">処理中...</p>
+      </div>
     </main>
   </div>
 

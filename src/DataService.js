@@ -45,31 +45,31 @@ function findHouseholdByEmail(email) {
   // 保護者シートから検索
   const guardianSheet = getGuardianSheet();
   const guardianData = guardianSheet.getDataRange().getValues();
-  
+
   for (let i = 1; i < guardianData.length; i++) {
     const row = guardianData[i];
     const householdId = row[0];
     const contactEmail = row[11]; // 連絡用メール
-    
+
     if (contactEmail === email) {
       return getHouseholdData(householdId);
     }
   }
-  
+
   // 生徒シートから検索
   const studentSheet = getStudentSheet();
   const studentData = studentSheet.getDataRange().getValues();
-  
+
   for (let i = 1; i < studentData.length; i++) {
     const row = studentData[i];
     const householdId = row[0];
     const contactEmail = row[8]; // 連絡用メール
-    
+
     if (contactEmail === email) {
       return getHouseholdData(householdId);
     }
   }
-  
+
   return null;
 }
 
@@ -82,7 +82,7 @@ function getHouseholdData(householdId) {
   const household = getHouseholdRecord(householdId);
   const guardians = getGuardiansByHousehold(householdId);
   const students = getStudentsByHousehold(householdId);
-  
+
   return {
     household: household,
     guardians: guardians,
@@ -98,7 +98,7 @@ function getHouseholdData(householdId) {
 function getHouseholdRecord(householdId) {
   const sheet = getHouseholdSheet();
   const data = sheet.getDataRange().getValues();
-  
+
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
     if (row[0] === householdId) {
@@ -118,7 +118,7 @@ function getHouseholdRecord(householdId) {
       };
     }
   }
-  
+
   return null;
 }
 
@@ -131,7 +131,7 @@ function getGuardiansByHousehold(householdId) {
   const sheet = getGuardianSheet();
   const data = sheet.getDataRange().getValues();
   const guardians = [];
-  
+
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
     if (row[0] === householdId) {
@@ -150,12 +150,20 @@ function getGuardiansByHousehold(householdId) {
         email: row[11],
         meetingEmail: row[12],
         mobilePhone: row[13],
-        homePhone: row[14]
+        homePhone: row[14],
+        postalCode: row[15],
+        prefecture: row[16],
+        city: row[17],
+        street: row[18],
+        building: row[19],
+        version: row[20],
+        deleted: row[21]
       });
     }
   }
-  
-  return guardians;
+
+  // 最新バージョンかつ削除されていないレコードのみを返す
+  return filterLatestRecords(guardians, 'guardianId');
 }
 
 /**
@@ -167,7 +175,7 @@ function getStudentsByHousehold(householdId) {
   const sheet = getStudentSheet();
   const data = sheet.getDataRange().getValues();
   const students = [];
-  
+
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
     if (row[0] === householdId) {
@@ -188,12 +196,15 @@ function getStudentsByHousehold(householdId) {
         prefecture: row[13],
         city: row[14],
         street: row[15],
-        building: row[16]
+        building: row[16],
+        version: row[17],
+        deleted: row[18]
       });
     }
   }
-  
-  return students;
+
+  // 最新バージョンかつ削除されていないレコードのみを返す
+  return filterLatestRecords(students, 'studentId');
 }
 
 /**
@@ -206,7 +217,7 @@ function saveHouseholdData(formData) {
   const editCode = generateEditCode();
   const now = getCurrentDateTime();
   const nowStr = formatDateTime(now);
-  
+
   // 世帯マスタに保存
   saveHouseholdRecord({
     householdId: householdId,
@@ -222,17 +233,17 @@ function saveHouseholdData(formData) {
     notes: formData.household.notes,
     integrationStatus: ''
   });
-  
+
   // 保護者を保存
   formData.guardians.forEach(guardian => {
     saveGuardianRecord(householdId, guardian);
   });
-  
+
   // 生徒を保存
   formData.students.forEach(student => {
     saveStudentRecord(householdId, student);
   });
-  
+
   return {
     success: true,
     householdId: householdId,
@@ -244,8 +255,10 @@ function saveHouseholdData(formData) {
  * 世帯レコードを保存
  * @param {object} household - 世帯データ
  */
-function saveHouseholdRecord(household) {
+function saveHouseholdRecord(household, userEmail, version) {
   const sheet = getHouseholdSheet();
+  const now = formatDateTime(getCurrentDateTime());
+
   sheet.appendRow([
     household.householdId,
     household.coreHouseholdId,
@@ -258,7 +271,11 @@ function saveHouseholdRecord(household) {
     household.street,
     household.building,
     household.notes,
-    household.integrationStatus
+    household.integrationStatus,
+    version || 1, // バージョン
+    false, // 削除フラグ
+    now, // 更新日時
+    userEmail || household.guardians[0].email // 更新者メール
   ]);
 }
 
@@ -267,10 +284,11 @@ function saveHouseholdRecord(household) {
  * @param {string} householdId - 世帯登録番号
  * @param {object} guardian - 保護者データ
  */
-function saveGuardianRecord(householdId, guardian) {
+function saveGuardianRecord(householdId, guardian, userEmail, version) {
   const sheet = getGuardianSheet();
-  const guardianId = generateGuardianId();
-  
+  const guardianId = guardian.guardianId || generateGuardianId();
+  const now = formatDateTime(getCurrentDateTime());
+
   sheet.appendRow([
     householdId,
     guardianId,
@@ -286,19 +304,33 @@ function saveGuardianRecord(householdId, guardian) {
     guardian.email,
     guardian.meetingEmail || '',
     guardian.mobilePhone || '',
-    guardian.homePhone || ''
+    guardian.homePhone || '',
+    guardian.postalCode || '',
+    guardian.prefecture || '',
+    normalizeAddress(guardian.city || ''),
+    normalizeAddress(guardian.street || ''),
+    normalizeAddress(guardian.building || ''),
+    version || 1, // バージョン
+    false, // 削除フラグ
+    now, // 更新日時
+    userEmail || guardian.email // 更新者メール
   ]);
+
+  return guardianId;
 }
 
 /**
  * 生徒レコードを保存
  * @param {string} householdId - 世帯登録番号
  * @param {object} student - 生徒データ
+ * @param {string} userEmail - 更新者メールアドレス
+ * @param {number} version - バージョン番号
  */
-function saveStudentRecord(householdId, student) {
+function saveStudentRecord(householdId, student, userEmail, version) {
   const sheet = getStudentSheet();
-  const studentId = generateStudentId();
-  
+  const studentId = student.studentId || generateStudentId();
+  const now = formatDateTime(getCurrentDateTime());
+
   sheet.appendRow([
     householdId,
     studentId,
@@ -311,11 +343,98 @@ function saveStudentRecord(householdId, student) {
     student.email,
     student.classEmail || '',
     student.mobilePhone || '',
-    student.addressFlag || 'ご自宅と同じ',
+    student.postalCode ? '別の住所' : 'ご自宅と同じ',
     student.postalCode || '',
     student.prefecture || '',
     normalizeAddress(student.city || ''),
     normalizeAddress(student.street || ''),
-    normalizeAddress(student.building || '')
+    normalizeAddress(student.building || ''),
+    version || 1, // バージョン
+    false, // 削除フラグ
+    now, // 更新日時
+    userEmail || student.email // 更新者メール
   ]);
+
+  return studentId;
 }
+
+/**
+ * 指定されたIDの最新バージョン番号を取得
+ * @param {string} sheetName - シート名
+ * @param {number} idColumn - ID列のインデックス
+ * @param {string} id - 検索するID
+ * @return {number} 最新バージョン番号（見つからない場合は0）
+ */
+function getLatestVersion(sheetName, idColumn, id) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(sheetName);
+  const data = sheet.getDataRange().getValues();
+  let maxVersion = 0;
+
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    if (row[idColumn] === id) {
+      const version = row[row.length - 4]; // バージョン列（後ろから4番目）
+      if (version > maxVersion) {
+        maxVersion = version;
+      }
+    }
+  }
+
+  return maxVersion;
+}
+
+/**
+ * 最新バージョンかつ削除されていないレコードのみをフィルタ
+ * @param {Array} records - レコード配列
+ * @param {string} idField - ID フィールド名
+ * @return {Array} フィルタされたレコード配列
+ */
+function filterLatestRecords(records, idField) {
+  const latestRecords = {};
+
+  records.forEach(record => {
+    const id = record[idField];
+    const version = record.version;
+    const deleted = record.deleted;
+
+    if (!deleted && (!latestRecords[id] || latestRecords[id].version < version)) {
+      latestRecords[id] = record;
+    }
+  });
+
+  return Object.values(latestRecords);
+}
+
+/**
+ * レコードを論理削除（削除フラグを立てた新バージョンを追加）
+ * @param {string} sheetName - シート名
+ * @param {number} idColumn - ID列のインデックス
+ * @param {string} id - 削除するレコードのID
+ * @param {string} userEmail - 更新者のメールアドレス
+ */
+function markAsDeleted(sheetName, idColumn, id, userEmail) {
+  const latestVersion = getLatestVersion(sheetName, idColumn, id);
+  const newVersion = latestVersion + 1;
+  const now = formatDateTime(getCurrentDateTime());
+
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(sheetName);
+  const data = sheet.getDataRange().getValues();
+
+  // 最新バージョンのレコードを見つける
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    if (row[idColumn] === id && row[row.length - 4] === latestVersion) {
+      // 既存データをコピーして新バージョンとして追加
+      const newRow = [...row];
+      newRow[newRow.length - 4] = newVersion; // バージョン
+      newRow[newRow.length - 3] = true; // 削除フラグ
+      newRow[newRow.length - 2] = now; // 更新日時
+      newRow[newRow.length - 1] = userEmail; // 更新者メール
+      sheet.appendRow(newRow);
+      break;
+    }
+  }
+}
+

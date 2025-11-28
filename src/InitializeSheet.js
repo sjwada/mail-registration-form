@@ -7,12 +7,12 @@
 
 function initializeSpreadsheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  
+
   // 3つのシートを作成（既存シートを削除する前に）
   createHouseholdSheet(ss);
   createGuardianSheet(ss);
   createStudentSheet(ss);
-  
+
   // 古いシートを削除（新しい3つのシート以外）
   const allSheets = ss.getSheets();
   const newSheetNames = ['世帯マスタ', '保護者', '生徒'];
@@ -21,7 +21,7 @@ function initializeSpreadsheet() {
       ss.deleteSheet(sheet);
     }
   });
-  
+
   Logger.log('Spreadsheetの初期化が完了しました');
 }
 
@@ -30,7 +30,7 @@ function initializeSpreadsheet() {
  */
 function createHouseholdSheet(ss) {
   const sheet = ss.insertSheet('世帯マスタ');
-  
+
   const headers = [
     '世帯登録番号',
     '基幹世帯ID',
@@ -43,14 +43,18 @@ function createHouseholdSheet(ss) {
     'ご自宅町名・番地・号',
     'ご自宅建物名・部屋番号',
     '備考',
-    '連携ステータス'
+    '連携ステータス',
+    'バージョン',
+    '削除フラグ',
+    '更新日時',
+    '更新者メール'
   ];
-  
+
   sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
   sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold');
   sheet.setFrozenRows(1);
   sheet.autoResizeColumns(1, headers.length);
-  
+
   Logger.log('世帯マスタシートを作成しました');
 }
 
@@ -59,7 +63,7 @@ function createHouseholdSheet(ss) {
  */
 function createGuardianSheet(ss) {
   const sheet = ss.insertSheet('保護者');
-  
+
   const headers = [
     '世帯登録番号',
     '保護者登録番号',
@@ -75,14 +79,23 @@ function createGuardianSheet(ss) {
     '連絡用メール',
     'オンライン面談用メール',
     '携帯電話番号',
-    '自宅電話番号'
+    '自宅電話番号',
+    '保護者郵便番号',
+    '保護者都道府県',
+    '保護者市区町村',
+    '保護者町名・番地・号',
+    '保護者建物名・部屋番号',
+    'バージョン',
+    '削除フラグ',
+    '更新日時',
+    '更新者メール'
   ];
-  
+
   sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
   sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold');
   sheet.setFrozenRows(1);
   sheet.autoResizeColumns(1, headers.length);
-  
+
   Logger.log('保護者シートを作成しました');
 }
 
@@ -91,7 +104,7 @@ function createGuardianSheet(ss) {
  */
 function createStudentSheet(ss) {
   const sheet = ss.insertSheet('生徒');
-  
+
   const headers = [
     '世帯登録番号',
     '生徒登録番号',
@@ -109,13 +122,17 @@ function createStudentSheet(ss) {
     '生徒都道府県',
     '生徒市区町村',
     '生徒町名・番地・号',
-    '生徒建物名・部屋番号'
+    '生徒建物名・部屋番号',
+    'バージョン',
+    '削除フラグ',
+    '更新日時',
+    '更新者メール'
   ];
-  
+
   sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
   sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold');
   sheet.setFrozenRows(1);
   sheet.autoResizeColumns(1, headers.length);
-  
+
   Logger.log('生徒シートを作成しました');
 }
