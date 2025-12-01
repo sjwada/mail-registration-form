@@ -122,23 +122,37 @@ function submitRegistration(formData) {
  * @return {object} 認証結果
  */
 function authenticateWithEditCode(email, editCode) {
+  Logger.log('authenticateWithEditCode called with: ' + email + ', ' + editCode);
   try {
     const householdData = findHouseholdByEmail(email);
+    Logger.log('findHouseholdByEmail result: ' + (householdData ? 'found' : 'null'));
 
     if (!householdData) {
+      Logger.log('Email not found');
       return {
         success: false,
         message: 'メールアドレスが見つかりませんでした。'
       };
     }
 
-    if (householdData.household.editCode !== editCode) {
+    if (!householdData.household) {
+      Logger.log('Household data is missing household object');
+       return {
+        success: false,
+        message: '世帯データが見つかりませんでした。'
+      };
+    }
+
+    Logger.log('Stored editCode: ' + householdData.household.editCode);
+    if (String(householdData.household.editCode) !== String(editCode)) {
+      Logger.log('Edit code mismatch');
       return {
         success: false,
         message: '編集コードが正しくありません。'
       };
     }
 
+    Logger.log('Authentication successful');
     return {
       success: true,
       message: '認証に成功しました。',
@@ -146,10 +160,10 @@ function authenticateWithEditCode(email, editCode) {
     };
 
   } catch (error) {
-    Logger.log('認証エラー: ' + error.toString());
+    Logger.log('認証エラー: ' + error.toString() + '\n' + error.stack);
     return {
       success: false,
-      message: 'エラーが発生しました。'
+      message: 'エラーが発生しました: ' + error.toString()
     };
   }
 }

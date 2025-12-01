@@ -88,7 +88,13 @@ export async function authenticateEdit() {
 
   try {
     const result = await runServerFunction('authenticateWithEditCode', email, editCode);
+    console.log('authenticateWithEditCode result:', result);
     showLoading(false);
+    
+    if (!result) {
+      throw new Error('サーバーからの応答がありません。');
+    }
+
     if (result.success) {
       loadHouseholdData(result.householdData);
       showMessage('認証に成功しました。', 'success');
@@ -97,6 +103,7 @@ export async function authenticateEdit() {
     }
   } catch (error) {
     showLoading(false);
+    console.error('Authentication error:', error);
     showMessage('エラーが発生しました: ' + error.message, 'danger');
   }
 }

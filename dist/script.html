@@ -552,7 +552,11 @@
       showLoading(true);
       try {
         const result = yield runServerFunction("authenticateWithEditCode", email, editCode);
+        console.log("authenticateWithEditCode result:", result);
         showLoading(false);
+        if (!result) {
+          throw new Error("\u30B5\u30FC\u30D0\u30FC\u304B\u3089\u306E\u5FDC\u7B54\u304C\u3042\u308A\u307E\u305B\u3093\u3002");
+        }
         if (result.success) {
           loadHouseholdData(result.householdData);
           showMessage("\u8A8D\u8A3C\u306B\u6210\u529F\u3057\u307E\u3057\u305F\u3002", "success");
@@ -561,6 +565,7 @@
         }
       } catch (error) {
         showLoading(false);
+        console.error("Authentication error:", error);
         showMessage("\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F: " + error.message, "danger");
       }
     });
