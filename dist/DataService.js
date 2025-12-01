@@ -42,16 +42,21 @@ function generateStudentId() {
  * @return {object|null} 世帯データ（見つからない場合はnull）
  */
 function findHouseholdByEmail(email) {
+  Logger.log('findHouseholdByEmail called with: ' + email);
   // 保護者シートから検索
   const guardianSheet = getGuardianSheet();
   const guardianData = guardianSheet.getDataRange().getValues();
+  Logger.log('Guardian sheet rows: ' + guardianData.length);
 
   for (let i = 1; i < guardianData.length; i++) {
     const row = guardianData[i];
     const householdId = row[0];
     const contactEmail = row[11]; // 連絡用メール
+    
+    // Logger.log('Checking guardian row ' + i + ': ' + contactEmail);
 
     if (contactEmail === email) {
+      Logger.log('Found in guardian sheet: ' + householdId);
       return getHouseholdData(householdId);
     }
   }
@@ -59,17 +64,22 @@ function findHouseholdByEmail(email) {
   // 生徒シートから検索
   const studentSheet = getStudentSheet();
   const studentData = studentSheet.getDataRange().getValues();
+  Logger.log('Student sheet rows: ' + studentData.length);
 
   for (let i = 1; i < studentData.length; i++) {
     const row = studentData[i];
     const householdId = row[0];
     const contactEmail = row[8]; // 連絡用メール
 
+    // Logger.log('Checking student row ' + i + ': ' + contactEmail);
+
     if (contactEmail === email) {
+      Logger.log('Found in student sheet: ' + householdId);
       return getHouseholdData(householdId);
     }
   }
 
+  Logger.log('Email not found in any sheet');
   return null;
 }
 
