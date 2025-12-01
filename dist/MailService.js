@@ -11,7 +11,7 @@
  */
 function sendConfirmationEmail(email, householdData, editCode) {
   const subject = `【${CONFIG.EMAIL_FROM_NAME}】登録完了のお知らせ`;
-  
+
   const body = `
 ご登録ありがとうございます。
 
@@ -28,7 +28,7 @@ ${formatHouseholdSummary(householdData)}
 
 ${CONFIG.EMAIL_FROM_NAME}
   `.trim();
-  
+
   GmailApp.sendEmail(email, subject, body);
   Logger.log(`確認メールを送信しました: ${email}`);
 }
@@ -39,7 +39,7 @@ ${CONFIG.EMAIL_FROM_NAME}
  */
 function sendAdminNotificationEmail(householdData) {
   const subject = `【新規登録】保護者情報が登録されました`;
-  
+
   const body = `
 新しい保護者情報が登録されました。
 
@@ -51,7 +51,7 @@ https://docs.google.com/spreadsheets/d/${CONFIG.SPREADSHEET_ID}/edit
 --------------------------------
 ${CONFIG.EMAIL_FROM_NAME}
   `.trim();
-  
+
   GmailApp.sendEmail(CONFIG.ADMIN_EMAIL, subject, body);
   Logger.log(`管理者通知メールを送信しました: ${CONFIG.ADMIN_EMAIL}`);
 }
@@ -63,9 +63,9 @@ ${CONFIG.EMAIL_FROM_NAME}
  */
 function sendEditNotificationEmails(guardians, updatedAt) {
   const subject = `【${CONFIG.EMAIL_FROM_NAME}】登録内容が変更されました`;
-  
+
   const updatedAtStr = formatDateTime(updatedAt);
-  
+
   const body = `
 登録内容が変更されました。
 
@@ -79,7 +79,7 @@ ${CONFIG.ADMIN_EMAIL}
 --------------------------------
 ${CONFIG.EMAIL_FROM_NAME}
   `.trim();
-  
+
   guardians.forEach(guardian => {
     if (guardian.email) {
       GmailApp.sendEmail(guardian.email, subject, body);
@@ -94,14 +94,14 @@ ${CONFIG.EMAIL_FROM_NAME}
  * @param {string} token - Magic Linkトークン
  */
 function sendMagicLinkEmail(email, token) {
- const expiryTime = new Date();
+  const expiryTime = new Date();
   expiryTime.setMinutes(expiryTime.getMinutes() + CONFIG.MAGIC_LINK_EXPIRY_MINUTES);
   const expiryTimeStr = formatDateTime(expiryTime);
-  
-  const magicLinkUrl = `${ScriptApp.getService().getUrl()}?edit=${token}&expires=${expiryTime.getTime()}`;
-  
+
+  const magicLinkUrl = `${CONFIG.DEPLOYMENT_URL}?edit=${token}&expires=${expiryTime.getTime()}`;
+
   const subject = `【${CONFIG.EMAIL_FROM_NAME}】編集リンクの送信`;
-  
+
   const body = `
 登録内容を編集するためのリンクです。
 
@@ -118,7 +118,7 @@ ${magicLinkUrl}
 
 ${CONFIG.EMAIL_FROM_NAME}
   `.trim();
-  
+
   GmailApp.sendEmail(email, subject, body);
   Logger.log(`Magic Linkを送信しました: ${email}`);
 }
@@ -130,19 +130,19 @@ ${CONFIG.EMAIL_FROM_NAME}
  */
 function formatHouseholdSummary(householdData) {
   let summary = '';
-  
+
   // 保護者
-  const guardianNames = householdData.guardians.map(g => 
+  const guardianNames = householdData.guardians.map(g =>
     `${g.lastName} ${g.firstName}様（${g.relationship}）`
   ).join('、');
   summary += `保護者: ${guardianNames}\n`;
-  
+
   // 生徒
-  const studentNames = householdData.students.map(s => 
+  const studentNames = householdData.students.map(s =>
     `${s.lastName} ${s.firstName}様（${s.graduationYear}年卒業予定）`
   ).join('、');
   summary += `生徒: ${studentNames}`;
-  
+
   return summary;
 }
 
@@ -153,7 +153,7 @@ function formatHouseholdSummary(householdData) {
  */
 function formatHouseholdDetail(householdData) {
   let detail = '';
-  
+
   // 世帯情報
   detail += `【世帯情報】\n`;
   detail += `世帯登録番号: ${householdData.household.householdId}\n`;
@@ -163,7 +163,7 @@ function formatHouseholdDetail(householdData) {
     detail += `      ${householdData.household.building}\n`;
   }
   detail += `\n`;
-  
+
   // 保護者
   detail += `【保護者】\n`;
   householdData.guardians.forEach((g, index) => {
@@ -174,7 +174,7 @@ function formatHouseholdDetail(householdData) {
     detail += `   携帯: ${g.mobilePhone || '未登録'}, 自宅: ${g.homePhone || '未登録'}\n`;
   });
   detail += `\n`;
-  
+
   // 生徒
   detail += `【生徒】\n`;
   householdData.students.forEach((s, index) => {
@@ -183,6 +183,6 @@ function formatHouseholdDetail(householdData) {
     detail += `   メール: ${s.email}\n`;
     detail += `   携帯: ${s.mobilePhone || '未登録'}\n`;
   });
-  
+
   return detail;
 }

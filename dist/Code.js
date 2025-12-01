@@ -110,7 +110,7 @@ function submitRegistration(formData) {
     Logger.log('登録エラー: ' + error.toString());
     return {
       success: false,
-      message: 'エラーが発生しました。時間をおいて再度お試しください。'
+      message: 'エラーが発生しました: ' + error.toString() + '\n' + error.stack
     };
   }
 }
@@ -252,8 +252,9 @@ function updateHouseholdData(householdId, formData) {
       return { success: false, message: validationResult.message };
     }
 
-    // 既存データを削除
-    deleteHouseholdData(householdId);
+    // 新しいバージョン番号を決定
+    const currentVersion = getLatestVersion('世帯マスタ', 0, householdId);
+    const newVersion = currentVersion + 1;
 
     // 新しいデータを保存（世帯登録番号は維持）
     const now = getCurrentDateTime();
@@ -274,16 +275,20 @@ function updateHouseholdData(householdId, formData) {
       building: normalizeAddress(formData.household.building),
       notes: formData.household.notes,
       integrationStatus: oldHousehold.integrationStatus
-    });
+    }, null, newVersion);
 
     // 保護者・生徒を保存
     formData.guardians.forEach(guardian => {
-      saveGuardianRecord(householdId, guardian);
+      saveGuardianRecord(householdId, guardian, null, newVersion);
     });
 
     formData.students.forEach(student => {
-      saveStudentRecord(householdId, student);
+      saveStudentRecord(householdId, student, null, newVersion);
     });
+
+    // 削除されたレコードの処理（今回のリストに含まれていないものを論理削除）
+    softDeleteGuardiansNotInList(householdId, formData.guardians, null, newVersion);
+    softDeleteStudentsNotInList(householdId, formData.students, null, newVersion);
 
     // 全保護者に変更通知メール送信
     sendEditNotificationEmails(formData.guardians, now);
@@ -302,41 +307,7 @@ function updateHouseholdData(householdId, formData) {
   }
 }
 
-/**
- * 世帯データを削除（保護者・生徒含む）
- * @param {string} householdId - 世帯登録番号
- */
-function deleteHouseholdData(householdId) {
-  // 世帯マスタから削除
-  deleteFromSheet(getHouseholdSheet(), householdId, 0);
 
-  // 保護者から削除
-  deleteFromSheet(getGuardianSheet(), householdId, 0);
-
-  // 生徒から削除
-  deleteFromSheet(getStudentSheet(), householdId, 0);
-}
-
-/**
- * シートから指定IDのデータを削除
- * @param {Sheet} sheet - シート
- * @param {string} value - 検索値
- * @param {number} columnIndex - 検索列のインデックス
- */
-function deleteFromSheet(sheet, value, columnIndex) {
-  const data = sheet.getDataRange().getValues();
-  const rowsToDelete = [];
-
-  for (let i = data.length - 1; i >= 1; i--) {
-    if (data[i][columnIndex] === value) {
-      rowsToDelete.push(i + 1);
-    }
-  }
-
-  rowsToDelete.forEach(row => {
-    sheet.deleteRow(row);
-  });
-}
 
 /**
  * フォームデータのバリデーション
@@ -349,13 +320,44 @@ function validateFormData(formData) {
     return { valid: false, message: '保護者を最低1人登録してください。' };
   }
 
-  // 保護者の電話番号チェック（携帯または自宅のどちらか必須）
+  // 保護者のバリデーション
+  const priorities = [];
   for (let guardian of formData.guardians) {
+    // 電話番号チェック（携帯または自宅のどちらか必須）
     if (!guardian.mobilePhone && !guardian.homePhone) {
       return {
         valid: false,
         message: '保護者の携帯電話番号または自宅電話番号のどちらか1つは必須です。'
       };
+    }
+
+    // 連絡優先順位の収集
+    if (guardian.contactPriority) {
+      priorities.push(guardian.contactPriority);
+    }
+
+    // 個別住所チェック
+    if (guardian.postalCode) {
+      if (!guardian.prefecture || !guardian.city || !guardian.street) {
+        return {
+          valid: false,
+          message: '個別の住所を登録する場合は、都道府県、市区町村、町名・番地・号は必須です。'
+        };
+      }
+    }
+  }
+
+  // 連絡優先順位の整合性チェック
+  if (formData.guardians.length > 1) {
+    const uniquePriorities = new Set(priorities);
+    if (uniquePriorities.size !== formData.guardians.length) {
+      return { valid: false, message: '保護者の連絡優先順位が重複しています。' };
+    }
+    // 1から人数分までの連番かチェック（簡易的）
+    for (let i = 1; i <= formData.guardians.length; i++) {
+      if (!priorities.includes(i)) {
+        return { valid: false, message: '保護者の連絡優先順位が正しくありません。' };
+      }
     }
   }
 
@@ -364,7 +366,18 @@ function validateFormData(formData) {
     return { valid: false, message: '生徒を最低1人登録してください。' };
   }
 
-  // その他のバリデーションは省略（フロントエンドでも実施）
+  // 生徒のバリデーション
+  for (let student of formData.students) {
+    // 個別住所チェック
+    if (student.postalCode) {
+      if (!student.prefecture || !student.city || !student.street) {
+        return {
+          valid: false,
+          message: '生徒の個別の住所を登録する場合は、都道府県、市区町村、町名・番地・号は必須です。'
+        };
+      }
+    }
+  }
 
   return { valid: true };
 }

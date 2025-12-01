@@ -12,46 +12,50 @@ const CONFIG = {
   SHEET_HOUSEHOLD: '世帯マスタ',
   SHEET_GUARDIAN: '保護者',
   SHEET_STUDENT: '生徒',
-  
+
   // ===========================================
   // アクセス制限設定
   // ===========================================
   // URLトークン（変更してください）
   ACCESS_TOKEN: 'mebio-parent-reg-2025-k7m3x9p4',
-  
+
   // 受付期間
   ALLOW_START_DATE: '2025-04-01',  // YYYY-MM-DD形式
   ALLOW_END_DATE: '2026-03-31',    // YYYY-MM-DD形式
-  
+
   // ===========================================
   // フォーム設定
   // ===========================================
   // 連絡手段フィールドの表示（true: 表示、false: 非表示）
   SHOW_CONTACT_METHOD_FIELD: false,
-  
+
   // 住所の通常時表示（true: 住所を表示、false: 「住所登録済み」とのみ表示）
   SHOW_ADDRESS_IN_NORMAL_MODE: false,
-  
+
   // ===========================================
   // メール設定
   // ===========================================
   // 管理者通知先メールアドレス
   ADMIN_EMAIL: 'wada@mebio-labo.com',
-  
+
   // 送信元名
   EMAIL_FROM_NAME: '医学部進学予備校メビオ 保護者登録システム',
-  
+
   // ===========================================
   // 郵便番号API設定
   // ===========================================
   POSTAL_CODE_API_URL: 'https://zipcloud.ibsnet.co.jp/api/search',
-  
+
   // ===========================================
   // Magic Link設定
   // ===========================================
   // Magic Linkの有効期限（分）
   MAGIC_LINK_EXPIRY_MINUTES: 30,
-  
+
+  // デプロイメントURL（テスト環境用）
+  // 本番環境では ScriptApp.getService().getUrl() を使用
+  DEPLOYMENT_URL: 'https://script.google.com/a/macros/mebio-labo.com/s/AKfycbxjBpp-0S2UfZv7eYJoh7e5AmLv0GIlQvYy6xiTB4TR-YweAlkbgFx8yhmGdCvOUp-m/exec',
+
   // ===========================================
   // システム連携設定（将来使用）
   // ===========================================

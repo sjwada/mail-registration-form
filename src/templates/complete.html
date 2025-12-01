@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登録完了</title>
+  <?!= include('style'); ?>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>✅ 登録完了</h1>
+      <p class="subtitle">ご登録ありがとうございました</p>
+    </header>
+
+    <main>
+      <section class="form-section success-section">
+        <div class="success-icon">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="#50C878" stroke-width="2" />
+            <path d="M8 12L11 15L16 9" stroke="#50C878" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </div>
+
+        <h2>登録が完了しました</h2>
+
+        <div class="alert alert-info">
+          <p><strong>確認メールを送信しました</strong></p>
+          <p>登録されたメールアドレス宛に確認メールをお送りしました。</p>
+          <p>メールが届かない場合は、迷惑メールフォルダをご確認ください。</p>
+        </div>
+
+        <!-- 編集コード表示 -->
+        <div class="edit-code-box">
+          <h3>📝 編集コード</h3>
+          <p class="edit-code-description">
+            登録内容を変更する際に必要です。大切に保管してください。
+          </p>
+          <div class="edit-code">
+            <?= editCode ?>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="copyEditCode()">
+            📋 コピーする
+          </button>
+        </div>
+
+        <!-- 登録内容サマリー -->
+        <div class="summary-box">
+          <h3>📋 登録内容</h3>
+          <div class="summary-item">
+            <strong>保護者:</strong>
+            <? guardians.forEach((g, i) => { ?>
+            <?= i > 0 ? '、' : '' ?>
+            <?= g.lastName ?>
+            <?= g.firstName ?>様（
+            <?= g.relationship ?>）
+            <? }); ?>
+          </div>
+          <div class="summary-item">
+            <strong>生徒:</strong>
+            <? students.forEach((s, i) => { ?>
+            <?= i > 0 ? '、' : '' ?>
+            <?= s.lastName ?>
+            <?= s.firstName ?>様（
+            <?= s.graduationYear ?>年卒業予定）
+            <? }); ?>
+          </div>
+        </div>
+
+        <!-- 次のステップ -->
+        <div class="next-steps">
+          <h3>📌 次のステップ</h3>
+          <ol>
+            <li>確認メールが届いているか確認してください</li>
+            <li>編集コードを安全な場所に保管してください</li>
+            <li>登録内容に変更がある場合は、編集コードを使って修正できます</li>
+          </ol>
+        </div>
+
+        <!-- お問い合わせ -->
+        <div class="contact-box">
+          <p>ご不明な点がございましたら、以下までお問い合わせください。</p>
+          <p><strong>
+              <?= config.adminEmail ?>
+            </strong></p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function copyEditCode() {
+      const editCode = '<?= editCode ?>';
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(editCode).then(function () {
+          alert('編集コードをコピーしました');
+        }).catch(function () {
+          fallbackCopy(editCode);
+        });
+      } else {
+        fallbackCopy(editCode);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+
+      try {
+        document.execCommand('copy');
+        alert('編集コードをコピーしました');
+      } catch (err) {
+        alert('コピーに失敗しました。手動でコピーしてください。');
+      }
+
+      document.body.removeChild(textarea);
+    }
+  </script>
+
+  <style>
+    .success-section {
+      text-align: center;
+    }
+
+    .success-icon {
+      margin: 20px 0;
+      animation: scaleIn 0.5s ease-out;
+    }
+
+    @keyframes scaleIn {
+      from {
+        transform: scale(0);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .edit-code-box {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: var(--radius);
+      margin: 30px 0;
+    }
+
+    .edit-code-box h3 {
+      color: white;
+      margin-bottom: 10px;
+    }
+
+    .edit-code-description {
+      margin-bottom: 15px;
+      opacity: 0.95;
+    }
+
+    .edit-code {
+      background: white;
+      color: var(--text-color);
+      font-size: 2rem;
+      font-weight: bold;
+      letter-spacing: 0.3em;
+      padding: 20px;
+      border-radius: var(--radius);
+      margin: 15px 0;
+      font-family: 'Courier New', monospace;
+    }
+
+    .summary-box {
+      background: var(--bg-light);
+      padding: 20px;
+      border-radius: var(--radius);
+      text-align: left;
+      margin: 20px 0;
+    }
+
+    .summary-box h3 {
+      color: var(--primary-color);
+      margin-bottom: 15px;
+    }
+
+    .summary-item {
+      margin: 10px 0;
+      line-height: 1.8;
+    }
+
+    .next-steps {
+      text-align: left;
+      background: white;
+      padding: 20px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin: 20px 0;
+    }
+
+    .next-steps h3 {
+      color: var(--primary-color);
+      margin-bottom: 15px;
+    }
+
+    .next-steps ol {
+      padding-left: 25px;
+    }
+
+    .next-steps li {
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+
+    .contact-box {
+      margin-top: 30px;
+      padding: 20px;
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      border-radius: var(--radius);
+    }
+
+    @media (max-width: 768px) {
+      .edit-code {
+        font-size: 1.5rem;
+        letter-spacing: 0.2em;
+      }
+    }
+  </style>
+</body>
+
+</html>

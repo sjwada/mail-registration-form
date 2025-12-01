@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    <?= config.emailFromName ?>
+  </title>
+  <?!= include('style'); ?>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>
+        <?= config.emailFromName ?>
+      </h1>
+      <p class="subtitle">保護者・生徒情報登録フォーム</p>
+    </header>
+
+    <main>
+      <form id="registrationForm">
+        <!-- モード選択 -->
+        <section class="form-section">
+          <h2>登録方法</h2>
+          <div class="radio-group">
+            <label>
+              <input type="radio" name="mode" value="new" <?=mode==='new' ? 'checked' : '' ?>>
+              新規登録
+            </label>
+            <label>
+              <input type="radio" name="mode" value="edit" <?=mode==='edit' ? 'checked' : '' ?>>
+              登録内容を編集
+            </label>
+          </div>
+        </section>
+
+        <!-- 編集認証セクション -->
+        <section id="editAuthSection" class="form-section" style="display: none;">
+          <h2>編集認証</h2>
+          <div class="form-group">
+            <label for="authEmail">メールアドレス <span class="required">*</span></label>
+            <input type="email" id="authEmail" class="form-control" placeholder="世帯内のいずれかのメールアドレス">
+            <small class="form-text">保護者・生徒のどなたのメールアドレスでも編集できます</small>
+          </div>
+          <div class="form-group">
+            <label for="editCode">編集コード(任意)</label>
+            <input type="text" id="editCode" class="form-control" placeholder="6桁の英数字" maxlength="6">
+            <small class="form-text">確認メールに記載されている編集コードを入力</small>
+          </div>
+          <div class="button-group">
+            <button type="button" class="btn btn-primary" onclick="authenticateEdit()">
+              編集コードで編集開始
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="requestMagicLink()">
+              編集リンクをメールで送信
+            </button>
+          </div>
+        </section>
+
+        <!-- ご自宅住所セクション -->
+        <section id="householdSection" class="form-section" <?=mode==='edit' ? '' : 'style="display:none;"' ?>>
+          <h2>📍 ご自宅住所</h2>
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label for="postalCode">郵便番号 <span class="required">*</span></label>
+              <input type="text" id="postalCode" class="form-control" placeholder="123-4567" maxlength="8" required
+                value="<?= household ? household.postalCode : '' ?>">
+              <button type="button" id="searchAddressBtn" class="btn btn-sm btn-secondary mt-1">住所検索</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-4">
+              <label for="prefecture">都道府県 <span class="required">*</span></label>
+              <select id="prefecture" class="form-control" required>
+                <option value="">選択してください</option>
+                <option value="北海道">北海道</option>
+                <option value="青森県">青森県</option>
+                <option value="岩手県">岩手県</option>
+                <option value="宮城県">宮城県</option>
+                <option value="秋田県">秋田県</option>
+                <option value="山形県">山形県</option>
+                <option value="福島県">福島県</option>
+                <option value="茨城県">茨城県</option>
+                <option value="栃木県">栃木県</option>
+                <option value="群馬県">群馬県</option>
+                <option value="埼玉県">埼玉県</option>
+                <option value="千葉県">千葉県</option>
+                <option value="東京都">東京都</option>
+                <option value="神奈川県">神奈川県</option>
+                <option value="新潟県">新潟県</option>
+                <option value="富山県">富山県</option>
+                <option value="石川県">石川県</option>
+                <option value="福井県">福井県</option>
+                <option value="山梨県">山梨県</option>
+                <option value="長野県">長野県</option>
+                <option value="岐阜県">岐阜県</option>
+                <option value="静岡県">静岡県</option>
+                <option value="愛知県">愛知県</option>
+                <option value="三重県">三重県</option>
+                <option value="滋賀県">滋賀県</option>
+                <option value="京都府">京都府</option>
+                <option value="大阪府">大阪府</option>
+                <option value="兵庫県">兵庫県</option>
+                <option value="奈良県">奈良県</option>
+                <option value="和歌山県">和歌山県</option>
+                <option value="鳥取県">鳥取県</option>
+                <option value="島根県">島根県</option>
+                <option value="岡山県">岡山県</option>
+                <option value="広島県">広島県</option>
+                <option value="山口県">山口県</option>
+                <option value="徳島県">徳島県</option>
+                <option value="香川県">香川県</option>
+                <option value="愛媛県">愛媛県</option>
+                <option value="高知県">高知県</option>
+                <option value="福岡県">福岡県</option>
+                <option value="佐賀県">佐賀県</option>
+                <option value="長崎県">長崎県</option>
+                <option value="熊本県">熊本県</option>
+                <option value="大分県">大分県</option>
+                <option value="宮崎県">宮崎県</option>
+                <option value="鹿児島県">鹿児島県</option>
+                <option value="沖縄県">沖縄県</option>
+              </select>
+            </div>
+            <div class="form-group col-md-8">
+              <label for="city">市区町村 <span class="required">*</span></label>
+              <input type="text" id="city" class="form-control" placeholder="横浜市青葉区" required
+                value="<?= household ? household.city : '' ?>">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="street">町名・番地・号 <span class="required">*</span></label>
+            <input type="text" id="street" class="form-control" placeholder="美しが丘1-2-3" required
+              value="<?= household ? household.street : '' ?>">
+          </div>
+          <div class="form-group">
+            <label for="building">建物名・部屋番号</label>
+            <input type="text" id="building" class="form-control" placeholder="○○マンション 101号室"
+              value="<?= household ? household.building : '' ?>">
+          </div>
+        </section>
+
+        <!-- 保護者情報セクション -->
+        <section id="guardiansSection" class="form-section" style="display:none;">
+          <h2>👨‍👩‍👧‍👦 保護者情報</h2>
+          <div id="guardiansList">
+            <!-- 保護者フォームが動的に追加される -->
+          </div>
+          <button type="button" class="btn btn-success" onclick="addGuardian()">
+            + 保護者を追加
+          </button>
+        </section>
+
+        <!-- 生徒情報セクション -->
+        <section id="studentsSection" class="form-section" style="display:none;">
+          <h2>👨‍🎓 生徒情報</h2>
+          <div id="studentsList">
+            <!-- 生徒フォームが動的に追加される -->
+          </div>
+          <button type="button" class="btn btn-success" onclick="addStudent()">
+            + 生徒を追加
+          </button>
+        </section>
+
+        <!-- 備考欄 -->
+        <section id="notesSection" class="form-section" style="display:none;">
+          <h2>📝 備考</h2>
+          <div class="form-group">
+            <textarea id="notes" class="form-control" rows="3"
+              placeholder="その他、お伝えしたいことがあればご記入ください"><?= household ? household.notes : '' ?></textarea>
+          </div>
+        </section>
+
+        <!-- メッセージ表示 -->
+        <div id="message" style="display:none;" class="alert"></div>
+
+        <!-- 送信ボタンセクション -->
+        <section id="submitSection" class="form-section text-center" style="display:none;">
+          <button type="submit" class="btn btn-primary btn-lg">登録内容を確認</button>
+        </section>
+      </form>
+
+      <!-- 確認画面セクション -->
+      <div id="confirmationSection" style="display:none;" class="fade-in">
+        <h2 class="text-center mb-4">登録内容の確認</h2>
+        <p class="text-center mb-4">以下の内容で登録します。よろしければ「送信する」ボタンを押してください。</p>
+        <div id="confirmationContent"></div>
+        <div class="button-group mt-4 text-center">
+          <button type="button" class="btn btn-secondary mr-3" onclick="handleBack()">修正する</button>
+          <button type="button" class="btn btn-primary" onclick="handleFinalSubmit()">送信する</button>
+        </div>
+      </div>
+
+      <!-- ローディング表示 -->
+      <div id="loading" style="display:none;" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <p class="mt-2">処理中...</p>
+      </div>
+    </main>
+  </div>
+
+  <?!= include('script'); ?>
+</body>
+
+</html>

@@ -232,7 +232,7 @@ function saveHouseholdData(formData) {
     building: normalizeAddress(formData.household.building),
     notes: formData.household.notes,
     integrationStatus: ''
-  });
+  }, formData.guardians[0].email);
 
   // 保護者を保存
   formData.guardians.forEach(guardian => {
@@ -254,8 +254,11 @@ function saveHouseholdData(formData) {
 /**
  * 世帯レコードを保存
  * @param {object} household - 世帯データ
+ * @param {string} userEmail - 更新者メールアドレス
+ * @param {number} version - バージョン番号
+ * @param {boolean} deleted - 削除フラグ
  */
-function saveHouseholdRecord(household, userEmail, version) {
+function saveHouseholdRecord(household, userEmail, version, deleted) {
   const sheet = getHouseholdSheet();
   const now = formatDateTime(getCurrentDateTime());
 
@@ -273,7 +276,7 @@ function saveHouseholdRecord(household, userEmail, version) {
     household.notes,
     household.integrationStatus,
     version || 1, // バージョン
-    false, // 削除フラグ
+    deleted || false, // 削除フラグ
     now, // 更新日時
     userEmail || household.guardians[0].email // 更新者メール
   ]);
@@ -283,8 +286,11 @@ function saveHouseholdRecord(household, userEmail, version) {
  * 保護者レコードを保存
  * @param {string} householdId - 世帯登録番号
  * @param {object} guardian - 保護者データ
+ * @param {string} userEmail - 更新者メール
+ * @param {number} version - バージョン
+ * @param {boolean} deleted - 削除フラグ
  */
-function saveGuardianRecord(householdId, guardian, userEmail, version) {
+function saveGuardianRecord(householdId, guardian, userEmail, version, deleted) {
   const sheet = getGuardianSheet();
   const guardianId = guardian.guardianId || generateGuardianId();
   const now = formatDateTime(getCurrentDateTime());
@@ -311,7 +317,7 @@ function saveGuardianRecord(householdId, guardian, userEmail, version) {
     normalizeAddress(guardian.street || ''),
     normalizeAddress(guardian.building || ''),
     version || 1, // バージョン
-    false, // 削除フラグ
+    deleted || false, // 削除フラグ
     now, // 更新日時
     userEmail || guardian.email // 更新者メール
   ]);
@@ -325,8 +331,9 @@ function saveGuardianRecord(householdId, guardian, userEmail, version) {
  * @param {object} student - 生徒データ
  * @param {string} userEmail - 更新者メールアドレス
  * @param {number} version - バージョン番号
+ * @param {boolean} deleted - 削除フラグ
  */
-function saveStudentRecord(householdId, student, userEmail, version) {
+function saveStudentRecord(householdId, student, userEmail, version, deleted) {
   const sheet = getStudentSheet();
   const studentId = student.studentId || generateStudentId();
   const now = formatDateTime(getCurrentDateTime());
@@ -350,7 +357,7 @@ function saveStudentRecord(householdId, student, userEmail, version) {
     normalizeAddress(student.street || ''),
     normalizeAddress(student.building || ''),
     version || 1, // バージョン
-    false, // 削除フラグ
+    deleted || false, // 削除フラグ
     now, // 更新日時
     userEmail || student.email // 更新者メール
   ]);
@@ -393,17 +400,18 @@ function getLatestVersion(sheetName, idColumn, id) {
 function filterLatestRecords(records, idField) {
   const latestRecords = {};
 
+  // 1. 各IDの最新バージョンを特定
   records.forEach(record => {
     const id = record[idField];
     const version = record.version;
-    const deleted = record.deleted;
 
-    if (!deleted && (!latestRecords[id] || latestRecords[id].version < version)) {
+    if (!latestRecords[id] || latestRecords[id].version < version) {
       latestRecords[id] = record;
     }
   });
 
-  return Object.values(latestRecords);
+  // 2. 削除フラグが立っているレコードを除外して配列に戻す
+  return Object.values(latestRecords).filter(record => !record.deleted);
 }
 
 /**
@@ -436,5 +444,66 @@ function markAsDeleted(sheetName, idColumn, id, userEmail) {
       break;
     }
   }
+}
+
+/**
+ * 指定された保護者リストに含まれない保護者を論理削除
+ * @param {string} householdId - 世帯ID
+ * @param {Array} currentGuardians - 現在（更新後）の保護者リスト
+ * @param {string} userEmail - 更新者メール
+ * @param {number} newVersion - 新しいバージョン番号
+ */
+function softDeleteGuardiansNotInList(householdId, currentGuardians, userEmail, newVersion) {
+  const existingGuardians = getGuardiansByHousehold(householdId);
+  const currentGuardianIds = currentGuardians.map(g => g.guardianId).filter(id => id);
+
+  existingGuardians.forEach(existing => {
+    if (!currentGuardianIds.includes(existing.guardianId)) {
+      // 削除された保護者として保存
+      saveGuardianRecord(householdId, existing, userEmail, newVersion, true);
+    }
+  });
+}
+
+/**
+ * 指定された生徒リストに含まれない生徒を論理削除
+ * @param {string} householdId - 世帯ID
+ * @param {Array} currentStudents - 現在（更新後）の生徒リスト
+ * @param {string} userEmail - 更新者メール
+ * @param {number} newVersion - 新しいバージョン番号
+ */
+function softDeleteStudentsNotInList(householdId, currentStudents, userEmail, newVersion) {
+  const existingStudents = getStudentsByHousehold(householdId);
+  const currentStudentIds = currentStudents.map(s => s.studentId).filter(id => id);
+
+  existingStudents.forEach(existing => {
+    if (!currentStudentIds.includes(existing.studentId)) {
+      // 削除された生徒として保存
+      saveStudentRecord(householdId, existing, userEmail, newVersion, true);
+    }
+  });
+}
+
+/**
+ * 世帯の全バージョン履歴を取得（デバッグ用）
+ * @param {string} householdId - 世帯ID
+ * @return {Array} 履歴データ
+ */
+function getHouseholdVersions(householdId) {
+  const sheet = getHouseholdSheet();
+  const data = sheet.getDataRange().getValues();
+  const versions = [];
+
+  for (let i = 1; i < data.length; i++) {
+    const row = data[i];
+    if (row[0] === householdId) {
+      versions.push({
+        version: row[12],
+        deleted: row[13],
+        updatedAt: row[14]
+      });
+    }
+  }
+  return versions.sort((a, b) => b.version - a.version);
 }
 

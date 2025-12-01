@@ -1,0 +1,23 @@
+{
+  "name": "mail-registration-form",
+  "version": "1.0.0",
+  "description": "Google Apps Script (GAS) を使用した保護者・生徒情報登録フォームシステム",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "build": "node build.js",
+    "push": "npm run build && clasp push",
+    "deploy": "npm run build && clasp push && clasp deploy",
+    "watch": "nodemon --watch src --exec 'npm run build'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/google-apps-script": "^2.0.8",
+    "@types/jest": "^30.0.0",
+    "esbuild": "^0.27.0",
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.11"
+  }
+}
