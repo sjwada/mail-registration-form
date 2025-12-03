@@ -558,7 +558,15 @@
           throw new Error("\u30B5\u30FC\u30D0\u30FC\u304B\u3089\u306E\u5FDC\u7B54\u304C\u3042\u308A\u307E\u305B\u3093\u3002");
         }
         if (result.success) {
-          loadHouseholdData(result.householdData);
+          let data = result.householdData;
+          if (typeof data === "string") {
+            try {
+              data = JSON.parse(data);
+            } catch (e) {
+              console.error("Failed to parse householdData JSON:", e);
+            }
+          }
+          loadHouseholdData(data);
           showMessage("\u8A8D\u8A3C\u306B\u6210\u529F\u3057\u307E\u3057\u305F\u3002", "success");
         } else {
           showMessage(result.message, "danger");

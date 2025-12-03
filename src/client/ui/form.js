@@ -96,7 +96,16 @@ export async function authenticateEdit() {
     }
 
     if (result.success) {
-      loadHouseholdData(result.householdData);
+      let data = result.householdData;
+      // データがJSON文字列の場合はパースしてオブジェクトに戻します
+      if (typeof data === 'string') {
+        try {
+          data = JSON.parse(data);
+        } catch (e) {
+          console.error('Failed to parse householdData JSON:', e);
+        }
+      }
+      loadHouseholdData(data);
       showMessage('認証に成功しました。', 'success');
     } else {
       showMessage(result.message, 'danger');

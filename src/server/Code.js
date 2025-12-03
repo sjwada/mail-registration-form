@@ -153,10 +153,15 @@ function authenticateWithEditCode(email, editCode) {
     }
 
     Logger.log('Authentication successful');
+    
+    // データをクライアントに送れる形式（JSON文字列）に変換します
+    // これにより、GAS特有のシリアライズ問題を回避しています
+    const cleanHouseholdData = JSON.parse(JSON.stringify(householdData));
+
     return {
       success: true,
       message: '認証に成功しました。',
-      householdData: householdData
+      householdData: JSON.stringify(cleanHouseholdData)
     };
 
   } catch (error) {
