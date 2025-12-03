@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 
 <head>
@@ -26,7 +26,7 @@
           <h2>登録方法</h2>
           <div class="radio-group">
             <label>
-              <input type="radio" name="mode" value="new" <?=mode==='new' ? 'checked' : '' ?>>
+              <input type="radio" name="mode" value="new" <?!=mode==='new' ? 'checked' : '' ?>>
               新規登録
             </label>
             <label>
@@ -60,7 +60,7 @@
         </section>
 
         <!-- ご自宅住所セクション -->
-        <section id="householdSection" class="form-section" <?=mode==='edit' ? '' : 'style="display:none;"' ?>>
+        <section id="householdSection" class="form-section" <?!=mode==='edit' ? '' : 'style="display:none;"' ?>>
           <h2>📍 ご自宅住所</h2>
           <div class="form-row">
             <div class="form-group col-md-4">
