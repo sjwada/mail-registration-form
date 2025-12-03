@@ -23,17 +23,7 @@ export function addStudent(data = null) {
       <div class="form-row">
 
 
-function generateYearOptions(selectedYear) {
-  const currentYear = new Date().getFullYear();
-  const years = [];
-  for (let i = -5; i <= 10; i++) {
-    const year = currentYear + i;
-    // Use loose equality to match number/string
-    const selected = selectedYear && selectedYear == year ? 'selected' : '';
-    years.push(`<option value="${year}" ${selected}>${year}年</option>`);
-  }
-  return years.join('');
-}
+
         <div class="form-group col-md-6">
           <label>姓 <span class="required">*</span></label>
           <input type="text" class="form-control" name="s_last_name_${id}" value="${data ? data.lastName : ''}" required>

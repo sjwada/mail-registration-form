@@ -116,6 +116,7 @@
     const hasSeparateAddress = data && (data.postalCode || data.prefecture || data.city || data.street);
     const html = `
     <div class="guardian-card fade-in" id="${id}">
+      <input type="hidden" name="guardianId_${id}" value="${data ? data.guardianId || "" : ""}">
       <div class="card-header">
         <h3>\u4FDD\u8B77\u8005${guardianCount}</h3>
         ${guardianCount > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn" data-remove-guardian="${id}">\u524A\u9664</button>` : ""}
@@ -322,12 +323,16 @@
     const hasSeparateAddress = data && (data.postalCode || data.prefecture || data.city || data.street);
     const html = `
     <div class="student-card fade-in" id="${id}">
+      <input type="hidden" name="studentId_${id}" value="${data ? data.studentId || "" : ""}">
       <div class="card-header">
         <h3>\u751F\u5F92${studentCount}</h3>
         ${studentCount > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn" data-remove-student="${id}">\u524A\u9664</button>` : ""}
       </div>
       
       <div class="form-row">
+
+
+
         <div class="form-group col-md-6">
           <label>\u59D3 <span class="required">*</span></label>
           <input type="text" class="form-control" name="s_last_name_${id}" value="${data ? data.lastName : ""}" required>
@@ -428,7 +433,7 @@
     const years = [];
     for (let i = -5; i <= 10; i++) {
       const year = currentYear + i;
-      const selected = selectedYear && selectedYear === year.toString() ? "selected" : "";
+      const selected = selectedYear && selectedYear == year ? "selected" : "";
       years.push(`<option value="${year}" ${selected}>${year}\u5E74</option>`);
     }
     return years.join("");
@@ -619,6 +624,7 @@
     store.setState({ mode: "edit" });
     if (householdData.household) {
       const h = householdData.household;
+      store.setState({ householdId: h.householdId });
       document.getElementById("postalCode").value = h.postalCode || "";
       document.getElementById("prefecture").value = h.prefecture || "";
       document.getElementById("city").value = h.city || "";
@@ -661,6 +667,8 @@
         return el ? el.value : "";
       };
       formData.guardians.push({
+        guardianId: getVal(`guardianId_${id}`),
+        // Collect hidden ID
         relationship: getVal(`relationship_${id}`),
         contactPriority: parseInt(getVal(`priority_${id}`)),
         contactMethod: getVal(`contact_method_${id}`),
@@ -687,6 +695,8 @@
         return el ? el.value : "";
       };
       formData.students.push({
+        studentId: getVal(`studentId_${id}`),
+        // Collect hidden ID
         lastName: getVal(`s_last_name_${id}`),
         firstName: getVal(`s_first_name_${id}`),
         lastNameKana: getVal(`s_last_name_kana_${id}`),
@@ -716,11 +726,19 @@
       const formData = collectFormData();
       showLoading(true);
       try {
-        const result = yield runServerFunction("submitRegistration", formData);
+        const state = store.getState();
+        let result;
+        if (state.mode === "edit") {
+          if (!state.householdId) {
+            throw new Error("\u4E16\u5E2FID\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093\u3002");
+          }
+          result = yield runServerFunction("updateHouseholdData", state.householdId, formData);
+        } else {
+          result = yield runServerFunction("submitRegistration", formData);
+        }
         showLoading(false);
         if (result.success) {
           showMessage(result.message, "success");
-          window.top.location.href = result.redirectUrl || "complete";
         } else {
           showMessage(result.message, "danger");
         }
