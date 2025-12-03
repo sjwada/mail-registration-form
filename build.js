@@ -30,16 +30,21 @@ async function build() {
 
   // Copy server-side files
   if (fs.existsSync('src/server')) {
-      const serverFiles = fs.readdirSync('src/server');
-      serverFiles.forEach(file => {
-        if (file.endsWith('.js') || file.endsWith('.json')) {
-            fs.copyFileSync(
-            path.join('src/server', file),
-            path.join('dist', file)
-            );
-        }
-      });
-      console.log(`📂 Copied ${serverFiles.length} server files to dist/`);
+      const copyRecursive = (dir) => {
+          const files = fs.readdirSync(dir);
+          files.forEach(file => {
+              const filePath = path.join(dir, file);
+              const stat = fs.statSync(filePath);
+              if (stat.isDirectory()) {
+                  copyRecursive(filePath);
+              } else if (file.endsWith('.js') || file.endsWith('.json')) {
+                  // Flatten structure: copy all server js files to root of dist
+                  fs.copyFileSync(filePath, path.join('dist', file));
+              }
+          });
+      };
+      copyRecursive('src/server');
+      console.log(`📂 Copied server files to dist/`);
   }
 
   // Copy HTML templates

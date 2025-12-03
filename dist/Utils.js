@@ -126,3 +126,12 @@ function isAccessPeriodValid() {
 function isValidToken(token) {
   return token === CONFIG.ACCESS_TOKEN;
 }
+
+/**
+ * HTMLテンプレート内で別のファイルをインクルードするための関数
+ * @param {string} filename - ファイル名
+ * @return {string} ファイルの内容
+ */
+function include(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename).getContent();
+}
