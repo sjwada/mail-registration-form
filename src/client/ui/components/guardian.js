@@ -14,6 +14,7 @@ export function addGuardian(data = null) {
 
   const html = `
     <div class="guardian-card fade-in" id="${id}">
+      <input type="hidden" name="guardianId_${id}" value="${data ? data.guardianId || '' : ''}">
       <div class="card-header">
         <h3>保護者${guardianCount}</h3>
         ${guardianCount > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn" data-remove-guardian="${id}">削除</button>` : ''}

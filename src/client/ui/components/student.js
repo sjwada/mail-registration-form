@@ -14,12 +14,26 @@ export function addStudent(data = null) {
 
   const html = `
     <div class="student-card fade-in" id="${id}">
+      <input type="hidden" name="studentId_${id}" value="${data ? data.studentId || '' : ''}">
       <div class="card-header">
         <h3>生徒${studentCount}</h3>
         ${studentCount > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn" data-remove-student="${id}">削除</button>` : ''}
       </div>
       
       <div class="form-row">
+
+
+function generateYearOptions(selectedYear) {
+  const currentYear = new Date().getFullYear();
+  const years = [];
+  for (let i = -5; i <= 10; i++) {
+    const year = currentYear + i;
+    // Use loose equality to match number/string
+    const selected = selectedYear && selectedYear == year ? 'selected' : '';
+    years.push(`<option value="${year}" ${selected}>${year}年</option>`);
+  }
+  return years.join('');
+}
         <div class="form-group col-md-6">
           <label>姓 <span class="required">*</span></label>
           <input type="text" class="form-control" name="s_last_name_${id}" value="${data ? data.lastName : ''}" required>
@@ -132,7 +146,7 @@ function generateYearOptions(selectedYear) {
   const years = [];
   for (let i = -5; i <= 10; i++) {
     const year = currentYear + i;
-    const selected = selectedYear && selectedYear === year.toString() ? 'selected' : '';
+    const selected = selectedYear && selectedYear == year ? 'selected' : '';
     years.push(`<option value="${year}" ${selected}>${year}年</option>`);
   }
   return years.join('');

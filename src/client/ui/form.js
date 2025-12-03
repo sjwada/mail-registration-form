@@ -144,6 +144,9 @@ export async function requestMagicLink() {
 // ============================================
 // Data Loading
 // ============================================
+// ============================================
+// Data Loading
+// ============================================
 export function loadHouseholdData(householdData) {
   // Hide auth section and mode selection
   const editAuthSection = document.getElementById('editAuthSection');
@@ -172,6 +175,9 @@ export function loadHouseholdData(householdData) {
   // Household info
   if (householdData.household) {
     const h = householdData.household;
+    // Store householdId in state for update
+    store.setState({ householdId: h.householdId });
+    
     document.getElementById('postalCode').value = h.postalCode || '';
     document.getElementById('prefecture').value = h.prefecture || '';
     document.getElementById('city').value = h.city || '';
@@ -225,6 +231,7 @@ export function collectFormData() {
     };
 
     formData.guardians.push({
+      guardianId: getVal(`guardianId_${id}`), // Collect hidden ID
       relationship: getVal(`relationship_${id}`),
       contactPriority: parseInt(getVal(`priority_${id}`)),
       contactMethod: getVal(`contact_method_${id}`),
@@ -253,6 +260,7 @@ export function collectFormData() {
     };
 
     formData.students.push({
+      studentId: getVal(`studentId_${id}`), // Collect hidden ID
       lastName: getVal(`s_last_name_${id}`),
       firstName: getVal(`s_first_name_${id}`),
       lastNameKana: getVal(`s_last_name_kana_${id}`),
@@ -286,12 +294,25 @@ export async function handleSubmit(e) {
   showLoading(true);
 
   try {
-    const result = await runServerFunction('submitRegistration', formData);
+    const state = store.getState();
+    let result;
+
+    if (state.mode === 'edit') {
+      if (!state.householdId) {
+        throw new Error('世帯IDが見つかりません。');
+      }
+      // Call update function in edit mode
+      result = await runServerFunction('updateHouseholdData', state.householdId, formData);
+    } else {
+      // Call submit function in new mode
+      result = await runServerFunction('submitRegistration', formData);
+    }
+
     showLoading(false);
     if (result.success) {
       showMessage(result.message, 'success');
       // Redirect to complete page (implementation pending)
-      window.top.location.href = result.redirectUrl || 'complete'; 
+      // window.top.location.href = result.redirectUrl || 'complete'; 
     } else {
       showMessage(result.message, 'danger');
     }
