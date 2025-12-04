@@ -82,12 +82,13 @@ function saveStudentRecord(householdId, student, userEmail, version, deleted) {
   const now = formatDateTime(getCurrentDateTime());
 
   const nextRow = sheet.getLastRow() + 1;
+  
   // 携帯電話(K列: 11番目)の書式をテキストに設定
   sheet.getRange(nextRow, 11).setNumberFormat('@');
   // 郵便番号(M列: 13番目)の書式をテキストに設定
   sheet.getRange(nextRow, 13).setNumberFormat('@');
 
-  sheet.appendRow([
+  const rowData = [
     householdId,
     studentId,
     '', // 基幹生徒ID
@@ -109,7 +110,9 @@ function saveStudentRecord(householdId, student, userEmail, version, deleted) {
     deleted || false, // 削除フラグ
     now, // 更新日時
     userEmail || student.email // 更新者メール
-  ]);
+  ];
+
+  sheet.getRange(nextRow, 1, 1, rowData.length).setValues([rowData]);
 
   return studentId;
 }

@@ -138,10 +138,11 @@ function saveHouseholdRecord(household, userEmail, version, deleted) {
   const now = formatDateTime(getCurrentDateTime());
 
   const nextRow = sheet.getLastRow() + 1;
+  
   // 郵便番号(F列: 6番目)の書式をテキストに設定
   sheet.getRange(nextRow, 6).setNumberFormat('@');
 
-  sheet.appendRow([
+  const rowData = [
     household.householdId,
     household.coreHouseholdId,
     household.registeredAt,
@@ -158,7 +159,9 @@ function saveHouseholdRecord(household, userEmail, version, deleted) {
     deleted || false, // 削除フラグ
     now, // 更新日時
     userEmail || (household.guardians && household.guardians[0] ? household.guardians[0].email : '') // 更新者メール
-  ]);
+  ];
+
+  sheet.getRange(nextRow, 1, 1, rowData.length).setValues([rowData]);
 }
 
 /**

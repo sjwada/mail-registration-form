@@ -85,10 +85,11 @@ function saveGuardianRecord(householdId, guardian, userEmail, version, deleted) 
   const now = formatDateTime(getCurrentDateTime());
 
   const nextRow = sheet.getLastRow() + 1;
+  
   // 携帯電話(N列: 14番目)、自宅電話(O列: 15番目)、郵便番号(P列: 16番目)の書式をテキストに設定
   sheet.getRange(nextRow, 14, 1, 3).setNumberFormat('@');
 
-  sheet.appendRow([
+  const rowData = [
     householdId,
     guardianId,
     '', // 基幹保護者ID
@@ -113,7 +114,9 @@ function saveGuardianRecord(householdId, guardian, userEmail, version, deleted) 
     deleted || false, // 削除フラグ
     now, // 更新日時
     userEmail || guardian.email // 更新者メール
-  ]);
+  ];
+
+  sheet.getRange(nextRow, 1, 1, rowData.length).setValues([rowData]);
 
   return guardianId;
 }
