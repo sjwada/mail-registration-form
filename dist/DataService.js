@@ -189,78 +189,105 @@ function validateFormData(formData) {
  * 変更があるかチェックする
  */
 function checkForChanges(formData, oldHousehold, oldGuardians, oldStudents) {
+  const normalizeStr = (val) => String(val || '').trim();
+  const normalizePhone = (val) => String(val || '').replace(/-/g, '').trim();
+
   // 1. 世帯情報の比較
   if (
-    String(formData.household.postalCode || '') !== String(oldHousehold.postalCode || '') ||
-    String(formData.household.prefecture || '') !== String(oldHousehold.prefecture || '') ||
-    normalizeAddress(formData.household.city || '') !== normalizeAddress(oldHousehold.city || '') ||
-    normalizeAddress(formData.household.street || '') !== normalizeAddress(oldHousehold.street || '') ||
-    normalizeAddress(formData.household.building || '') !== normalizeAddress(oldHousehold.building || '') ||
-    String(formData.household.notes || '') !== String(oldHousehold.notes || '')
+    normalizePhone(formData.household.postalCode) !== normalizePhone(oldHousehold.postalCode) ||
+    normalizeStr(formData.household.prefecture) !== normalizeStr(oldHousehold.prefecture) ||
+    normalizeAddress(normalizeStr(formData.household.city)) !== normalizeAddress(normalizeStr(oldHousehold.city)) ||
+    normalizeAddress(normalizeStr(formData.household.street)) !== normalizeAddress(normalizeStr(oldHousehold.street)) ||
+    normalizeAddress(normalizeStr(formData.household.building)) !== normalizeAddress(normalizeStr(oldHousehold.building)) ||
+    normalizeStr(formData.household.notes) !== normalizeStr(oldHousehold.notes)
   ) {
+    Logger.log('Household change detected');
     return true;
   }
 
   // 2. 保護者の比較
-  // 数が違うなら変更あり
-  if (formData.guardians.length !== oldGuardians.length) return true;
+  if (formData.guardians.length !== oldGuardians.length) {
+    Logger.log('Guardian count change: new=' + formData.guardians.length + ', old=' + oldGuardians.length);
+    return true;
+  }
 
-  // 各保護者を比較
   for (const newGuardian of formData.guardians) {
-    // 新規追加（IDがない）なら変更あり
-    if (!newGuardian.guardianId) return true;
+    if (!newGuardian.guardianId) {
+      Logger.log('New guardian added');
+      return true;
+    }
 
     const oldGuardian = oldGuardians.find(g => g.guardianId === newGuardian.guardianId);
-    // IDが見つからない（ありえないはずだが）なら変更あり
-    if (!oldGuardian) return true;
+    if (!oldGuardian) {
+      Logger.log('Old guardian not found: ' + newGuardian.guardianId);
+      return true;
+    }
 
     // フィールド比較
     if (
-      String(newGuardian.relationship || '') !== String(oldGuardian.relationship || '') ||
-      String(newGuardian.contactPriority || '') !== String(oldGuardian.contactPriority || '') ||
-      String(newGuardian.contactMethod || '電話') !== String(oldGuardian.contactMethod || '電話') ||
-      String(newGuardian.lastName || '') !== String(oldGuardian.lastName || '') ||
-      String(newGuardian.firstName || '') !== String(oldGuardian.firstName || '') ||
-      String(newGuardian.lastNameKana || '') !== String(oldGuardian.lastNameKana || '') ||
-      String(newGuardian.firstNameKana || '') !== String(oldGuardian.firstNameKana || '') ||
-      String(newGuardian.email || '') !== String(oldGuardian.email || '') ||
-      String(newGuardian.meetingEmail || '') !== String(oldGuardian.meetingEmail || '') ||
-      String(newGuardian.mobilePhone || '') !== String(oldGuardian.mobilePhone || '') ||
-      String(newGuardian.homePhone || '') !== String(oldGuardian.homePhone || '') ||
-      String(newGuardian.postalCode || '') !== String(oldGuardian.postalCode || '') ||
-      String(newGuardian.prefecture || '') !== String(oldGuardian.prefecture || '') ||
-      normalizeAddress(newGuardian.city || '') !== normalizeAddress(oldGuardian.city || '') ||
-      normalizeAddress(newGuardian.street || '') !== normalizeAddress(oldGuardian.street || '') ||
-      normalizeAddress(newGuardian.building || '') !== normalizeAddress(oldGuardian.building || '')
+      normalizeStr(newGuardian.relationship) !== normalizeStr(oldGuardian.relationship) ||
+      normalizeStr(newGuardian.contactPriority) !== normalizeStr(oldGuardian.contactPriority) ||
+      normalizeStr(newGuardian.contactMethod || '電話') !== normalizeStr(oldGuardian.contactMethod || '電話') ||
+      normalizeStr(newGuardian.lastName) !== normalizeStr(oldGuardian.lastName) ||
+      normalizeStr(newGuardian.firstName) !== normalizeStr(oldGuardian.firstName) ||
+      normalizeStr(newGuardian.lastNameKana) !== normalizeStr(oldGuardian.lastNameKana) ||
+      normalizeStr(newGuardian.firstNameKana) !== normalizeStr(oldGuardian.firstNameKana) ||
+      normalizeStr(newGuardian.email) !== normalizeStr(oldGuardian.email) ||
+      normalizeStr(newGuardian.meetingEmail) !== normalizeStr(oldGuardian.meetingEmail) ||
+      normalizePhone(newGuardian.mobilePhone) !== normalizePhone(oldGuardian.mobilePhone) ||
+      normalizePhone(newGuardian.homePhone) !== normalizePhone(oldGuardian.homePhone) ||
+      normalizePhone(newGuardian.postalCode) !== normalizePhone(oldGuardian.postalCode) ||
+      normalizeStr(newGuardian.prefecture) !== normalizeStr(oldGuardian.prefecture) ||
+      normalizeAddress(normalizeStr(newGuardian.city)) !== normalizeAddress(normalizeStr(oldGuardian.city)) ||
+      normalizeAddress(normalizeStr(newGuardian.street)) !== normalizeAddress(normalizeStr(oldGuardian.street)) ||
+      normalizeAddress(normalizeStr(newGuardian.building)) !== normalizeAddress(normalizeStr(oldGuardian.building))
     ) {
+      Logger.log('Guardian change detected for ' + newGuardian.guardianId);
+      // 詳細ログ（デバッグ用）
+      if (normalizeStr(newGuardian.contactPriority) !== normalizeStr(oldGuardian.contactPriority)) {
+        Logger.log('Priority mismatch: new=' + newGuardian.contactPriority + ', old=' + oldGuardian.contactPriority);
+      }
+      if (normalizePhone(newGuardian.mobilePhone) !== normalizePhone(oldGuardian.mobilePhone)) {
+        Logger.log('Mobile mismatch: new=' + newGuardian.mobilePhone + ', old=' + oldGuardian.mobilePhone);
+      }
       return true;
     }
   }
 
   // 3. 生徒の比較
-  if (formData.students.length !== oldStudents.length) return true;
+  if (formData.students.length !== oldStudents.length) {
+    Logger.log('Student count change');
+    return true;
+  }
 
   for (const newStudent of formData.students) {
-    if (!newStudent.studentId) return true;
+    if (!newStudent.studentId) {
+      Logger.log('New student added');
+      return true;
+    }
 
     const oldStudent = oldStudents.find(s => s.studentId === newStudent.studentId);
-    if (!oldStudent) return true;
+    if (!oldStudent) {
+      Logger.log('Old student not found: ' + newStudent.studentId);
+      return true;
+    }
 
     if (
-      String(newStudent.lastName || '') !== String(oldStudent.lastName || '') ||
-      String(newStudent.firstName || '') !== String(oldStudent.firstName || '') ||
-      String(newStudent.lastNameKana || '') !== String(oldStudent.lastNameKana || '') ||
-      String(newStudent.firstNameKana || '') !== String(oldStudent.firstNameKana || '') ||
-      String(newStudent.graduationYear || '') !== String(oldStudent.graduationYear || '') ||
-      String(newStudent.email || '') !== String(oldStudent.email || '') ||
-      String(newStudent.classEmail || '') !== String(oldStudent.classEmail || '') ||
-      String(newStudent.mobilePhone || '') !== String(oldStudent.mobilePhone || '') ||
-      String(newStudent.postalCode || '') !== String(oldStudent.postalCode || '') ||
-      String(newStudent.prefecture || '') !== String(oldStudent.prefecture || '') ||
-      normalizeAddress(newStudent.city || '') !== normalizeAddress(oldStudent.city || '') ||
-      normalizeAddress(newStudent.street || '') !== normalizeAddress(oldStudent.street || '') ||
-      normalizeAddress(newStudent.building || '') !== normalizeAddress(oldStudent.building || '')
+      normalizeStr(newStudent.lastName) !== normalizeStr(oldStudent.lastName) ||
+      normalizeStr(newStudent.firstName) !== normalizeStr(oldStudent.firstName) ||
+      normalizeStr(newStudent.lastNameKana) !== normalizeStr(oldStudent.lastNameKana) ||
+      normalizeStr(newStudent.firstNameKana) !== normalizeStr(oldStudent.firstNameKana) ||
+      normalizeStr(newStudent.graduationYear) !== normalizeStr(oldStudent.graduationYear) ||
+      normalizeStr(newStudent.email) !== normalizeStr(oldStudent.email) ||
+      normalizeStr(newStudent.classEmail) !== normalizeStr(oldStudent.classEmail) ||
+      normalizePhone(newStudent.mobilePhone) !== normalizePhone(oldStudent.mobilePhone) ||
+      normalizePhone(newStudent.postalCode) !== normalizePhone(oldStudent.postalCode) ||
+      normalizeStr(newStudent.prefecture) !== normalizeStr(oldStudent.prefecture) ||
+      normalizeAddress(normalizeStr(newStudent.city)) !== normalizeAddress(normalizeStr(oldStudent.city)) ||
+      normalizeAddress(normalizeStr(newStudent.street)) !== normalizeAddress(normalizeStr(oldStudent.street)) ||
+      normalizeAddress(normalizeStr(newStudent.building)) !== normalizeAddress(normalizeStr(oldStudent.building))
     ) {
+      Logger.log('Student change detected for ' + newStudent.studentId);
       return true;
     }
   }

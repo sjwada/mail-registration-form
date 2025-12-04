@@ -723,7 +723,7 @@
         guardianId: getVal(`guardianId_${id}`),
         // Collect hidden ID
         relationship: getVal(`relationship_${id}`),
-        contactPriority: parseInt(getVal(`priority_${id}`)),
+        contactPriority: getVal(`priority_${id}`) ? parseInt(getVal(`priority_${id}`)) : "",
         contactMethod: getVal(`contact_method_${id}`),
         lastName: getVal(`last_name_${id}`),
         firstName: getVal(`first_name_${id}`),
