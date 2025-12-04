@@ -719,6 +719,8 @@
         const el = card.querySelector(`[name="${name}"]`);
         return el ? el.value : "";
       };
+      const separateAddressCheckbox = document.getElementById(`separate_address_${id}`);
+      const useSeparateAddress = separateAddressCheckbox && separateAddressCheckbox.checked;
       formData.guardians.push({
         guardianId: getVal(`guardianId_${id}`),
         // Collect hidden ID
@@ -733,12 +735,12 @@
         meetingEmail: getVal(`meeting_email_${id}`),
         mobilePhone: getVal(`mobile_phone_${id}`),
         homePhone: getVal(`home_phone_${id}`),
-        // Address fields
-        postalCode: getVal(`postalCode_${id}`),
-        prefecture: getVal(`prefecture_${id}`),
-        city: getVal(`city_${id}`),
-        street: getVal(`street_${id}`),
-        building: getVal(`building_${id}`)
+        // Address fields - clear if not using separate address
+        postalCode: useSeparateAddress ? getVal(`postalCode_${id}`) : "",
+        prefecture: useSeparateAddress ? getVal(`prefecture_${id}`) : "",
+        city: useSeparateAddress ? getVal(`city_${id}`) : "",
+        street: useSeparateAddress ? getVal(`street_${id}`) : "",
+        building: useSeparateAddress ? getVal(`building_${id}`) : ""
       });
     });
     document.querySelectorAll(".student-card").forEach((card) => {
@@ -747,6 +749,8 @@
         const el = card.querySelector(`[name="${name}"]`);
         return el ? el.value : "";
       };
+      const separateAddressCheckbox = document.getElementById(`separate_address_s_${id}`);
+      const useSeparateAddress = separateAddressCheckbox && separateAddressCheckbox.checked;
       formData.students.push({
         studentId: getVal(`studentId_${id}`),
         // Collect hidden ID
@@ -758,15 +762,111 @@
         email: getVal(`s_email_${id}`),
         classEmail: getVal(`s_class_email_${id}`),
         mobilePhone: getVal(`s_mobile_phone_${id}`),
-        // Address fields
-        postalCode: getVal(`postalCode_s_${id}`),
-        prefecture: getVal(`prefecture_s_${id}`),
-        city: getVal(`city_s_${id}`),
-        street: getVal(`street_s_${id}`),
-        building: getVal(`building_s_${id}`)
+        // Address fields - clear if not using separate address
+        postalCode: useSeparateAddress ? getVal(`postalCode_s_${id}`) : "",
+        prefecture: useSeparateAddress ? getVal(`prefecture_s_${id}`) : "",
+        city: useSeparateAddress ? getVal(`city_s_${id}`) : "",
+        street: useSeparateAddress ? getVal(`street_s_${id}`) : "",
+        building: useSeparateAddress ? getVal(`building_s_${id}`) : ""
       });
     });
     return formData;
+  }
+  var pendingFormData = null;
+  function showConfirmation(formData) {
+    pendingFormData = formData;
+    const contentDiv = document.getElementById("confirmationContent");
+    if (!contentDiv) return;
+    let html = '<div class="confirmation-details">';
+    html += "<h3>\u{1F4CD} \u3054\u81EA\u5B85\u4F4F\u6240</h3>";
+    html += `<p>\u3012${formData.household.postalCode}<br>`;
+    html += `${formData.household.prefecture} ${formData.household.city} ${formData.household.street} ${formData.household.building}</p>`;
+    if (formData.household.notes) {
+      html += `<p><strong>\u5099\u8003:</strong><br>${formData.household.notes.replace(/\n/g, "<br>")}</p>`;
+    }
+    html += "<hr>";
+    html += "<h3>\u{1F468}\u200D\u{1F469}\u200D\u{1F467}\u200D\u{1F466} \u4FDD\u8B77\u8005\u60C5\u5831</h3>";
+    formData.guardians.forEach((g, index) => {
+      html += `<div class="mb-3"><strong>\u4FDD\u8B77\u8005${index + 1}: ${g.lastName} ${g.firstName}</strong>`;
+      html += `<br>\u30AB\u30CA: ${g.lastNameKana} ${g.firstNameKana}`;
+      html += `<br>\u7D9A\u67C4: ${g.relationship}`;
+      html += `<br>\u9023\u7D61\u512A\u5148\u9806\u4F4D: ${g.contactPriority}\u4F4D`;
+      html += `<br>\u9023\u7D61\u65B9\u6CD5: ${g.contactMethod}`;
+      if (g.mobilePhone) html += `<br>\u643A\u5E2F\u96FB\u8A71: ${g.mobilePhone}`;
+      if (g.homePhone) html += `<br>\u81EA\u5B85\u96FB\u8A71: ${g.homePhone}`;
+      html += `<br>Email: ${g.email}`;
+      if (g.meetingEmail) html += `<br>\u30AA\u30F3\u30E9\u30A4\u30F3\u9762\u8AC7\u7528Email: ${g.meetingEmail}`;
+      if (g.postalCode) {
+        html += `<br>\u4F4F\u6240: \u3012${g.postalCode} ${g.prefecture} ${g.city} ${g.street} ${g.building}`;
+      } else {
+        html += `<br>\u4F4F\u6240: \u3054\u81EA\u5B85\u3068\u540C\u3058`;
+      }
+      html += "</div>";
+    });
+    html += "<hr>";
+    html += "<h3>\u{1F468}\u200D\u{1F393} \u751F\u5F92\u60C5\u5831</h3>";
+    formData.students.forEach((s, index) => {
+      html += `<div class="mb-3"><strong>\u751F\u5F92${index + 1}: ${s.lastName} ${s.firstName}</strong>`;
+      html += `<br>\u30AB\u30CA: ${s.lastNameKana} ${s.firstNameKana}`;
+      html += `<br>\u5352\u696D\u4E88\u5B9A: ${s.graduationYear}\u5E743\u6708`;
+      if (s.email) html += `<br>Email: ${s.email}`;
+      if (s.classEmail) html += `<br>Classroom\u7528Email: ${s.classEmail}`;
+      if (s.mobilePhone) html += `<br>\u643A\u5E2F\u96FB\u8A71: ${s.mobilePhone}`;
+      if (s.postalCode) {
+        html += `<br>\u4F4F\u6240: \u3012${s.postalCode} ${s.prefecture} ${s.city} ${s.street} ${s.building}`;
+      } else {
+        html += `<br>\u4F4F\u6240: \u3054\u81EA\u5B85\u3068\u540C\u3058`;
+      }
+      html += "</div>";
+    });
+    html += "</div>";
+    contentDiv.innerHTML = html;
+    document.getElementById("registrationForm").style.display = "none";
+    document.getElementById("confirmationSection").style.display = "block";
+    window.scrollTo(0, 0);
+  }
+  function handleBack() {
+    document.getElementById("confirmationSection").style.display = "none";
+    document.getElementById("registrationForm").style.display = "block";
+    window.scrollTo(0, 0);
+  }
+  function handleFinalSubmit() {
+    return __async(this, null, function* () {
+      if (!pendingFormData) return;
+      showLoading(true);
+      document.getElementById("confirmationSection").style.display = "none";
+      try {
+        const state = store.getState();
+        let result;
+        if (state.mode === "edit") {
+          if (!state.householdId) {
+            throw new Error("\u4E16\u5E2FID\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093\u3002");
+          }
+          result = yield runServerFunction("updateHouseholdData", state.householdId, pendingFormData);
+        } else {
+          result = yield runServerFunction("submitRegistration", pendingFormData);
+        }
+        showLoading(false);
+        if (result.success) {
+          showMessage(result.message, "success");
+          document.getElementById("confirmationSection").innerHTML = `
+        <div class="text-center py-5">
+          <h2 class="text-success mb-4">\u9001\u4FE1\u5B8C\u4E86</h2>
+          <p>${result.message}</p>
+          <p>\u3053\u306E\u753B\u9762\u3092\u9589\u3058\u3066\u304F\u3060\u3055\u3044\u3002</p>
+        </div>
+      `;
+          document.getElementById("confirmationSection").style.display = "block";
+        } else {
+          showMessage(result.message, "danger");
+          document.getElementById("registrationForm").style.display = "block";
+        }
+      } catch (error) {
+        showLoading(false);
+        showMessage("\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F: " + error.message, "danger");
+        document.getElementById("registrationForm").style.display = "block";
+      }
+    });
   }
   function handleSubmit(e) {
     return __async(this, null, function* () {
@@ -777,28 +877,7 @@
         return;
       }
       const formData = collectFormData();
-      showLoading(true);
-      try {
-        const state = store.getState();
-        let result;
-        if (state.mode === "edit") {
-          if (!state.householdId) {
-            throw new Error("\u4E16\u5E2FID\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093\u3002");
-          }
-          result = yield runServerFunction("updateHouseholdData", state.householdId, formData);
-        } else {
-          result = yield runServerFunction("submitRegistration", formData);
-        }
-        showLoading(false);
-        if (result.success) {
-          showMessage(result.message, "success");
-        } else {
-          showMessage(result.message, "danger");
-        }
-      } catch (error) {
-        showLoading(false);
-        showMessage("\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F: " + error.message, "danger");
-      }
+      showConfirmation(formData);
     });
   }
   function searchAddress(postalCodeInputId, prefectureId, cityId, streetId) {
@@ -844,6 +923,8 @@
   window.addStudent = addStudent;
   window.authenticateEdit = authenticateEdit;
   window.requestMagicLink = requestMagicLink;
+  window.handleBack = handleBack;
+  window.handleFinalSubmit = handleFinalSubmit;
   document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll('input[name="mode"]').forEach((radio) => {
       radio.addEventListener("change", handleModeChange);

@@ -208,6 +208,9 @@ export function loadHouseholdData(householdData) {
 // ============================================
 // Form Submission
 // ============================================
+// ============================================
+// Form Submission
+// ============================================
 export function collectFormData() {
   const formData = {
     household: {
@@ -230,6 +233,10 @@ export function collectFormData() {
         return el ? el.value : '';
     };
 
+    // Check if separate address is enabled
+    const separateAddressCheckbox = document.getElementById(`separate_address_${id}`);
+    const useSeparateAddress = separateAddressCheckbox && separateAddressCheckbox.checked;
+
     formData.guardians.push({
       guardianId: getVal(`guardianId_${id}`), // Collect hidden ID
       relationship: getVal(`relationship_${id}`),
@@ -243,12 +250,12 @@ export function collectFormData() {
       meetingEmail: getVal(`meeting_email_${id}`),
       mobilePhone: getVal(`mobile_phone_${id}`),
       homePhone: getVal(`home_phone_${id}`),
-      // Address fields
-      postalCode: getVal(`postalCode_${id}`),
-      prefecture: getVal(`prefecture_${id}`),
-      city: getVal(`city_${id}`),
-      street: getVal(`street_${id}`),
-      building: getVal(`building_${id}`)
+      // Address fields - clear if not using separate address
+      postalCode: useSeparateAddress ? getVal(`postalCode_${id}`) : '',
+      prefecture: useSeparateAddress ? getVal(`prefecture_${id}`) : '',
+      city: useSeparateAddress ? getVal(`city_${id}`) : '',
+      street: useSeparateAddress ? getVal(`street_${id}`) : '',
+      building: useSeparateAddress ? getVal(`building_${id}`) : ''
     });
   });
 
@@ -258,6 +265,10 @@ export function collectFormData() {
         const el = card.querySelector(`[name="${name}"]`);
         return el ? el.value : '';
     };
+
+    // Check if separate address is enabled
+    const separateAddressCheckbox = document.getElementById(`separate_address_s_${id}`);
+    const useSeparateAddress = separateAddressCheckbox && separateAddressCheckbox.checked;
 
     formData.students.push({
       studentId: getVal(`studentId_${id}`), // Collect hidden ID
@@ -269,16 +280,134 @@ export function collectFormData() {
       email: getVal(`s_email_${id}`),
       classEmail: getVal(`s_class_email_${id}`),
       mobilePhone: getVal(`s_mobile_phone_${id}`),
-      // Address fields
-      postalCode: getVal(`postalCode_s_${id}`),
-      prefecture: getVal(`prefecture_s_${id}`),
-      city: getVal(`city_s_${id}`),
-      street: getVal(`street_s_${id}`),
-      building: getVal(`building_s_${id}`)
+      // Address fields - clear if not using separate address
+      postalCode: useSeparateAddress ? getVal(`postalCode_s_${id}`) : '',
+      prefecture: useSeparateAddress ? getVal(`prefecture_s_${id}`) : '',
+      city: useSeparateAddress ? getVal(`city_s_${id}`) : '',
+      street: useSeparateAddress ? getVal(`street_s_${id}`) : '',
+      building: useSeparateAddress ? getVal(`building_s_${id}`) : ''
     });
   });
 
   return formData;
+}
+
+// Global variable to store form data for confirmation
+let pendingFormData = null;
+
+export function showConfirmation(formData) {
+  pendingFormData = formData;
+  
+  const contentDiv = document.getElementById('confirmationContent');
+  if (!contentDiv) return;
+
+  let html = '<div class="confirmation-details">';
+
+  // 世帯情報
+  html += '<h3>📍 ご自宅住所</h3>';
+  html += `<p>〒${formData.household.postalCode}<br>`;
+  html += `${formData.household.prefecture} ${formData.household.city} ${formData.household.street} ${formData.household.building}</p>`;
+  if (formData.household.notes) {
+    html += `<p><strong>備考:</strong><br>${formData.household.notes.replace(/\n/g, '<br>')}</p>`;
+  }
+  html += '<hr>';
+
+  // 保護者情報
+  html += '<h3>👨‍👩‍👧‍👦 保護者情報</h3>';
+  formData.guardians.forEach((g, index) => {
+    html += `<div class="mb-3"><strong>保護者${index + 1}: ${g.lastName} ${g.firstName}</strong>`;
+    html += `<br>カナ: ${g.lastNameKana} ${g.firstNameKana}`;
+    html += `<br>続柄: ${g.relationship}`;
+    html += `<br>連絡優先順位: ${g.contactPriority}位`;
+    html += `<br>連絡方法: ${g.contactMethod}`;
+    if (g.mobilePhone) html += `<br>携帯電話: ${g.mobilePhone}`;
+    if (g.homePhone) html += `<br>自宅電話: ${g.homePhone}`;
+    html += `<br>Email: ${g.email}`;
+    if (g.meetingEmail) html += `<br>オンライン面談用Email: ${g.meetingEmail}`;
+    if (g.postalCode) {
+      html += `<br>住所: 〒${g.postalCode} ${g.prefecture} ${g.city} ${g.street} ${g.building}`;
+    } else {
+      html += `<br>住所: ご自宅と同じ`;
+    }
+    html += '</div>';
+  });
+  html += '<hr>';
+
+  // 生徒情報
+  html += '<h3>👨‍🎓 生徒情報</h3>';
+  formData.students.forEach((s, index) => {
+    html += `<div class="mb-3"><strong>生徒${index + 1}: ${s.lastName} ${s.firstName}</strong>`;
+    html += `<br>カナ: ${s.lastNameKana} ${s.firstNameKana}`;
+    html += `<br>卒業予定: ${s.graduationYear}年3月`;
+    if (s.email) html += `<br>Email: ${s.email}`;
+    if (s.classEmail) html += `<br>Classroom用Email: ${s.classEmail}`;
+    if (s.mobilePhone) html += `<br>携帯電話: ${s.mobilePhone}`;
+    if (s.postalCode) {
+      html += `<br>住所: 〒${s.postalCode} ${s.prefecture} ${s.city} ${s.street} ${s.building}`;
+    } else {
+      html += `<br>住所: ご自宅と同じ`;
+    }
+    html += '</div>';
+  });
+
+  html += '</div>';
+  contentDiv.innerHTML = html;
+
+  // 画面切り替え
+  document.getElementById('registrationForm').style.display = 'none';
+  document.getElementById('confirmationSection').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+export function handleBack() {
+  document.getElementById('confirmationSection').style.display = 'none';
+  document.getElementById('registrationForm').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+export async function handleFinalSubmit() {
+  if (!pendingFormData) return;
+
+  showLoading(true);
+  document.getElementById('confirmationSection').style.display = 'none';
+
+  try {
+    const state = store.getState();
+    let result;
+
+    if (state.mode === 'edit') {
+      if (!state.householdId) {
+        throw new Error('世帯IDが見つかりません。');
+      }
+      // Call update function in edit mode
+      result = await runServerFunction('updateHouseholdData', state.householdId, pendingFormData);
+    } else {
+      // Call submit function in new mode
+      result = await runServerFunction('submitRegistration', pendingFormData);
+    }
+
+    showLoading(false);
+    if (result.success) {
+      showMessage(result.message, 'success');
+      // 完了画面へ（簡易的にメッセージ表示のみで終了）
+      document.getElementById('confirmationSection').innerHTML = `
+        <div class="text-center py-5">
+          <h2 class="text-success mb-4">送信完了</h2>
+          <p>${result.message}</p>
+          <p>この画面を閉じてください。</p>
+        </div>
+      `;
+      document.getElementById('confirmationSection').style.display = 'block';
+    } else {
+      showMessage(result.message, 'danger');
+      // エラー時はフォームに戻る
+      document.getElementById('registrationForm').style.display = 'block';
+    }
+  } catch (error) {
+    showLoading(false);
+    showMessage('エラーが発生しました: ' + error.message, 'danger');
+    document.getElementById('registrationForm').style.display = 'block';
+  }
 }
 
 export async function handleSubmit(e) {
@@ -291,35 +420,7 @@ export async function handleSubmit(e) {
   }
 
   const formData = collectFormData();
-  showLoading(true);
-
-  try {
-    const state = store.getState();
-    let result;
-
-    if (state.mode === 'edit') {
-      if (!state.householdId) {
-        throw new Error('世帯IDが見つかりません。');
-      }
-      // Call update function in edit mode
-      result = await runServerFunction('updateHouseholdData', state.householdId, formData);
-    } else {
-      // Call submit function in new mode
-      result = await runServerFunction('submitRegistration', formData);
-    }
-
-    showLoading(false);
-    if (result.success) {
-      showMessage(result.message, 'success');
-      // Redirect to complete page (implementation pending)
-      // window.top.location.href = result.redirectUrl || 'complete'; 
-    } else {
-      showMessage(result.message, 'danger');
-    }
-  } catch (error) {
-    showLoading(false);
-    showMessage('エラーが発生しました: ' + error.message, 'danger');
-  }
+  showConfirmation(formData);
 }
 
 // ============================================

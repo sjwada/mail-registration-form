@@ -4,7 +4,9 @@ import {
   requestMagicLink, 
   handleSubmit, 
   searchAddress, 
-  toggleAddress 
+  toggleAddress,
+  handleBack,
+  handleFinalSubmit
 } from './ui/form.js';
 import { addGuardian, removeGuardian, handlePriorityChange } from './ui/components/guardian.js';
 import { addStudent, removeStudent } from './ui/components/student.js';
@@ -14,6 +16,8 @@ window.addGuardian = addGuardian;
 window.addStudent = addStudent;
 window.authenticateEdit = authenticateEdit;
 window.requestMagicLink = requestMagicLink;
+window.handleBack = handleBack;
+window.handleFinalSubmit = handleFinalSubmit;
 
 document.addEventListener('DOMContentLoaded', () => {
   // Mode selection
