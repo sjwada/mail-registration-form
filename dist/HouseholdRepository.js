@@ -147,7 +147,7 @@ function saveHouseholdRecord(household, userEmail, version, deleted) {
     version || 1, // バージョン
     deleted || false, // 削除フラグ
     now, // 更新日時
-    userEmail || household.guardians[0].email // 更新者メール
+    userEmail || (household.guardians && household.guardians[0] ? household.guardians[0].email : '') // 更新者メール
   ]);
 }
 

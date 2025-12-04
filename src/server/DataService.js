@@ -24,6 +24,7 @@ function updateHouseholdData(householdId, formData) {
     // 新しいデータを保存（世帯登録番号は維持）
     const now = getCurrentDateTime();
     const nowStr = formatDateTime(now);
+    const userEmail = formData.guardians[0].email;
 
     // 世帯マスタを更新
     const oldHousehold = getHouseholdRecord(householdId);
@@ -40,20 +41,20 @@ function updateHouseholdData(householdId, formData) {
       building: normalizeAddress(formData.household.building),
       notes: formData.household.notes,
       integrationStatus: oldHousehold.integrationStatus
-    }, null, newVersion);
+    }, userEmail, newVersion);
 
     // 保護者・生徒を保存
     formData.guardians.forEach(guardian => {
-      saveGuardianRecord(householdId, guardian, null, newVersion);
+      saveGuardianRecord(householdId, guardian, userEmail, newVersion);
     });
 
     formData.students.forEach(student => {
-      saveStudentRecord(householdId, student, null, newVersion);
+      saveStudentRecord(householdId, student, userEmail, newVersion);
     });
 
     // 削除されたレコードの処理（今回のリストに含まれていないものを論理削除）
-    softDeleteGuardiansNotInList(householdId, formData.guardians, null, newVersion);
-    softDeleteStudentsNotInList(householdId, formData.students, null, newVersion);
+    softDeleteGuardiansNotInList(householdId, formData.guardians, userEmail, newVersion);
+    softDeleteStudentsNotInList(householdId, formData.students, userEmail, newVersion);
 
     // 全保護者に変更通知メール送信
     sendEditNotificationEmails(formData.guardians, now);
