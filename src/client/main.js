@@ -6,7 +6,7 @@ import {
   searchAddress, 
   toggleAddress 
 } from './ui/form.js';
-import { addGuardian, removeGuardian } from './ui/components/guardian.js';
+import { addGuardian, removeGuardian, handlePriorityChange } from './ui/components/guardian.js';
 import { addStudent, removeStudent } from './ui/components/student.js';
 
 // Expose functions to global scope for HTML onclick attributes
@@ -72,6 +72,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (target.matches('[data-toggle-address]')) {
       const id = target.getAttribute('data-toggle-address');
       toggleAddress(id);
+    }
+    
+    // Priority Swap
+    if (target.matches('.priority-select')) {
+      handlePriorityChange(e);
     }
   });
 });

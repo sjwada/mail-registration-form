@@ -34,7 +34,7 @@ export function addGuardian(data = null) {
         </div>
         <div class="form-group col-md-4">
           <label>連絡優先順位 <span class="required">*</span></label>
-          <select class="form-control priority-select" name="priority_${id}" required>
+          <select class="form-control priority-select" name="priority_${id}" required data-initial-priority="${data ? data.contactPriority || '' : ''}">
             <!-- Dynamically generated -->
           </select>
         </div>
@@ -158,16 +158,57 @@ export function updateGuardianPriorities() {
   const guardians = document.querySelectorAll('.guardian-card');
   const count = guardians.length;
   
-  guardians.forEach(card => {
+  guardians.forEach((card, index) => {
     const select = card.querySelector('.priority-select');
-    const currentValue = select.value;
+    // Use current value or initial value or default to index + 1
+    let currentValue = select.value;
+    if (!currentValue) {
+        currentValue = select.getAttribute('data-initial-priority');
+    }
+    if (!currentValue) {
+        currentValue = index + 1;
+    }
     
     let options = '';
     for (let i = 1; i <= count; i++) {
       options += `<option value="${i}" ${currentValue == i ? 'selected' : ''}>${i}</option>`;
     }
     select.innerHTML = options;
+    
+    // Update data-current-value for swapping logic
+    select.setAttribute('data-current-value', select.value);
   });
+}
+
+/**
+ * Handles priority change to swap values.
+ * @param {Event} e - The change event.
+ */
+export function handlePriorityChange(e) {
+  const target = e.target;
+  const newValue = target.value;
+  const oldValue = target.getAttribute('data-current-value');
+  
+  if (newValue === oldValue) return;
+
+  // Find the other select that has the new value
+  const allSelects = document.querySelectorAll('.priority-select');
+  let otherSelect = null;
+  
+  allSelects.forEach(select => {
+    if (select !== target && select.value === newValue) {
+      otherSelect = select;
+    }
+  });
+
+  if (otherSelect) {
+    // Swap: Set the other select to the old value
+    otherSelect.value = oldValue;
+    otherSelect.setAttribute('data-current-value', oldValue);
+  }
+
+  // Update current value for the target
+  target.setAttribute('data-current-value', newValue);
 }
 
 /**

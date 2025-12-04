@@ -136,7 +136,7 @@
         </div>
         <div class="form-group col-md-4">
           <label>\u9023\u7D61\u512A\u5148\u9806\u4F4D <span class="required">*</span></label>
-          <select class="form-control priority-select" name="priority_${id}" required>
+          <select class="form-control priority-select" name="priority_${id}" required data-initial-priority="${data ? data.contactPriority || "" : ""}">
             <!-- Dynamically generated -->
           </select>
         </div>
@@ -249,15 +249,40 @@
   function updateGuardianPriorities() {
     const guardians = document.querySelectorAll(".guardian-card");
     const count = guardians.length;
-    guardians.forEach((card) => {
+    guardians.forEach((card, index) => {
       const select = card.querySelector(".priority-select");
-      const currentValue = select.value;
+      let currentValue = select.value;
+      if (!currentValue) {
+        currentValue = select.getAttribute("data-initial-priority");
+      }
+      if (!currentValue) {
+        currentValue = index + 1;
+      }
       let options = "";
       for (let i = 1; i <= count; i++) {
         options += `<option value="${i}" ${currentValue == i ? "selected" : ""}>${i}</option>`;
       }
       select.innerHTML = options;
+      select.setAttribute("data-current-value", select.value);
     });
+  }
+  function handlePriorityChange(e) {
+    const target = e.target;
+    const newValue = target.value;
+    const oldValue = target.getAttribute("data-current-value");
+    if (newValue === oldValue) return;
+    const allSelects = document.querySelectorAll(".priority-select");
+    let otherSelect = null;
+    allSelects.forEach((select) => {
+      if (select !== target && select.value === newValue) {
+        otherSelect = select;
+      }
+    });
+    if (otherSelect) {
+      otherSelect.value = oldValue;
+      otherSelect.setAttribute("data-current-value", oldValue);
+    }
+    target.setAttribute("data-current-value", newValue);
   }
   function generatePrefectureOptions(selectedPrefecture) {
     const prefectures = [
@@ -830,6 +855,9 @@
       if (target.matches("[data-toggle-address]")) {
         const id = target.getAttribute("data-toggle-address");
         toggleAddress(id);
+      }
+      if (target.matches(".priority-select")) {
+        handlePriorityChange(e);
       }
     });
   });
