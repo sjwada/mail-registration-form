@@ -244,11 +244,8 @@ function checkForChanges(formData, oldHousehold, oldGuardians, oldStudents) {
     ) {
       Logger.log('Guardian change detected for ' + newGuardian.guardianId);
       // 詳細ログ（デバッグ用）
-      if (normalizeStr(newGuardian.contactPriority) !== normalizeStr(oldGuardian.contactPriority)) {
-        Logger.log('Priority mismatch: new=' + newGuardian.contactPriority + ', old=' + oldGuardian.contactPriority);
-      }
-      if (normalizePhone(newGuardian.mobilePhone) !== normalizePhone(oldGuardian.mobilePhone)) {
-        Logger.log('Mobile mismatch: new=' + newGuardian.mobilePhone + ', old=' + oldGuardian.mobilePhone);
+      if (normalizePhone(newGuardian.postalCode) !== normalizePhone(oldGuardian.postalCode)) {
+        Logger.log('PostalCode mismatch: new=' + newGuardian.postalCode + ', old=' + oldGuardian.postalCode);
       }
       return true;
     }
