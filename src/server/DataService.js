@@ -17,6 +17,20 @@ function updateHouseholdData(householdId, formData) {
       return { success: false, message: validationResult.message };
     }
 
+    // 変更検知
+    const oldHousehold = getHouseholdRecord(householdId);
+    const oldGuardians = getGuardiansByHousehold(householdId);
+    const oldStudents = getStudentsByHousehold(householdId);
+
+    const hasChanges = checkForChanges(formData, oldHousehold, oldGuardians, oldStudents);
+
+    if (!hasChanges) {
+      return {
+        success: true,
+        message: '変更内容がなかったため、更新はスキップされました。'
+      };
+    }
+
     // 新しいバージョン番号を決定
     const currentVersion = getLatestVersion('世帯マスタ', 0, householdId);
     const newVersion = currentVersion + 1;
@@ -27,7 +41,6 @@ function updateHouseholdData(householdId, formData) {
     const userEmail = formData.guardians[0].email;
 
     // 世帯マスタを更新
-    const oldHousehold = getHouseholdRecord(householdId);
     saveHouseholdRecord({
       householdId: householdId,
       coreHouseholdId: oldHousehold.coreHouseholdId,
@@ -170,4 +183,87 @@ function validateFormData(formData) {
   }
 
   return { valid: true };
+}
+
+/**
+ * 変更があるかチェックする
+ */
+function checkForChanges(formData, oldHousehold, oldGuardians, oldStudents) {
+  // 1. 世帯情報の比較
+  if (
+    String(formData.household.postalCode || '') !== String(oldHousehold.postalCode || '') ||
+    String(formData.household.prefecture || '') !== String(oldHousehold.prefecture || '') ||
+    normalizeAddress(formData.household.city || '') !== normalizeAddress(oldHousehold.city || '') ||
+    normalizeAddress(formData.household.street || '') !== normalizeAddress(oldHousehold.street || '') ||
+    normalizeAddress(formData.household.building || '') !== normalizeAddress(oldHousehold.building || '') ||
+    String(formData.household.notes || '') !== String(oldHousehold.notes || '')
+  ) {
+    return true;
+  }
+
+  // 2. 保護者の比較
+  // 数が違うなら変更あり
+  if (formData.guardians.length !== oldGuardians.length) return true;
+
+  // 各保護者を比較
+  for (const newGuardian of formData.guardians) {
+    // 新規追加（IDがない）なら変更あり
+    if (!newGuardian.guardianId) return true;
+
+    const oldGuardian = oldGuardians.find(g => g.guardianId === newGuardian.guardianId);
+    // IDが見つからない（ありえないはずだが）なら変更あり
+    if (!oldGuardian) return true;
+
+    // フィールド比較
+    if (
+      String(newGuardian.relationship || '') !== String(oldGuardian.relationship || '') ||
+      String(newGuardian.contactPriority || '') !== String(oldGuardian.contactPriority || '') ||
+      String(newGuardian.contactMethod || '電話') !== String(oldGuardian.contactMethod || '電話') ||
+      String(newGuardian.lastName || '') !== String(oldGuardian.lastName || '') ||
+      String(newGuardian.firstName || '') !== String(oldGuardian.firstName || '') ||
+      String(newGuardian.lastNameKana || '') !== String(oldGuardian.lastNameKana || '') ||
+      String(newGuardian.firstNameKana || '') !== String(oldGuardian.firstNameKana || '') ||
+      String(newGuardian.email || '') !== String(oldGuardian.email || '') ||
+      String(newGuardian.meetingEmail || '') !== String(oldGuardian.meetingEmail || '') ||
+      String(newGuardian.mobilePhone || '') !== String(oldGuardian.mobilePhone || '') ||
+      String(newGuardian.homePhone || '') !== String(oldGuardian.homePhone || '') ||
+      String(newGuardian.postalCode || '') !== String(oldGuardian.postalCode || '') ||
+      String(newGuardian.prefecture || '') !== String(oldGuardian.prefecture || '') ||
+      normalizeAddress(newGuardian.city || '') !== normalizeAddress(oldGuardian.city || '') ||
+      normalizeAddress(newGuardian.street || '') !== normalizeAddress(oldGuardian.street || '') ||
+      normalizeAddress(newGuardian.building || '') !== normalizeAddress(oldGuardian.building || '')
+    ) {
+      return true;
+    }
+  }
+
+  // 3. 生徒の比較
+  if (formData.students.length !== oldStudents.length) return true;
+
+  for (const newStudent of formData.students) {
+    if (!newStudent.studentId) return true;
+
+    const oldStudent = oldStudents.find(s => s.studentId === newStudent.studentId);
+    if (!oldStudent) return true;
+
+    if (
+      String(newStudent.lastName || '') !== String(oldStudent.lastName || '') ||
+      String(newStudent.firstName || '') !== String(oldStudent.firstName || '') ||
+      String(newStudent.lastNameKana || '') !== String(oldStudent.lastNameKana || '') ||
+      String(newStudent.firstNameKana || '') !== String(oldStudent.firstNameKana || '') ||
+      String(newStudent.graduationYear || '') !== String(oldStudent.graduationYear || '') ||
+      String(newStudent.email || '') !== String(oldStudent.email || '') ||
+      String(newStudent.classEmail || '') !== String(oldStudent.classEmail || '') ||
+      String(newStudent.mobilePhone || '') !== String(oldStudent.mobilePhone || '') ||
+      String(newStudent.postalCode || '') !== String(oldStudent.postalCode || '') ||
+      String(newStudent.prefecture || '') !== String(oldStudent.prefecture || '') ||
+      normalizeAddress(newStudent.city || '') !== normalizeAddress(oldStudent.city || '') ||
+      normalizeAddress(newStudent.street || '') !== normalizeAddress(oldStudent.street || '') ||
+      normalizeAddress(newStudent.building || '') !== normalizeAddress(oldStudent.building || '')
+    ) {
+      return true;
+    }
+  }
+
+  return false;
 }
