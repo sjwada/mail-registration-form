@@ -81,6 +81,12 @@ function saveStudentRecord(householdId, student, userEmail, version, deleted) {
   const studentId = student.studentId || generateStudentId();
   const now = formatDateTime(getCurrentDateTime());
 
+  const nextRow = sheet.getLastRow() + 1;
+  // 携帯電話(K列: 11番目)の書式をテキストに設定
+  sheet.getRange(nextRow, 11).setNumberFormat('@');
+  // 郵便番号(M列: 13番目)の書式をテキストに設定
+  sheet.getRange(nextRow, 13).setNumberFormat('@');
+
   sheet.appendRow([
     householdId,
     studentId,

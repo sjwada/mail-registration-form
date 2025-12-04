@@ -84,6 +84,10 @@ function saveGuardianRecord(householdId, guardian, userEmail, version, deleted) 
   const guardianId = guardian.guardianId || generateGuardianId();
   const now = formatDateTime(getCurrentDateTime());
 
+  const nextRow = sheet.getLastRow() + 1;
+  // 携帯電話(N列: 14番目)、自宅電話(O列: 15番目)、郵便番号(P列: 16番目)の書式をテキストに設定
+  sheet.getRange(nextRow, 14, 1, 3).setNumberFormat('@');
+
   sheet.appendRow([
     householdId,
     guardianId,

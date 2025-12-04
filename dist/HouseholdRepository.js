@@ -137,6 +137,10 @@ function saveHouseholdRecord(household, userEmail, version, deleted) {
   const sheet = getHouseholdSheet();
   const now = formatDateTime(getCurrentDateTime());
 
+  const nextRow = sheet.getLastRow() + 1;
+  // 郵便番号(F列: 6番目)の書式をテキストに設定
+  sheet.getRange(nextRow, 6).setNumberFormat('@');
+
   sheet.appendRow([
     household.householdId,
     household.coreHouseholdId,

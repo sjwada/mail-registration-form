@@ -84,6 +84,14 @@ function validateFormData(formData) {
     return { valid: false, message: '保護者を最低1人登録してください。' };
   }
 
+  const postalCodeRegex = /^\d{3}-?\d{4}$/;
+  const phoneRegex = /^0\d{1,4}-?\d{1,4}-?\d{3,4}$/;
+
+  // 世帯の郵便番号チェック
+  if (formData.household.postalCode && !postalCodeRegex.test(formData.household.postalCode)) {
+    return { valid: false, message: '世帯の郵便番号の形式が正しくありません。' };
+  }
+
   // 保護者のバリデーション
   const priorities = [];
   for (let guardian of formData.guardians) {
@@ -93,6 +101,14 @@ function validateFormData(formData) {
         valid: false,
         message: '保護者の携帯電話番号または自宅電話番号のどちらか1つは必須です。'
       };
+    }
+
+    if (guardian.mobilePhone && !phoneRegex.test(guardian.mobilePhone)) {
+      return { valid: false, message: '保護者の携帯電話番号の形式が正しくありません。' };
+    }
+
+    if (guardian.homePhone && !phoneRegex.test(guardian.homePhone)) {
+      return { valid: false, message: '保護者の自宅電話番号の形式が正しくありません。' };
     }
 
     // 連絡優先順位の収集
@@ -107,6 +123,9 @@ function validateFormData(formData) {
           valid: false,
           message: '個別の住所を登録する場合は、都道府県、市区町村、町名・番地・号は必須です。'
         };
+      }
+      if (!postalCodeRegex.test(guardian.postalCode)) {
+        return { valid: false, message: '保護者の郵便番号の形式が正しくありません。' };
       }
     }
   }
@@ -132,6 +151,10 @@ function validateFormData(formData) {
 
   // 生徒のバリデーション
   for (let student of formData.students) {
+    if (student.mobilePhone && !phoneRegex.test(student.mobilePhone)) {
+      return { valid: false, message: '生徒の携帯電話番号の形式が正しくありません。' };
+    }
+
     // 個別住所チェック
     if (student.postalCode) {
       if (!student.prefecture || !student.city || !student.street) {
@@ -139,6 +162,9 @@ function validateFormData(formData) {
           valid: false,
           message: '生徒の個別の住所を登録する場合は、都道府県、市区町村、町名・番地・号は必須です。'
         };
+      }
+      if (!postalCodeRegex.test(student.postalCode)) {
+        return { valid: false, message: '生徒の郵便番号の形式が正しくありません。' };
       }
     }
   }

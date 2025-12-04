@@ -95,13 +95,41 @@
 
   // src/client/domain/validation.js
   function validateForm() {
+    const postalCodeRegex = /^\d{3}-?\d{4}$/;
+    const phoneRegex = /^0\d{1,4}-?\d{1,4}-?\d{3,4}$/;
+    const householdPostalCode = document.getElementById("postalCode").value;
+    if (householdPostalCode && !postalCodeRegex.test(householdPostalCode)) {
+      return { valid: false, message: "\u4E16\u5E2F\u306E\u90F5\u4FBF\u756A\u53F7\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093\u3002\uFF08\u4F8B: 123-4567\uFF09" };
+    }
     const guardians = document.querySelectorAll(".guardian-card");
     for (let card of guardians) {
       const id = card.id;
       const mobile = card.querySelector(`[name="mobile_phone_${id}"]`).value;
       const home = card.querySelector(`[name="home_phone_${id}"]`).value;
+      const postalCode = card.querySelector(`[name="postalCode_${id}"]`).value;
       if (!mobile && !home) {
         return { valid: false, message: "\u4FDD\u8B77\u8005\u306E\u643A\u5E2F\u96FB\u8A71\u307E\u305F\u306F\u81EA\u5B85\u96FB\u8A71\u306E\u3069\u3061\u3089\u304B1\u3064\u306F\u5FC5\u9808\u3067\u3059\u3002" };
+      }
+      if (mobile && !phoneRegex.test(mobile)) {
+        return { valid: false, message: "\u4FDD\u8B77\u8005\u306E\u643A\u5E2F\u96FB\u8A71\u756A\u53F7\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093\u3002" };
+      }
+      if (home && !phoneRegex.test(home)) {
+        return { valid: false, message: "\u4FDD\u8B77\u8005\u306E\u81EA\u5B85\u96FB\u8A71\u756A\u53F7\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093\u3002" };
+      }
+      if (postalCode && !postalCodeRegex.test(postalCode)) {
+        return { valid: false, message: "\u4FDD\u8B77\u8005\u306E\u90F5\u4FBF\u756A\u53F7\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093\u3002" };
+      }
+    }
+    const students = document.querySelectorAll(".student-card");
+    for (let card of students) {
+      const id = card.id;
+      const mobile = card.querySelector(`[name="s_mobile_phone_${id}"]`).value;
+      const postalCode = card.querySelector(`[name="postalCode_s_${id}"]`).value;
+      if (mobile && !phoneRegex.test(mobile)) {
+        return { valid: false, message: "\u751F\u5F92\u306E\u643A\u5E2F\u96FB\u8A71\u756A\u53F7\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093\u3002" };
+      }
+      if (postalCode && !postalCodeRegex.test(postalCode)) {
+        return { valid: false, message: "\u751F\u5F92\u306E\u90F5\u4FBF\u756A\u53F7\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093\u3002" };
       }
     }
     return { valid: true };
