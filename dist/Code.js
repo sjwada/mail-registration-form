@@ -152,6 +152,18 @@ function authenticateWithEditCode(email, editCode) {
       };
     }
 
+    // 入力されたメールアドレスが、現在の世帯データ（保護者または生徒）に含まれているか確認
+    const isActiveEmail = householdData.guardians.some(g => g.email === email) || 
+                          householdData.students.some(s => s.email === email || s.classEmail === email);
+
+    if (!isActiveEmail) {
+      Logger.log('Email not found in active records');
+      return {
+        success: false,
+        message: 'このメールアドレスは現在有効ではありません。最新のメールアドレスでログインしてください。'
+      };
+    }
+
     Logger.log('Authentication successful');
     
     // データをクライアントに送れる形式（JSON文字列）に変換します
