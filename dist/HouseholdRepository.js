@@ -52,28 +52,34 @@ function getHouseholdData(householdId) {
 function getHouseholdRecord(householdId) {
   const sheet = getHouseholdSheet();
   const data = sheet.getDataRange().getValues();
+  let latestRecord = null;
+  let maxVersion = 0;
 
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
     if (row[0] === householdId) {
-      return {
-        householdId: row[0],
-        coreHouseholdId: row[1],
-        registeredAt: row[2],
-        updatedAt: row[3],
-        editCode: row[4],
-        postalCode: row[5],
-        prefecture: row[6],
-        city: row[7],
-        street: row[8],
-        building: row[9],
-        notes: row[10],
-        integrationStatus: row[11]
-      };
+      const version = row[12]; // バージョン列
+      if (version > maxVersion) {
+        maxVersion = version;
+        latestRecord = {
+          householdId: row[0],
+          coreHouseholdId: row[1],
+          registeredAt: row[2],
+          updatedAt: row[3],
+          editCode: row[4],
+          postalCode: row[5],
+          prefecture: row[6],
+          city: row[7],
+          street: row[8],
+          building: row[9],
+          notes: row[10],
+          integrationStatus: row[11]
+        };
+      }
     }
   }
 
-  return null;
+  return latestRecord;
 }
 
 /**
