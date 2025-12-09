@@ -1,0 +1,47 @@
+/**
+ * UpdateService (Application Layer)
+ * 
+ * Orchestrates the "Update Household" use case.
+ * - Change Detection (TODO)
+ * - Data Persistence (Versioning)
+ * - Notifications (TODO)
+ */
+// const { HouseholdRepositoryClean } = require('./domain/repository/HouseholdRepositoryClean');
+// const { Result } = require('./shared/Result');
+
+class UpdateService {
+  constructor(householdRepo) {
+    this.householdRepo = householdRepo || new HouseholdRepositoryClean();
+  }
+
+  /**
+   * Update household data.
+   * @param {object} formData (DTO from frontend)
+   * @returns {Result<object, Error>}
+   */
+  update(formData) {
+    // 1. Validation (Delegate to RegistrationService-like logic or standalone)
+    // For now, assume basic validity or reuse RegistrationService._validate?
+    // We should ideally reuse validation logic.
+    // But for this step, we trust the repo to handle saving.
+    
+    // 2. Map Frontend DTO to Domain Entity (if mismatch exists)
+    // Actually, Repo expects a similar structure but checks logical IDs.
+    
+    // 3. Save (Repository handles versioning)
+    return this.householdRepo.save(formData)
+       .map(result => {
+           // Success
+           return {
+               success: true,
+               message: '修正内容を保存しました。',
+               householdId: result.householdId,
+               version: result.version
+           };
+       });
+  }
+}
+
+if (typeof exports !== 'undefined') {
+  exports.UpdateService = UpdateService;
+}
