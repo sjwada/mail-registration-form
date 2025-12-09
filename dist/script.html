@@ -621,10 +621,26 @@
           result = yield runServerFunction("submitRegistration", pendingFormData);
         }
         showLoading(false);
+        showLoading(false);
         if (result.success) {
           showMessage(result.message, "success");
-          document.getElementById("confirmationSection").innerHTML = '\n        <div class="text-center py-5">\n          <h2 class="text-success mb-4">\u9001\u4FE1\u5B8C\u4E86</h2>\n          <p>'.concat(result.message, "</p>\n          <p>\u3053\u306E\u753B\u9762\u3092\u9589\u3058\u3066\u304F\u3060\u3055\u3044\u3002</p>\n        </div>\n      ");
-          document.getElementById("confirmationSection").style.display = "block";
+          let data = result.householdData;
+          if (typeof data === "string") {
+            try {
+              data = JSON.parse(data);
+            } catch (e) {
+              console.error("Failed to parse result data", e);
+            }
+          }
+          if (data) {
+            document.getElementById("confirmationSection").style.display = "none";
+            loadHouseholdData(data);
+            window.scrollTo(0, 0);
+            showMessage("\u767B\u9332\u304C\u5B8C\u4E86\u3057\u307E\u3057\u305F\u3002\u30DE\u30A4\u30DA\u30FC\u30B8\u3078\u79FB\u52D5\u3057\u307E\u3057\u305F\u3002", "success");
+          } else {
+            document.getElementById("confirmationSection").innerHTML = '\n            <div class="text-center py-5">\n              <h2 class="text-success mb-4">\u9001\u4FE1\u5B8C\u4E86</h2>\n              <p>'.concat(result.message, "</p>\n              <p>\u3053\u306E\u753B\u9762\u3092\u9589\u3058\u3066\u304F\u3060\u3055\u3044\u3002</p>\n            </div>\n          ");
+            document.getElementById("confirmationSection").style.display = "block";
+          }
         } else {
           showMessage(result.message, "danger");
           document.getElementById("registrationForm").style.display = "block";

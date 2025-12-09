@@ -76,8 +76,9 @@ function submitRegistration(formData) {
   return result.match({
     ok: (data) => ({
       success: true,
-      message: '登録が完了しました。確認メールをご確認ください。',
-      householdId: data.householdId
+      message: '登録が完了しました。',
+      householdId: data.householdId,
+      householdData: JSON.stringify(mapToFrontendDto(data.householdData))
     }),
     err: (error) => {
       // Legacy frontend expects specific duplicate flag?

@@ -387,17 +387,42 @@ export async function handleFinalSubmit() {
     }
 
     showLoading(false);
+    showLoading(false);
     if (result.success) {
+      // Auto-Login Flow
       showMessage(result.message, 'success');
-      // 完了画面へ（簡易的にメッセージ表示のみで終了）
-      document.getElementById('confirmationSection').innerHTML = `
-        <div class="text-center py-5">
-          <h2 class="text-success mb-4">送信完了</h2>
-          <p>${result.message}</p>
-          <p>この画面を閉じてください。</p>
-        </div>
-      `;
-      document.getElementById('confirmationSection').style.display = 'block';
+      
+      // Parse returned data
+      let data = result.householdData;
+      if (typeof data === 'string') {
+          try {
+              data = JSON.parse(data);
+          } catch(e) {
+              console.error("Failed to parse result data", e);
+          }
+      }
+
+      if (data) {
+          // Switch to Edit Mode immediately
+          document.getElementById('confirmationSection').style.display = 'none';
+          loadHouseholdData(data); // This shows the form sections again
+          window.scrollTo(0, 0);
+          
+          // Optional: Show a "Welcome" toast or modal? 
+          // For now, showMessage is enough.
+          showMessage('登録が完了しました。マイページへ移動しました。', 'success');
+      } else {
+           // Fallback if no data returned (should not happen with new server logic)
+           document.getElementById('confirmationSection').innerHTML = `
+            <div class="text-center py-5">
+              <h2 class="text-success mb-4">送信完了</h2>
+              <p>${result.message}</p>
+              <p>この画面を閉じてください。</p>
+            </div>
+          `;
+          document.getElementById('confirmationSection').style.display = 'block';
+      }
+
     } else {
       showMessage(result.message, 'danger');
       // エラー時はフォームに戻る
