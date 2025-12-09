@@ -59,7 +59,6 @@ class HouseholdRepositoryClean { // extends HouseholdRepositoryInterface
     // Use CONFIG constants
     return this.adapter.readTable(CONFIG.SHEET_HOUSEHOLD)
       .flatMap(rows => {
-      .flatMap(rows => {
         // Robust ID comparison
         const matches = rows.filter(r => String(r['世帯登録番号'] || '').trim() === String(householdId || '').trim());
         
