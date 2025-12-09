@@ -59,11 +59,26 @@ class HouseholdRepositoryClean { // extends HouseholdRepositoryInterface
     // Use CONFIG constants
     return this.adapter.readTable(CONFIG.SHEET_HOUSEHOLD)
       .flatMap(rows => {
-        const matches = rows.filter(r => r['世帯登録番号'] === householdId);
-        if (matches.length === 0) return Result.ok(null);
+      .flatMap(rows => {
+        // Robust ID comparison
+        const matches = rows.filter(r => String(r['世帯登録番号'] || '').trim() === String(householdId || '').trim());
+        
+        if (matches.length === 0) {
+           // DEBUG: check if it exists loosely? 
+           // For now, honestly return null.
+           return Result.ok(null);
+        }
 
         // Sort by version desc (header 'バージョン')
-        matches.sort((a, b) => Number(b['バージョン']) - Number(a['バージョン']));
+        // Handle NaN/Undefined safely
+        matches.sort((a, b) => {
+           let vA = Number(a['バージョン']);
+           let vB = Number(b['バージョン']);
+           if (isNaN(vA)) vA = 0;
+           if (isNaN(vB)) vB = 0;
+           return vB - vA;
+        });
+        
         householdRecord = matches[0];
         
         if (!householdRecord) return Result.ok(null);

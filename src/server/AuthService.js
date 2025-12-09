@@ -90,11 +90,11 @@ class AuthService {
         if (!householdId) {
             return Result.err(new Error('メールアドレスが見つかりませんでした。'));
         }
-        return this.householdRepo.getHouseholdData(householdId);
+        return this.householdRepo.getHouseholdData(householdId).map(data => ({ data, householdId }));
       })
-      .flatMap(data => {
+      .flatMap(({ data, householdId }) => {
         if (!data || !data.household) {
-           return Result.err(new Error('世帯データが見つかりませんでした。'));
+           return Result.err(new Error(`世帯データが見つかりませんでした (ID: ${householdId})。管理者に連絡してください。`));
         }
 
         // Validate Edit Code
