@@ -86,15 +86,16 @@ class AuthService {
    */
   authenticate(email, editCode) {
     return this.householdRepo.findByEmail(email)
-      .flatMap(householdId => {
-        if (!householdId) {
+      .flatMap(data => {
+        if (!data) {
             return Result.err(new Error('メールアドレスが見つかりませんでした。'));
         }
-        return this.householdRepo.getHouseholdData(householdId).map(data => ({ data, householdId }));
-      })
-      .flatMap(({ data, householdId }) => {
-        if (!data || !data.household) {
-           return Result.err(new Error(`世帯データが見つかりませんでした (ID: ${householdId})。管理者に連絡してください。`));
+        
+        // Data is already the full household object, so we verify directly.
+        if (!data.household) {
+             // Should verify if this case is reachable from findByEmail (it returns null if household missing)
+             // But for safety:
+             return Result.err(new Error('世帯データが見つかりませんでした。'));
         }
 
         // Validate Edit Code
