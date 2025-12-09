@@ -14,7 +14,6 @@ async function build() {
       await esbuild.build({
         entryPoints: ['src/client/main.js'],
         bundle: true,
-        minify: true,
         outfile: 'dist/script.temp.js',
         format: 'iife',
         target: 'es2015',

@@ -1,36 +1,179 @@
 <script>
-(()=>{var M=Object.defineProperty;var E=Object.getOwnPropertySymbols;var F=Object.prototype.hasOwnProperty,K=Object.prototype.propertyIsEnumerable;var S=(e,o,s)=>o in e?M(e,o,{enumerable:!0,configurable:!0,writable:!0,value:s}):e[o]=s,b=(e,o)=>{for(var s in o||(o={}))F.call(o,s)&&S(e,s,o[s]);if(E)for(var s of E(o))K.call(o,s)&&S(e,s,o[s]);return e};var p=(e,o,s)=>new Promise((t,n)=>{var l=i=>{try{r(s.next(i))}catch(m){n(m)}},a=i=>{try{r(s.throw(i))}catch(m){n(m)}},r=i=>i.done?t(i.value):Promise.resolve(i.value).then(l,a);r((s=s.apply(e,o)).next())});var $=class{constructor(o={}){this.state=o,this.listeners=[]}getState(){return this.state}setState(o){this.state=b(b({},this.state),o),this.notify()}subscribe(o){return this.listeners.push(o),()=>{this.listeners=this.listeners.filter(s=>s!==o)}}notify(){this.listeners.forEach(o=>o(this.state))}},c=new $({mode:"new",guardianCount:0,studentCount:0,household:{},guardians:[],students:[]});function f(e,...o){return new Promise((s,t)=>{google.script.run.withSuccessHandler(s).withFailureHandler(t)[e](...o)})}function I(){let e=/^\d{3}-?\d{4}$/,o=/^0\d{1,4}-?\d{1,4}-?\d{3,4}$/,s=document.getElementById("postalCode").value;if(s&&!e.test(s))return{valid:!1,message:"\u4E16\u5E2F\u306E\u90F5\u4FBF\u756A\u53F7\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093\u3002\uFF08\u4F8B: 123-4567\uFF09"};let t=document.querySelectorAll(".guardian-card");for(let l of t){let a=l.id,r=l.querySelector(`[name="mobile_phone_${a}"]`).value,i=l.querySelector(`[name="home_phone_${a}"]`).value,m=l.querySelector(`[name="postalCode_${a}"]`).value;if(!r&&!i)return{valid:!1,message:"\u4FDD\u8B77\u8005\u306E\u643A\u5E2F\u96FB\u8A71\u307E\u305F\u306F\u81EA\u5B85\u96FB\u8A71\u306E\u3069\u3061\u3089\u304B1\u3064\u306F\u5FC5\u9808\u3067\u3059\u3002"};if(r&&!o.test(r))return{valid:!1,message:"\u4FDD\u8B77\u8005\u306E\u643A\u5E2F\u96FB\u8A71\u756A\u53F7\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093\u3002"};if(i&&!o.test(i))return{valid:!1,message:"\u4FDD\u8B77\u8005\u306E\u81EA\u5B85\u96FB\u8A71\u756A\u53F7\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093\u3002"};if(m&&!e.test(m))return{valid:!1,message:"\u4FDD\u8B77\u8005\u306E\u90F5\u4FBF\u756A\u53F7\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093\u3002"}}let n=document.querySelectorAll(".student-card");for(let l of n){let a=l.id,r=l.querySelector(`[name="s_mobile_phone_${a}"]`).value,i=l.querySelector(`[name="postalCode_s_${a}"]`).value;if(r&&!o.test(r))return{valid:!1,message:"\u751F\u5F92\u306E\u643A\u5E2F\u96FB\u8A71\u756A\u53F7\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093\u3002"};if(i&&!e.test(i))return{valid:!1,message:"\u751F\u5F92\u306E\u90F5\u4FBF\u756A\u53F7\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093\u3002"}}return{valid:!0}}function g(e=null){let s=c.getState().guardianCount+1;c.setState({guardianCount:s});let t="guardian_"+s,n=e&&(e.postalCode||e.prefecture||e.city||e.street),l=`
-    <div class="guardian-card fade-in" id="${t}">
-      <input type="hidden" name="guardianId_${t}" value="${e&&e.guardianId||""}">
+(() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __propIsEnum = Object.prototype.propertyIsEnumerable;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __spreadValues = (a, b) => {
+    for (var prop in b || (b = {}))
+      if (__hasOwnProp.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    if (__getOwnPropSymbols)
+      for (var prop of __getOwnPropSymbols(b)) {
+        if (__propIsEnum.call(b, prop))
+          __defNormalProp(a, prop, b[prop]);
+      }
+    return a;
+  };
+  var __async = (__this, __arguments, generator) => {
+    return new Promise((resolve, reject) => {
+      var fulfilled = (value) => {
+        try {
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
+        }
+      };
+      var rejected = (value) => {
+        try {
+          step(generator.throw(value));
+        } catch (e) {
+          reject(e);
+        }
+      };
+      var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+      step((generator = generator.apply(__this, __arguments)).next());
+    });
+  };
+
+  // src/client/state/store.js
+  var Store = class {
+    constructor(initialState = {}) {
+      this.state = initialState;
+      this.listeners = [];
+    }
+    /**
+     * Get the current state.
+     * @returns {object} The current state.
+     */
+    getState() {
+      return this.state;
+    }
+    /**
+     * Update the state.
+     * @param {object} newState - Partial state to update.
+     */
+    setState(newState) {
+      this.state = __spreadValues(__spreadValues({}, this.state), newState);
+      this.notify();
+    }
+    /**
+     * Subscribe to state changes.
+     * @param {function} listener - Callback function.
+     * @returns {function} Unsubscribe function.
+     */
+    subscribe(listener) {
+      this.listeners.push(listener);
+      return () => {
+        this.listeners = this.listeners.filter((l) => l !== listener);
+      };
+    }
+    /**
+     * Notify all listeners of state changes.
+     */
+    notify() {
+      this.listeners.forEach((listener) => listener(this.state));
+    }
+  };
+  var store = new Store({
+    mode: "new",
+    // 'new' or 'edit'
+    guardianCount: 0,
+    studentCount: 0,
+    household: {},
+    guardians: [],
+    students: []
+  });
+
+  // src/client/infra/api.js
+  function runServerFunction(functionName, ...args) {
+    return new Promise((resolve, reject) => {
+      google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[functionName](...args);
+    });
+  }
+
+  // src/client/domain/validation.js
+  function validateForm() {
+    const postalCodeRegex = /^\d{3}-?\d{4}$/;
+    const phoneRegex = /^0\d{1,4}-?\d{1,4}-?\d{3,4}$/;
+    const householdPostalCode = document.getElementById("postalCode").value;
+    if (householdPostalCode && !postalCodeRegex.test(householdPostalCode)) {
+      return { valid: false, message: "\u4E16\u5E2F\u306E\u90F5\u4FBF\u756A\u53F7\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093\u3002\uFF08\u4F8B: 123-4567\uFF09" };
+    }
+    const guardians = document.querySelectorAll(".guardian-card");
+    for (let card of guardians) {
+      const id = card.id;
+      const mobile = card.querySelector(`[name="mobile_phone_${id}"]`).value;
+      const home = card.querySelector(`[name="home_phone_${id}"]`).value;
+      const postalCode = card.querySelector(`[name="postalCode_${id}"]`).value;
+      if (!mobile && !home) {
+        return { valid: false, message: "\u4FDD\u8B77\u8005\u306E\u643A\u5E2F\u96FB\u8A71\u307E\u305F\u306F\u81EA\u5B85\u96FB\u8A71\u306E\u3069\u3061\u3089\u304B1\u3064\u306F\u5FC5\u9808\u3067\u3059\u3002" };
+      }
+      if (mobile && !phoneRegex.test(mobile)) {
+        return { valid: false, message: "\u4FDD\u8B77\u8005\u306E\u643A\u5E2F\u96FB\u8A71\u756A\u53F7\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093\u3002" };
+      }
+      if (home && !phoneRegex.test(home)) {
+        return { valid: false, message: "\u4FDD\u8B77\u8005\u306E\u81EA\u5B85\u96FB\u8A71\u756A\u53F7\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093\u3002" };
+      }
+      if (postalCode && !postalCodeRegex.test(postalCode)) {
+        return { valid: false, message: "\u4FDD\u8B77\u8005\u306E\u90F5\u4FBF\u756A\u53F7\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093\u3002" };
+      }
+    }
+    const students = document.querySelectorAll(".student-card");
+    for (let card of students) {
+      const id = card.id;
+      const mobile = card.querySelector(`[name="s_mobile_phone_${id}"]`).value;
+      const postalCode = card.querySelector(`[name="postalCode_s_${id}"]`).value;
+      if (mobile && !phoneRegex.test(mobile)) {
+        return { valid: false, message: "\u751F\u5F92\u306E\u643A\u5E2F\u96FB\u8A71\u756A\u53F7\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093\u3002" };
+      }
+      if (postalCode && !postalCodeRegex.test(postalCode)) {
+        return { valid: false, message: "\u751F\u5F92\u306E\u90F5\u4FBF\u756A\u53F7\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093\u3002" };
+      }
+    }
+    return { valid: true };
+  }
+
+  // src/client/ui/components/guardian.js
+  function addGuardian(data = null) {
+    const state = store.getState();
+    const guardianCount = state.guardianCount + 1;
+    store.setState({ guardianCount });
+    const id = "guardian_" + guardianCount;
+    const hasSeparateAddress = data && (data.postalCode || data.prefecture || data.city || data.street);
+    const html = `
+    <div class="guardian-card fade-in" id="${id}">
+      <input type="hidden" name="guardianId_${id}" value="${data ? data.guardianId || "" : ""}">
       <div class="card-header">
-        <h3>\u4FDD\u8B77\u8005${s}</h3>
-        ${s>1?`<button type="button" class="btn btn-danger btn-sm remove-btn" data-remove-guardian="${t}">\u524A\u9664</button>`:""}
+        <h3>\u4FDD\u8B77\u8005${guardianCount}</h3>
+        ${guardianCount > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn" data-remove-guardian="${id}">\u524A\u9664</button>` : ""}
       </div>
       
       <div class="form-row">
         <div class="form-group col-md-4">
           <label>\u7D9A\u67C4 <span class="required">*</span></label>
-          <select class="form-control" name="relationship_${t}" required>
+          <select class="form-control" name="relationship_${id}" required>
             <option value="">\u9078\u629E</option>
-            <option value="\u7236" ${e&&e.relationship==="\u7236"?"selected":""}>\u7236</option>
-            <option value="\u6BCD" ${e&&e.relationship==="\u6BCD"?"selected":""}>\u6BCD</option>
-            <option value="\u7956\u7236" ${e&&e.relationship==="\u7956\u7236"?"selected":""}>\u7956\u7236</option>
-            <option value="\u7956\u6BCD" ${e&&e.relationship==="\u7956\u6BCD"?"selected":""}>\u7956\u6BCD</option>
-            <option value="\u305D\u306E\u4ED6" ${e&&e.relationship==="\u305D\u306E\u4ED6"?"selected":""}>\u305D\u306E\u4ED6</option>
+            <option value="\u7236" ${data && data.relationship === "\u7236" ? "selected" : ""}>\u7236</option>
+            <option value="\u6BCD" ${data && data.relationship === "\u6BCD" ? "selected" : ""}>\u6BCD</option>
+            <option value="\u7956\u7236" ${data && data.relationship === "\u7956\u7236" ? "selected" : ""}>\u7956\u7236</option>
+            <option value="\u7956\u6BCD" ${data && data.relationship === "\u7956\u6BCD" ? "selected" : ""}>\u7956\u6BCD</option>
+            <option value="\u305D\u306E\u4ED6" ${data && data.relationship === "\u305D\u306E\u4ED6" ? "selected" : ""}>\u305D\u306E\u4ED6</option>
           </select>
         </div>
         <div class="form-group col-md-4">
           <label>\u9023\u7D61\u512A\u5148\u9806\u4F4D <span class="required">*</span></label>
-          <select class="form-control priority-select" name="priority_${t}" required data-initial-priority="${e&&e.contactPriority||""}">
+          <select class="form-control priority-select" name="priority_${id}" required data-initial-priority="${data ? data.contactPriority || "" : ""}">
             <!-- Dynamically generated -->
           </select>
         </div>
         <div class="form-group col-md-4">
           <label>\u9023\u7D61\u624B\u6BB5</label>
-          <select class="form-control" name="contact_method_${t}">
-            <option value="\u643A\u5E2F\u96FB\u8A71" ${!e||e.contactMethod==="\u643A\u5E2F\u96FB\u8A71"?"selected":""}>\u643A\u5E2F\u96FB\u8A71</option>
-            <option value="\u81EA\u5B85\u96FB\u8A71" ${e&&e.contactMethod==="\u81EA\u5B85\u96FB\u8A71"?"selected":""}>\u81EA\u5B85\u96FB\u8A71</option>
-            <option value="\u30E1\u30FC\u30EB" ${e&&e.contactMethod==="\u30E1\u30FC\u30EB"?"selected":""}>\u30E1\u30FC\u30EB</option>
+          <select class="form-control" name="contact_method_${id}">
+            <option value="\u643A\u5E2F\u96FB\u8A71" ${!data || data.contactMethod === "\u643A\u5E2F\u96FB\u8A71" ? "selected" : ""}>\u643A\u5E2F\u96FB\u8A71</option>
+            <option value="\u81EA\u5B85\u96FB\u8A71" ${data && data.contactMethod === "\u81EA\u5B85\u96FB\u8A71" ? "selected" : ""}>\u81EA\u5B85\u96FB\u8A71</option>
+            <option value="\u30E1\u30FC\u30EB" ${data && data.contactMethod === "\u30E1\u30FC\u30EB" ? "selected" : ""}>\u30E1\u30FC\u30EB</option>
           </select>
         </div>
       </div>
@@ -38,44 +181,44 @@
       <div class="form-row">
         <div class="form-group col-md-6">
           <label>\u59D3 <span class="required">*</span></label>
-          <input type="text" class="form-control" name="last_name_${t}" value="${e?e.lastName:""}" required>
+          <input type="text" class="form-control" name="last_name_${id}" value="${data ? data.lastName : ""}" required>
         </div>
         <div class="form-group col-md-6">
           <label>\u540D <span class="required">*</span></label>
-          <input type="text" class="form-control" name="first_name_${t}" value="${e?e.firstName:""}" required>
+          <input type="text" class="form-control" name="first_name_${id}" value="${data ? data.firstName : ""}" required>
         </div>
       </div>
       
       <div class="form-row">
         <div class="form-group col-md-6">
           <label>\u30D5\u30EA\u30AC\u30CA\uFF08\u59D3\uFF09 <span class="required">*</span></label>
-          <input type="text" class="form-control" name="last_name_kana_${t}" value="${e?e.lastNameKana:""}" pattern="[\u30A1-\u30F6\u30FC]+" required>
+          <input type="text" class="form-control" name="last_name_kana_${id}" value="${data ? data.lastNameKana : ""}" pattern="[\u30A1-\u30F6\u30FC]+" required>
         </div>
         <div class="form-group col-md-6">
           <label>\u30D5\u30EA\u30AC\u30CA\uFF08\u540D\uFF09 <span class="required">*</span></label>
-          <input type="text" class="form-control" name="first_name_kana_${t}" value="${e?e.firstNameKana:""}" pattern="[\u30A1-\u30F6\u30FC]+" required>
+          <input type="text" class="form-control" name="first_name_kana_${id}" value="${data ? data.firstNameKana : ""}" pattern="[\u30A1-\u30F6\u30FC]+" required>
         </div>
       </div>
       
       <div class="form-group">
         <label>\u9023\u7D61\u7528\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9 <span class="required">*</span></label>
-        <input type="email" class="form-control" name="email_${t}" value="${e?e.email:""}" required>
+        <input type="email" class="form-control" name="email_${id}" value="${data ? data.email : ""}" required>
       </div>
       
       <div class="form-group">
         <label>\u30AA\u30F3\u30E9\u30A4\u30F3\u9762\u8AC7\u7528\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\uFF08\u4EFB\u610F\uFF09</label>
-        <input type="email" class="form-control" name="meeting_email_${t}" value="${e&&e.meetingEmail||""}">
+        <input type="email" class="form-control" name="meeting_email_${id}" value="${data ? data.meetingEmail || "" : ""}">
         <small class="form-text">\u{1F4A1} PC/\u30BF\u30D6\u30EC\u30C3\u30C8\u3067\u78BA\u8A8D\u3057\u3084\u3059\u3044\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u63A8\u5968</small>
       </div>
       
       <div class="form-row">
         <div class="form-group col-md-6">
           <label>\u643A\u5E2F\u96FB\u8A71\u756A\u53F7</label>
-          <input type="tel" class="form-control" name="mobile_phone_${t}" value="${e&&e.mobilePhone||""}" placeholder="090-1234-5678">
+          <input type="tel" class="form-control" name="mobile_phone_${id}" value="${data ? data.mobilePhone || "" : ""}" placeholder="090-1234-5678">
         </div>
         <div class="form-group col-md-6">
           <label>\u81EA\u5B85\u96FB\u8A71\u756A\u53F7</label>
-          <input type="tel" class="form-control" name="home_phone_${t}" value="${e&&e.homePhone||""}" placeholder="03-1234-5678">
+          <input type="tel" class="form-control" name="home_phone_${id}" value="${data ? data.homePhone || "" : ""}" placeholder="03-1234-5678">
         </div>
       </div>
       <small class="form-text">\u{1F4DE} \u643A\u5E2F\u96FB\u8A71\u307E\u305F\u306F\u81EA\u5B85\u96FB\u8A71\u306E\u3069\u3061\u3089\u304B1\u3064\u306F\u5FC5\u305A\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044</small>
@@ -83,50 +226,160 @@
       <!-- Address Input -->
       <div class="form-group mt-3">
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="separate_address_${t}" data-toggle-address="${t}" ${n?"checked":""}>
-          <label class="form-check-label" for="separate_address_${t}">
+          <input class="form-check-input" type="checkbox" id="separate_address_${id}" data-toggle-address="${id}" ${hasSeparateAddress ? "checked" : ""}>
+          <label class="form-check-label" for="separate_address_${id}">
             \u3054\u81EA\u5B85\u3068\u7570\u306A\u308B\u4F4F\u6240\u3092\u767B\u9332\u3059\u308B\uFF08\u5358\u8EAB\u8D74\u4EFB\u7B49\uFF09
           </label>
         </div>
       </div>
       
-      <div id="address_fields_${t}" style="display: ${n?"block":"none"};" class="bg-light p-3 rounded">
+      <div id="address_fields_${id}" style="display: ${hasSeparateAddress ? "block" : "none"};" class="bg-light p-3 rounded">
         <div class="form-row">
           <div class="form-group col-md-4">
             <label>\u90F5\u4FBF\u756A\u53F7</label>
-            <input type="text" id="postalCode_${t}" name="postalCode_${t}" class="form-control" placeholder="123-4567" maxlength="8" value="${e&&e.postalCode||""}">
-            <button type="button" class="btn btn-sm btn-secondary mt-1" data-search-address="${t}">\u4F4F\u6240\u691C\u7D22</button>
+            <input type="text" id="postalCode_${id}" name="postalCode_${id}" class="form-control" placeholder="123-4567" maxlength="8" value="${data ? data.postalCode || "" : ""}">
+            <button type="button" class="btn btn-sm btn-secondary mt-1" data-search-address="${id}">\u4F4F\u6240\u691C\u7D22</button>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group col-md-4">
             <label>\u90FD\u9053\u5E9C\u770C</label>
-            <select id="prefecture_${t}" name="prefecture_${t}" class="form-control">
+            <select id="prefecture_${id}" name="prefecture_${id}" class="form-control">
               <option value="">\u9078\u629E</option>
-              ${H(e?e.prefecture:"")}
+              ${generatePrefectureOptions(data ? data.prefecture : "")}
             </select>
           </div>
           <div class="form-group col-md-8">
             <label>\u5E02\u533A\u753A\u6751</label>
-            <input type="text" id="city_${t}" name="city_${t}" class="form-control" value="${e&&e.city||""}">
+            <input type="text" id="city_${id}" name="city_${id}" class="form-control" value="${data ? data.city || "" : ""}">
           </div>
         </div>
         <div class="form-group">
           <label>\u753A\u540D\u30FB\u756A\u5730\u30FB\u53F7</label>
-          <input type="text" id="street_${t}" name="street_${t}" class="form-control" value="${e&&e.street||""}">
+          <input type="text" id="street_${id}" name="street_${id}" class="form-control" value="${data ? data.street || "" : ""}">
         </div>
         <div class="form-group">
           <label>\u5EFA\u7269\u540D\u30FB\u90E8\u5C4B\u756A\u53F7</label>
-          <input type="text" id="building_${t}" name="building_${t}" class="form-control" value="${e&&e.building||""}">
+          <input type="text" id="building_${id}" name="building_${id}" class="form-control" value="${data ? data.building || "" : ""}">
         </div>
       </div>
     </div>
-  `;document.getElementById("guardiansList").insertAdjacentHTML("beforeend",l),C()}function B(e){confirm("\u3053\u306E\u4FDD\u8B77\u8005\u3092\u524A\u9664\u3057\u307E\u3059\u304B\uFF1F")&&(document.getElementById(e).remove(),C())}function C(){let e=document.querySelectorAll(".guardian-card"),o=e.length;e.forEach((s,t)=>{let n=s.querySelector(".priority-select"),l=n.value;l||(l=n.getAttribute("data-initial-priority")),l||(l=t+1);let a="";for(let r=1;r<=o;r++)a+=`<option value="${r}" ${l==r?"selected":""}>${r}</option>`;n.innerHTML=a,n.setAttribute("data-current-value",n.value)})}function k(e){let o=e.target,s=o.value,t=o.getAttribute("data-current-value");if(s===t)return;let n=document.querySelectorAll(".priority-select"),l=null;n.forEach(a=>{a!==o&&a.value===s&&(l=a)}),l&&(l.value=t,l.setAttribute("data-current-value",t)),o.setAttribute("data-current-value",s)}function H(e){return["\u5317\u6D77\u9053","\u9752\u68EE\u770C","\u5CA9\u624B\u770C","\u5BAE\u57CE\u770C","\u79CB\u7530\u770C","\u5C71\u5F62\u770C","\u798F\u5CF6\u770C","\u8328\u57CE\u770C","\u6803\u6728\u770C","\u7FA4\u99AC\u770C","\u57FC\u7389\u770C","\u5343\u8449\u770C","\u6771\u4EAC\u90FD","\u795E\u5948\u5DDD\u770C","\u65B0\u6F5F\u770C","\u5BCC\u5C71\u770C","\u77F3\u5DDD\u770C","\u798F\u4E95\u770C","\u5C71\u68A8\u770C","\u9577\u91CE\u770C","\u5C90\u961C\u770C","\u9759\u5CA1\u770C","\u611B\u77E5\u770C","\u4E09\u91CD\u770C","\u6ECB\u8CC0\u770C","\u4EAC\u90FD\u5E9C","\u5927\u962A\u5E9C","\u5175\u5EAB\u770C","\u5948\u826F\u770C","\u548C\u6B4C\u5C71\u770C","\u9CE5\u53D6\u770C","\u5CF6\u6839\u770C","\u5CA1\u5C71\u770C","\u5E83\u5CF6\u770C","\u5C71\u53E3\u770C","\u5FB3\u5CF6\u770C","\u9999\u5DDD\u770C","\u611B\u5A9B\u770C","\u9AD8\u77E5\u770C","\u798F\u5CA1\u770C","\u4F50\u8CC0\u770C","\u9577\u5D0E\u770C","\u718A\u672C\u770C","\u5927\u5206\u770C","\u5BAE\u5D0E\u770C","\u9E7F\u5150\u5CF6\u770C","\u6C96\u7E04\u770C"].map(s=>`<option value="${s}" ${e===s?"selected":""}>${s}</option>`).join("")}function y(e=null){let s=c.getState().studentCount+1;c.setState({studentCount:s});let t="student_"+s,n=e&&(e.postalCode||e.prefecture||e.city||e.street),l=`
-    <div class="student-card fade-in" id="${t}">
-      <input type="hidden" name="studentId_${t}" value="${e&&e.studentId||""}">
+  `;
+    document.getElementById("guardiansList").insertAdjacentHTML("beforeend", html);
+    updateGuardianPriorities();
+  }
+  function removeGuardian(id) {
+    if (confirm("\u3053\u306E\u4FDD\u8B77\u8005\u3092\u524A\u9664\u3057\u307E\u3059\u304B\uFF1F")) {
+      document.getElementById(id).remove();
+      updateGuardianPriorities();
+    }
+  }
+  function updateGuardianPriorities() {
+    const guardians = document.querySelectorAll(".guardian-card");
+    const count = guardians.length;
+    guardians.forEach((card, index) => {
+      const select = card.querySelector(".priority-select");
+      let currentValue = select.value;
+      if (!currentValue) {
+        currentValue = select.getAttribute("data-initial-priority");
+      }
+      if (!currentValue) {
+        currentValue = index + 1;
+      }
+      let options = "";
+      for (let i = 1; i <= count; i++) {
+        options += `<option value="${i}" ${currentValue == i ? "selected" : ""}>${i}</option>`;
+      }
+      select.innerHTML = options;
+      select.setAttribute("data-current-value", select.value);
+    });
+  }
+  function handlePriorityChange(e) {
+    const target = e.target;
+    const newValue = target.value;
+    const oldValue = target.getAttribute("data-current-value");
+    if (newValue === oldValue) return;
+    const allSelects = document.querySelectorAll(".priority-select");
+    let otherSelect = null;
+    allSelects.forEach((select) => {
+      if (select !== target && select.value === newValue) {
+        otherSelect = select;
+      }
+    });
+    if (otherSelect) {
+      otherSelect.value = oldValue;
+      otherSelect.setAttribute("data-current-value", oldValue);
+    }
+    target.setAttribute("data-current-value", newValue);
+  }
+  function generatePrefectureOptions(selectedPrefecture) {
+    const prefectures = [
+      "\u5317\u6D77\u9053",
+      "\u9752\u68EE\u770C",
+      "\u5CA9\u624B\u770C",
+      "\u5BAE\u57CE\u770C",
+      "\u79CB\u7530\u770C",
+      "\u5C71\u5F62\u770C",
+      "\u798F\u5CF6\u770C",
+      "\u8328\u57CE\u770C",
+      "\u6803\u6728\u770C",
+      "\u7FA4\u99AC\u770C",
+      "\u57FC\u7389\u770C",
+      "\u5343\u8449\u770C",
+      "\u6771\u4EAC\u90FD",
+      "\u795E\u5948\u5DDD\u770C",
+      "\u65B0\u6F5F\u770C",
+      "\u5BCC\u5C71\u770C",
+      "\u77F3\u5DDD\u770C",
+      "\u798F\u4E95\u770C",
+      "\u5C71\u68A8\u770C",
+      "\u9577\u91CE\u770C",
+      "\u5C90\u961C\u770C",
+      "\u9759\u5CA1\u770C",
+      "\u611B\u77E5\u770C",
+      "\u4E09\u91CD\u770C",
+      "\u6ECB\u8CC0\u770C",
+      "\u4EAC\u90FD\u5E9C",
+      "\u5927\u962A\u5E9C",
+      "\u5175\u5EAB\u770C",
+      "\u5948\u826F\u770C",
+      "\u548C\u6B4C\u5C71\u770C",
+      "\u9CE5\u53D6\u770C",
+      "\u5CF6\u6839\u770C",
+      "\u5CA1\u5C71\u770C",
+      "\u5E83\u5CF6\u770C",
+      "\u5C71\u53E3\u770C",
+      "\u5FB3\u5CF6\u770C",
+      "\u9999\u5DDD\u770C",
+      "\u611B\u5A9B\u770C",
+      "\u9AD8\u77E5\u770C",
+      "\u798F\u5CA1\u770C",
+      "\u4F50\u8CC0\u770C",
+      "\u9577\u5D0E\u770C",
+      "\u718A\u672C\u770C",
+      "\u5927\u5206\u770C",
+      "\u5BAE\u5D0E\u770C",
+      "\u9E7F\u5150\u5CF6\u770C",
+      "\u6C96\u7E04\u770C"
+    ];
+    return prefectures.map(
+      (pref) => `<option value="${pref}" ${selectedPrefecture === pref ? "selected" : ""}>${pref}</option>`
+    ).join("");
+  }
+
+  // src/client/ui/components/student.js
+  function addStudent(data = null) {
+    const state = store.getState();
+    const studentCount = state.studentCount + 1;
+    store.setState({ studentCount });
+    const id = "student_" + studentCount;
+    const hasSeparateAddress = data && (data.postalCode || data.prefecture || data.city || data.street);
+    const html = `
+    <div class="student-card fade-in" id="${id}">
+      <input type="hidden" name="studentId_${id}" value="${data ? data.studentId || "" : ""}">
       <div class="card-header">
-        <h3>\u751F\u5F92${s}</h3>
-        ${s>1?`<button type="button" class="btn btn-danger btn-sm remove-btn" data-remove-student="${t}">\u524A\u9664</button>`:""}
+        <h3>\u751F\u5F92${studentCount}</h3>
+        ${studentCount > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn" data-remove-student="${id}">\u524A\u9664</button>` : ""}
       </div>
       
       <div class="form-row">
@@ -135,99 +388,582 @@
 
         <div class="form-group col-md-6">
           <label>\u59D3 <span class="required">*</span></label>
-          <input type="text" class="form-control" name="s_last_name_${t}" value="${e?e.lastName:""}" required>
+          <input type="text" class="form-control" name="s_last_name_${id}" value="${data ? data.lastName : ""}" required>
         </div>
         <div class="form-group col-md-6">
           <label>\u540D <span class="required">*</span></label>
-          <input type="text" class="form-control" name="s_first_name_${t}" value="${e?e.firstName:""}" required>
+          <input type="text" class="form-control" name="s_first_name_${id}" value="${data ? data.firstName : ""}" required>
         </div>
       </div>
       
       <div class="form-row">
         <div class="form-group col-md-6">
           <label>\u30D5\u30EA\u30AC\u30CA\uFF08\u59D3\uFF09 <span class="required">*</span></label>
-          <input type="text" class="form-control" name="s_last_name_kana_${t}" value="${e?e.lastNameKana:""}" pattern="[\u30A1-\u30F6\u30FC]+" required>
+          <input type="text" class="form-control" name="s_last_name_kana_${id}" value="${data ? data.lastNameKana : ""}" pattern="[\u30A1-\u30F6\u30FC]+" required>
         </div>
         <div class="form-group col-md-6">
           <label>\u30D5\u30EA\u30AC\u30CA\uFF08\u540D\uFF09 <span class="required">*</span></label>
-          <input type="text" class="form-control" name="s_first_name_kana_${t}" value="${e?e.firstNameKana:""}" pattern="[\u30A1-\u30F6\u30FC]+" required>
+          <input type="text" class="form-control" name="s_first_name_kana_${id}" value="${data ? data.firstNameKana : ""}" pattern="[\u30A1-\u30F6\u30FC]+" required>
         </div>
       </div>
       
       <div class="form-group">
         <label>\u9AD8\u6821\u5352\u696D\uFF08\u4E88\u5B9A\uFF09\u5E74 <span class="required">*</span></label>
-        <select class="form-control" name="graduation_year_${t}" required>
+        <select class="form-control" name="graduation_year_${id}" required>
           <option value="">\u9078\u629E</option>
-          ${T(e?e.graduationYear:null)}
+          ${generateYearOptions(data ? data.graduationYear : null)}
         </select>
       </div>
       
       <div class="form-group">
         <label>\u9023\u7D61\u7528\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9 <span class="required">*</span></label>
-        <input type="email" class="form-control" name="s_email_${t}" value="${e?e.email:""}" required>
+        <input type="email" class="form-control" name="s_email_${id}" value="${data ? data.email : ""}" required>
       </div>
       
       <div class="form-group">
         <label>\u30AA\u30F3\u30E9\u30A4\u30F3\u6388\u696D\u7528\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\uFF08\u4EFB\u610F\uFF09</label>
-        <input type="email" class="form-control" name="s_class_email_${t}" value="${e&&e.classEmail||""}">
+        <input type="email" class="form-control" name="s_class_email_${id}" value="${data ? data.classEmail || "" : ""}">
         <small class="form-text">\u{1F4A1} PC/\u30BF\u30D6\u30EC\u30C3\u30C8\u3067\u78BA\u8A8D\u3057\u3084\u3059\u3044\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u63A8\u5968</small>
       </div>
       
       <div class="form-group">
         <label>\u643A\u5E2F\u96FB\u8A71\u756A\u53F7\uFF08\u4EFB\u610F\uFF09</label>
-        <input type="tel" class="form-control" name="s_mobile_phone_${t}" value="${e&&e.mobilePhone||""}" placeholder="090-1234-5678">
+        <input type="tel" class="form-control" name="s_mobile_phone_${id}" value="${data ? data.mobilePhone || "" : ""}" placeholder="090-1234-5678">
         <small class="form-text">\u{1F4F1} \u304A\u6301\u3061\u306E\u5834\u5408\u306F\u5FC5\u305A\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044</small>
       </div>
 
        <!-- Address Input -->
       <div class="form-group mt-3">
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="separate_address_s_${t}" data-toggle-address="s_${t}" ${n?"checked":""}>
-          <label class="form-check-label" for="separate_address_s_${t}">
+          <input class="form-check-input" type="checkbox" id="separate_address_s_${id}" data-toggle-address="s_${id}" ${hasSeparateAddress ? "checked" : ""}>
+          <label class="form-check-label" for="separate_address_s_${id}">
             \u3054\u81EA\u5B85\u3068\u7570\u306A\u308B\u4F4F\u6240\u3092\u767B\u9332\u3059\u308B\uFF08\u5BEE\u751F\u6D3B\u7B49\uFF09
           </label>
         </div>
       </div>
       
-      <div id="address_fields_s_${t}" style="display: ${n?"block":"none"};" class="bg-light p-3 rounded">
+      <div id="address_fields_s_${id}" style="display: ${hasSeparateAddress ? "block" : "none"};" class="bg-light p-3 rounded">
         <div class="form-row">
           <div class="form-group col-md-4">
             <label>\u90F5\u4FBF\u756A\u53F7</label>
-            <input type="text" id="postalCode_s_${t}" name="postalCode_s_${t}" class="form-control" placeholder="123-4567" maxlength="8" value="${e&&e.postalCode||""}">
-            <button type="button" class="btn btn-sm btn-secondary mt-1" data-search-address="s_${t}">\u4F4F\u6240\u691C\u7D22</button>
+            <input type="text" id="postalCode_s_${id}" name="postalCode_s_${id}" class="form-control" placeholder="123-4567" maxlength="8" value="${data ? data.postalCode || "" : ""}">
+            <button type="button" class="btn btn-sm btn-secondary mt-1" data-search-address="s_${id}">\u4F4F\u6240\u691C\u7D22</button>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group col-md-4">
             <label>\u90FD\u9053\u5E9C\u770C</label>
-            <select id="prefecture_s_${t}" name="prefecture_s_${t}" class="form-control">
+            <select id="prefecture_s_${id}" name="prefecture_s_${id}" class="form-control">
               <option value="">\u9078\u629E</option>
-              ${G(e?e.prefecture:"")}
+              ${generatePrefectureOptions2(data ? data.prefecture : "")}
             </select>
           </div>
           <div class="form-group col-md-8">
             <label>\u5E02\u533A\u753A\u6751</label>
-            <input type="text" id="city_s_${t}" name="city_s_${t}" class="form-control" value="${e&&e.city||""}">
+            <input type="text" id="city_s_${id}" name="city_s_${id}" class="form-control" value="${data ? data.city || "" : ""}">
           </div>
         </div>
         <div class="form-group">
           <label>\u753A\u540D\u30FB\u756A\u5730\u30FB\u53F7</label>
-          <input type="text" id="street_s_${t}" name="street_s_${t}" class="form-control" value="${e&&e.street||""}">
+          <input type="text" id="street_s_${id}" name="street_s_${id}" class="form-control" value="${data ? data.street || "" : ""}">
         </div>
         <div class="form-group">
           <label>\u5EFA\u7269\u540D\u30FB\u90E8\u5C4B\u756A\u53F7</label>
-          <input type="text" id="building_s_${t}" name="building_s_${t}" class="form-control" value="${e&&e.building||""}">
+          <input type="text" id="building_s_${id}" name="building_s_${id}" class="form-control" value="${data ? data.building || "" : ""}">
         </div>
       </div>
     </div>
-  `;document.getElementById("studentsList").insertAdjacentHTML("beforeend",l)}function x(e){confirm("\u3053\u306E\u751F\u5F92\u3092\u524A\u9664\u3057\u307E\u3059\u304B\uFF1F")&&document.getElementById(e).remove()}function T(e){let o=new Date().getFullYear(),s=[];for(let t=-5;t<=10;t++){let n=o+t,l=e&&e==n?"selected":"";s.push(`<option value="${n}" ${l}>${n}\u5E74</option>`)}return s.join("")}function G(e){return["\u5317\u6D77\u9053","\u9752\u68EE\u770C","\u5CA9\u624B\u770C","\u5BAE\u57CE\u770C","\u79CB\u7530\u770C","\u5C71\u5F62\u770C","\u798F\u5CF6\u770C","\u8328\u57CE\u770C","\u6803\u6728\u770C","\u7FA4\u99AC\u770C","\u57FC\u7389\u770C","\u5343\u8449\u770C","\u6771\u4EAC\u90FD","\u795E\u5948\u5DDD\u770C","\u65B0\u6F5F\u770C","\u5BCC\u5C71\u770C","\u77F3\u5DDD\u770C","\u798F\u4E95\u770C","\u5C71\u68A8\u770C","\u9577\u91CE\u770C","\u5C90\u961C\u770C","\u9759\u5CA1\u770C","\u611B\u77E5\u770C","\u4E09\u91CD\u770C","\u6ECB\u8CC0\u770C","\u4EAC\u90FD\u5E9C","\u5927\u962A\u5E9C","\u5175\u5EAB\u770C","\u5948\u826F\u770C","\u548C\u6B4C\u5C71\u770C","\u9CE5\u53D6\u770C","\u5CF6\u6839\u770C","\u5CA1\u5C71\u770C","\u5E83\u5CF6\u770C","\u5C71\u53E3\u770C","\u5FB3\u5CF6\u770C","\u9999\u5DDD\u770C","\u611B\u5A9B\u770C","\u9AD8\u77E5\u770C","\u798F\u5CA1\u770C","\u4F50\u8CC0\u770C","\u9577\u5D0E\u770C","\u718A\u672C\u770C","\u5927\u5206\u770C","\u5BAE\u5D0E\u770C","\u9E7F\u5150\u5CF6\u770C","\u6C96\u7E04\u770C"].map(s=>`<option value="${s}" ${e===s?"selected":""}>${s}</option>`).join("")}function u(e){let o=document.getElementById("loading"),s=document.getElementById("registrationForm");o&&(o.style.display=e?"block":"none"),s&&(s.style.display=e?"none":"block")}function d(e,o){let s=document.getElementById("message");s&&(s.className="alert alert-"+o,s.textContent=e,s.style.display="block",o==="success"&&setTimeout(()=>{s.style.display="none"},3e3))}function _(){let e=document.querySelector('input[name="mode"]:checked');if(!e)return;let o=e.value;c.setState({mode:o});let s=document.getElementById("editAuthSection"),t=document.getElementById("householdSection"),n=document.getElementById("guardiansSection"),l=document.getElementById("studentsSection"),a=document.getElementById("notesSection"),r=document.getElementById("submitSection");if(o==="new"){s&&(s.style.display="none"),t&&(t.style.display="block"),n&&(n.style.display="block"),l&&(l.style.display="block"),a&&(a.style.display="block"),r&&(r.style.display="block");let i=c.getState();i.guardianCount===0&&g(),i.studentCount===0&&y()}else s&&(s.style.display="block"),t&&(t.style.display="none"),n&&(n.style.display="none"),l&&(l.style.display="none"),a&&(a.style.display="none"),r&&(r.style.display="none")}function q(){return p(this,null,function*(){let e=document.getElementById("authEmail").value.trim(),o=document.getElementById("editCode").value.trim();if(!e){d("\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\u3002","danger");return}if(!o){d("\u7DE8\u96C6\u30B3\u30FC\u30C9\u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\u3002","danger");return}u(!0);try{let s=yield f("authenticateWithEditCode",e,o);if(console.log("authenticateWithEditCode result:",s),u(!1),!s)throw new Error("\u30B5\u30FC\u30D0\u30FC\u304B\u3089\u306E\u5FDC\u7B54\u304C\u3042\u308A\u307E\u305B\u3093\u3002");if(s.success){let t=s.householdData;if(typeof t=="string")try{t=JSON.parse(t)}catch(n){console.error("Failed to parse householdData JSON:",n)}j(t),d("\u8A8D\u8A3C\u306B\u6210\u529F\u3057\u307E\u3057\u305F\u3002","success")}else d(s.message,"danger")}catch(s){u(!1),console.error("Authentication error:",s),d("\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F: "+s.message,"danger")}})}function w(){return p(this,null,function*(){let e=document.getElementById("authEmail").value.trim();if(!e){d("\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\u3002","danger");return}u(!0);try{let o=yield f("requestMagicLink",e);u(!1),o.success?d(o.message,"success"):d(o.message,"danger")}catch(o){u(!1),d("\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F: "+o.message,"danger")}})}function j(e){let o=document.getElementById("editAuthSection");o&&(o.style.display="none");let s=document.querySelectorAll(".form-section");s.length>0&&(s[0].style.display="none"),document.getElementById("householdSection").style.display="block",document.getElementById("guardiansSection").style.display="block",document.getElementById("studentsSection").style.display="block",document.getElementById("notesSection").style.display="block",document.getElementById("submitSection").style.display="block";let t=document.querySelector('#submitSection button[type="submit"]');if(t&&(t.textContent="\u66F4\u65B0"),c.setState({mode:"edit"}),e.household){let n=e.household;c.setState({householdId:n.householdId}),document.getElementById("postalCode").value=n.postalCode||"",document.getElementById("prefecture").value=n.prefecture||"",document.getElementById("city").value=n.city||"",document.getElementById("street").value=n.street||"",document.getElementById("building").value=n.building||"",document.getElementById("notes").value=n.notes||""}document.getElementById("guardiansList").innerHTML="",c.setState({guardianCount:0}),e.guardians&&e.guardians.length>0&&e.guardians.forEach(n=>{g(n)}),document.getElementById("studentsList").innerHTML="",c.setState({studentCount:0}),e.students&&e.students.length>0&&e.students.forEach(n=>{y(n)})}function O(){let e={household:{postalCode:document.getElementById("postalCode").value,prefecture:document.getElementById("prefecture").value,city:document.getElementById("city").value,street:document.getElementById("street").value,building:document.getElementById("building").value,notes:document.getElementById("notes").value},guardians:[],students:[]};return document.querySelectorAll(".guardian-card").forEach(o=>{let s=o.id,t=a=>{let r=o.querySelector(`[name="${a}"]`);return r?r.value:""},n=document.getElementById(`separate_address_${s}`),l=n&&n.checked;e.guardians.push({guardianId:t(`guardianId_${s}`),relationship:t(`relationship_${s}`),contactPriority:t(`priority_${s}`)?parseInt(t(`priority_${s}`)):"",contactMethod:t(`contact_method_${s}`),lastName:t(`last_name_${s}`),firstName:t(`first_name_${s}`),lastNameKana:t(`last_name_kana_${s}`),firstNameKana:t(`first_name_kana_${s}`),email:t(`email_${s}`),meetingEmail:t(`meeting_email_${s}`),mobilePhone:t(`mobile_phone_${s}`),homePhone:t(`home_phone_${s}`),postalCode:l?t(`postalCode_${s}`):"",prefecture:l?t(`prefecture_${s}`):"",city:l?t(`city_${s}`):"",street:l?t(`street_${s}`):"",building:l?t(`building_${s}`):""})}),document.querySelectorAll(".student-card").forEach(o=>{let s=o.id,t=a=>{let r=o.querySelector(`[name="${a}"]`);return r?r.value:""},n=document.getElementById(`separate_address_s_${s}`),l=n&&n.checked;e.students.push({studentId:t(`studentId_${s}`),lastName:t(`s_last_name_${s}`),firstName:t(`s_first_name_${s}`),lastNameKana:t(`s_last_name_kana_${s}`),firstNameKana:t(`s_first_name_kana_${s}`),graduationYear:t(`graduation_year_${s}`),email:t(`s_email_${s}`),classEmail:t(`s_class_email_${s}`),mobilePhone:t(`s_mobile_phone_${s}`),postalCode:l?t(`postalCode_s_${s}`):"",prefecture:l?t(`prefecture_s_${s}`):"",city:l?t(`city_s_${s}`):"",street:l?t(`street_s_${s}`):"",building:l?t(`building_s_${s}`):""})}),e}var v=null;function V(e){v=e;let o=document.getElementById("confirmationContent");if(!o)return;let s='<div class="confirmation-details">';s+="<h3>\u{1F4CD} \u3054\u81EA\u5B85\u4F4F\u6240</h3>",s+=`<p>\u3012${e.household.postalCode}<br>`,s+=`${e.household.prefecture} ${e.household.city} ${e.household.street} ${e.household.building}</p>`,e.household.notes&&(s+=`<p><strong>\u5099\u8003:</strong><br>${e.household.notes.replace(/\n/g,"<br>")}</p>`),s+="<hr>",s+="<h3>\u{1F468}\u200D\u{1F469}\u200D\u{1F467}\u200D\u{1F466} \u4FDD\u8B77\u8005\u60C5\u5831</h3>",e.guardians.forEach((t,n)=>{s+=`<div class="mb-3"><strong>\u4FDD\u8B77\u8005${n+1}: ${t.lastName} ${t.firstName}</strong>`,s+=`<br>\u30AB\u30CA: ${t.lastNameKana} ${t.firstNameKana}`,s+=`<br>\u7D9A\u67C4: ${t.relationship}`,s+=`<br>\u9023\u7D61\u512A\u5148\u9806\u4F4D: ${t.contactPriority}\u4F4D`,s+=`<br>\u9023\u7D61\u65B9\u6CD5: ${t.contactMethod}`,t.mobilePhone&&(s+=`<br>\u643A\u5E2F\u96FB\u8A71: ${t.mobilePhone}`),t.homePhone&&(s+=`<br>\u81EA\u5B85\u96FB\u8A71: ${t.homePhone}`),s+=`<br>Email: ${t.email}`,t.meetingEmail&&(s+=`<br>\u30AA\u30F3\u30E9\u30A4\u30F3\u9762\u8AC7\u7528Email: ${t.meetingEmail}`),t.postalCode?s+=`<br>\u4F4F\u6240: \u3012${t.postalCode} ${t.prefecture} ${t.city} ${t.street} ${t.building}`:s+="<br>\u4F4F\u6240: \u3054\u81EA\u5B85\u3068\u540C\u3058",s+="</div>"}),s+="<hr>",s+="<h3>\u{1F468}\u200D\u{1F393} \u751F\u5F92\u60C5\u5831</h3>",e.students.forEach((t,n)=>{s+=`<div class="mb-3"><strong>\u751F\u5F92${n+1}: ${t.lastName} ${t.firstName}</strong>`,s+=`<br>\u30AB\u30CA: ${t.lastNameKana} ${t.firstNameKana}`,s+=`<br>\u5352\u696D\u4E88\u5B9A: ${t.graduationYear}\u5E743\u6708`,t.email&&(s+=`<br>Email: ${t.email}`),t.classEmail&&(s+=`<br>Classroom\u7528Email: ${t.classEmail}`),t.mobilePhone&&(s+=`<br>\u643A\u5E2F\u96FB\u8A71: ${t.mobilePhone}`),t.postalCode?s+=`<br>\u4F4F\u6240: \u3012${t.postalCode} ${t.prefecture} ${t.city} ${t.street} ${t.building}`:s+="<br>\u4F4F\u6240: \u3054\u81EA\u5B85\u3068\u540C\u3058",s+="</div>"}),s+="</div>",o.innerHTML=s,document.getElementById("registrationForm").style.display="none",document.getElementById("confirmationSection").style.display="block",window.scrollTo(0,0)}function A(){document.getElementById("confirmationSection").style.display="none",document.getElementById("registrationForm").style.display="block",window.scrollTo(0,0)}function N(){return p(this,null,function*(){if(v){u(!0),document.getElementById("confirmationSection").style.display="none";try{let e=c.getState(),o;if(e.mode==="edit"){if(!e.householdId)throw new Error("\u4E16\u5E2FID\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093\u3002");o=yield f("updateHouseholdData",e.householdId,v)}else o=yield f("submitRegistration",v);u(!1),o.success?(d(o.message,"success"),document.getElementById("confirmationSection").innerHTML=`
+  `;
+    document.getElementById("studentsList").insertAdjacentHTML("beforeend", html);
+  }
+  function removeStudent(id) {
+    if (confirm("\u3053\u306E\u751F\u5F92\u3092\u524A\u9664\u3057\u307E\u3059\u304B\uFF1F")) {
+      document.getElementById(id).remove();
+    }
+  }
+  function generateYearOptions(selectedYear) {
+    const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
+    const years = [];
+    for (let i = -5; i <= 10; i++) {
+      const year = currentYear + i;
+      const selected = selectedYear && selectedYear == year ? "selected" : "";
+      years.push(`<option value="${year}" ${selected}>${year}\u5E74</option>`);
+    }
+    return years.join("");
+  }
+  function generatePrefectureOptions2(selectedPrefecture) {
+    const prefectures = [
+      "\u5317\u6D77\u9053",
+      "\u9752\u68EE\u770C",
+      "\u5CA9\u624B\u770C",
+      "\u5BAE\u57CE\u770C",
+      "\u79CB\u7530\u770C",
+      "\u5C71\u5F62\u770C",
+      "\u798F\u5CF6\u770C",
+      "\u8328\u57CE\u770C",
+      "\u6803\u6728\u770C",
+      "\u7FA4\u99AC\u770C",
+      "\u57FC\u7389\u770C",
+      "\u5343\u8449\u770C",
+      "\u6771\u4EAC\u90FD",
+      "\u795E\u5948\u5DDD\u770C",
+      "\u65B0\u6F5F\u770C",
+      "\u5BCC\u5C71\u770C",
+      "\u77F3\u5DDD\u770C",
+      "\u798F\u4E95\u770C",
+      "\u5C71\u68A8\u770C",
+      "\u9577\u91CE\u770C",
+      "\u5C90\u961C\u770C",
+      "\u9759\u5CA1\u770C",
+      "\u611B\u77E5\u770C",
+      "\u4E09\u91CD\u770C",
+      "\u6ECB\u8CC0\u770C",
+      "\u4EAC\u90FD\u5E9C",
+      "\u5927\u962A\u5E9C",
+      "\u5175\u5EAB\u770C",
+      "\u5948\u826F\u770C",
+      "\u548C\u6B4C\u5C71\u770C",
+      "\u9CE5\u53D6\u770C",
+      "\u5CF6\u6839\u770C",
+      "\u5CA1\u5C71\u770C",
+      "\u5E83\u5CF6\u770C",
+      "\u5C71\u53E3\u770C",
+      "\u5FB3\u5CF6\u770C",
+      "\u9999\u5DDD\u770C",
+      "\u611B\u5A9B\u770C",
+      "\u9AD8\u77E5\u770C",
+      "\u798F\u5CA1\u770C",
+      "\u4F50\u8CC0\u770C",
+      "\u9577\u5D0E\u770C",
+      "\u718A\u672C\u770C",
+      "\u5927\u5206\u770C",
+      "\u5BAE\u5D0E\u770C",
+      "\u9E7F\u5150\u5CF6\u770C",
+      "\u6C96\u7E04\u770C"
+    ];
+    return prefectures.map(
+      (pref) => `<option value="${pref}" ${selectedPrefecture === pref ? "selected" : ""}>${pref}</option>`
+    ).join("");
+  }
+
+  // src/client/ui/form.js
+  function showLoading(show) {
+    const loading = document.getElementById("loading");
+    const form = document.getElementById("registrationForm");
+    if (loading) loading.style.display = show ? "block" : "none";
+    if (form) form.style.display = show ? "none" : "block";
+  }
+  function showMessage(message, type) {
+    const messageDiv = document.getElementById("message");
+    if (!messageDiv) return;
+    messageDiv.className = "alert alert-" + type;
+    messageDiv.textContent = message;
+    messageDiv.style.display = "block";
+    if (type === "success") {
+      setTimeout(() => {
+        messageDiv.style.display = "none";
+      }, 3e3);
+    }
+  }
+  function handleModeChange() {
+    const modeInput = document.querySelector('input[name="mode"]:checked');
+    if (!modeInput) return;
+    const mode = modeInput.value;
+    store.setState({ mode });
+    const editAuthSection = document.getElementById("editAuthSection");
+    const householdSection = document.getElementById("householdSection");
+    const guardiansSection = document.getElementById("guardiansSection");
+    const studentsSection = document.getElementById("studentsSection");
+    const notesSection = document.getElementById("notesSection");
+    const submitSection = document.getElementById("submitSection");
+    if (mode === "new") {
+      if (editAuthSection) editAuthSection.style.display = "none";
+      if (householdSection) householdSection.style.display = "block";
+      if (guardiansSection) guardiansSection.style.display = "block";
+      if (studentsSection) studentsSection.style.display = "block";
+      if (notesSection) notesSection.style.display = "block";
+      if (submitSection) submitSection.style.display = "block";
+      const state = store.getState();
+      if (state.guardianCount === 0) addGuardian();
+      if (state.studentCount === 0) addStudent();
+    } else {
+      if (editAuthSection) editAuthSection.style.display = "block";
+      if (householdSection) householdSection.style.display = "none";
+      if (guardiansSection) guardiansSection.style.display = "none";
+      if (studentsSection) studentsSection.style.display = "none";
+      if (notesSection) notesSection.style.display = "none";
+      if (submitSection) submitSection.style.display = "none";
+    }
+  }
+  function authenticateEdit() {
+    return __async(this, null, function* () {
+      const email = document.getElementById("authEmail").value.trim();
+      const editCode = document.getElementById("editCode").value.trim();
+      if (!email) {
+        showMessage("\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\u3002", "danger");
+        return;
+      }
+      if (!editCode) {
+        showMessage("\u7DE8\u96C6\u30B3\u30FC\u30C9\u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\u3002", "danger");
+        return;
+      }
+      showLoading(true);
+      try {
+        const result = yield runServerFunction("authenticateWithEditCode", email, editCode);
+        console.log("authenticateWithEditCode result:", result);
+        showLoading(false);
+        if (!result) {
+          throw new Error("\u30B5\u30FC\u30D0\u30FC\u304B\u3089\u306E\u5FDC\u7B54\u304C\u3042\u308A\u307E\u305B\u3093\u3002");
+        }
+        if (result.success) {
+          let data = result.householdData;
+          if (typeof data === "string") {
+            try {
+              data = JSON.parse(data);
+            } catch (e) {
+              console.error("Failed to parse householdData JSON:", e);
+            }
+          }
+          loadHouseholdData(data);
+          showMessage("\u8A8D\u8A3C\u306B\u6210\u529F\u3057\u307E\u3057\u305F\u3002", "success");
+        } else {
+          showMessage(result.message, "danger");
+        }
+      } catch (error) {
+        showLoading(false);
+        console.error("Authentication error:", error);
+        showMessage("\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F: " + error.message, "danger");
+      }
+    });
+  }
+  function requestMagicLink() {
+    return __async(this, null, function* () {
+      const email = document.getElementById("authEmail").value.trim();
+      if (!email) {
+        showMessage("\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\u3002", "danger");
+        return;
+      }
+      showLoading(true);
+      try {
+        const result = yield runServerFunction("requestMagicLink", email);
+        showLoading(false);
+        if (result.success) {
+          showMessage(result.message, "success");
+        } else {
+          showMessage(result.message, "danger");
+        }
+      } catch (error) {
+        showLoading(false);
+        showMessage("\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F: " + error.message, "danger");
+      }
+    });
+  }
+  function loadHouseholdData(householdData) {
+    const editAuthSection = document.getElementById("editAuthSection");
+    if (editAuthSection) editAuthSection.style.display = "none";
+    const modeSections = document.querySelectorAll(".form-section");
+    if (modeSections.length > 0) {
+      modeSections[0].style.display = "none";
+    }
+    document.getElementById("householdSection").style.display = "block";
+    document.getElementById("guardiansSection").style.display = "block";
+    document.getElementById("studentsSection").style.display = "block";
+    document.getElementById("notesSection").style.display = "block";
+    document.getElementById("submitSection").style.display = "block";
+    const submitBtn = document.querySelector('#submitSection button[type="submit"]');
+    if (submitBtn) {
+      submitBtn.textContent = "\u66F4\u65B0";
+    }
+    store.setState({ mode: "edit" });
+    if (householdData.household) {
+      const h = householdData.household;
+      store.setState({ householdId: h.householdId });
+      document.getElementById("postalCode").value = h.postalCode || "";
+      document.getElementById("prefecture").value = h.prefecture || "";
+      document.getElementById("city").value = h.city || "";
+      document.getElementById("street").value = h.street || "";
+      document.getElementById("building").value = h.building || "";
+      document.getElementById("notes").value = h.notes || "";
+    }
+    document.getElementById("guardiansList").innerHTML = "";
+    store.setState({ guardianCount: 0 });
+    if (householdData.guardians && householdData.guardians.length > 0) {
+      householdData.guardians.forEach((guardian) => {
+        addGuardian(guardian);
+      });
+    }
+    document.getElementById("studentsList").innerHTML = "";
+    store.setState({ studentCount: 0 });
+    if (householdData.students && householdData.students.length > 0) {
+      householdData.students.forEach((student) => {
+        addStudent(student);
+      });
+    }
+  }
+  function collectFormData() {
+    const formData = {
+      household: {
+        postalCode: document.getElementById("postalCode").value,
+        prefecture: document.getElementById("prefecture").value,
+        city: document.getElementById("city").value,
+        street: document.getElementById("street").value,
+        building: document.getElementById("building").value,
+        notes: document.getElementById("notes").value
+      },
+      guardians: [],
+      students: []
+    };
+    document.querySelectorAll(".guardian-card").forEach((card) => {
+      const id = card.id;
+      const getVal = (name) => {
+        const el = card.querySelector(`[name="${name}"]`);
+        return el ? el.value : "";
+      };
+      const separateAddressCheckbox = document.getElementById(`separate_address_${id}`);
+      const useSeparateAddress = separateAddressCheckbox && separateAddressCheckbox.checked;
+      formData.guardians.push({
+        guardianId: getVal(`guardianId_${id}`),
+        // Collect hidden ID
+        relationship: getVal(`relationship_${id}`),
+        contactPriority: getVal(`priority_${id}`) ? parseInt(getVal(`priority_${id}`)) : "",
+        contactMethod: getVal(`contact_method_${id}`),
+        lastName: getVal(`last_name_${id}`),
+        firstName: getVal(`first_name_${id}`),
+        lastNameKana: getVal(`last_name_kana_${id}`),
+        firstNameKana: getVal(`first_name_kana_${id}`),
+        email: getVal(`email_${id}`),
+        meetingEmail: getVal(`meeting_email_${id}`),
+        mobilePhone: getVal(`mobile_phone_${id}`),
+        homePhone: getVal(`home_phone_${id}`),
+        // Address fields - clear if not using separate address
+        postalCode: useSeparateAddress ? getVal(`postalCode_${id}`) : "",
+        prefecture: useSeparateAddress ? getVal(`prefecture_${id}`) : "",
+        city: useSeparateAddress ? getVal(`city_${id}`) : "",
+        street: useSeparateAddress ? getVal(`street_${id}`) : "",
+        building: useSeparateAddress ? getVal(`building_${id}`) : ""
+      });
+    });
+    document.querySelectorAll(".student-card").forEach((card) => {
+      const id = card.id;
+      const getVal = (name) => {
+        const el = card.querySelector(`[name="${name}"]`);
+        return el ? el.value : "";
+      };
+      const separateAddressCheckbox = document.getElementById(`separate_address_s_${id}`);
+      const useSeparateAddress = separateAddressCheckbox && separateAddressCheckbox.checked;
+      formData.students.push({
+        studentId: getVal(`studentId_${id}`),
+        // Collect hidden ID
+        lastName: getVal(`s_last_name_${id}`),
+        firstName: getVal(`s_first_name_${id}`),
+        lastNameKana: getVal(`s_last_name_kana_${id}`),
+        firstNameKana: getVal(`s_first_name_kana_${id}`),
+        graduationYear: getVal(`graduation_year_${id}`),
+        email: getVal(`s_email_${id}`),
+        classEmail: getVal(`s_class_email_${id}`),
+        mobilePhone: getVal(`s_mobile_phone_${id}`),
+        // Address fields - clear if not using separate address
+        postalCode: useSeparateAddress ? getVal(`postalCode_s_${id}`) : "",
+        prefecture: useSeparateAddress ? getVal(`prefecture_s_${id}`) : "",
+        city: useSeparateAddress ? getVal(`city_s_${id}`) : "",
+        street: useSeparateAddress ? getVal(`street_s_${id}`) : "",
+        building: useSeparateAddress ? getVal(`building_s_${id}`) : ""
+      });
+    });
+    return formData;
+  }
+  var pendingFormData = null;
+  function showConfirmation(formData) {
+    pendingFormData = formData;
+    const contentDiv = document.getElementById("confirmationContent");
+    if (!contentDiv) return;
+    let html = '<div class="confirmation-details">';
+    html += "<h3>\u{1F4CD} \u3054\u81EA\u5B85\u4F4F\u6240</h3>";
+    html += `<p>\u3012${formData.household.postalCode}<br>`;
+    html += `${formData.household.prefecture} ${formData.household.city} ${formData.household.street} ${formData.household.building}</p>`;
+    if (formData.household.notes) {
+      html += `<p><strong>\u5099\u8003:</strong><br>${formData.household.notes.replace(/\n/g, "<br>")}</p>`;
+    }
+    html += "<hr>";
+    html += "<h3>\u{1F468}\u200D\u{1F469}\u200D\u{1F467}\u200D\u{1F466} \u4FDD\u8B77\u8005\u60C5\u5831</h3>";
+    formData.guardians.forEach((g, index) => {
+      html += `<div class="mb-3"><strong>\u4FDD\u8B77\u8005${index + 1}: ${g.lastName} ${g.firstName}</strong>`;
+      html += `<br>\u30AB\u30CA: ${g.lastNameKana} ${g.firstNameKana}`;
+      html += `<br>\u7D9A\u67C4: ${g.relationship}`;
+      html += `<br>\u9023\u7D61\u512A\u5148\u9806\u4F4D: ${g.contactPriority}\u4F4D`;
+      html += `<br>\u9023\u7D61\u65B9\u6CD5: ${g.contactMethod}`;
+      if (g.mobilePhone) html += `<br>\u643A\u5E2F\u96FB\u8A71: ${g.mobilePhone}`;
+      if (g.homePhone) html += `<br>\u81EA\u5B85\u96FB\u8A71: ${g.homePhone}`;
+      html += `<br>Email: ${g.email}`;
+      if (g.meetingEmail) html += `<br>\u30AA\u30F3\u30E9\u30A4\u30F3\u9762\u8AC7\u7528Email: ${g.meetingEmail}`;
+      if (g.postalCode) {
+        html += `<br>\u4F4F\u6240: \u3012${g.postalCode} ${g.prefecture} ${g.city} ${g.street} ${g.building}`;
+      } else {
+        html += `<br>\u4F4F\u6240: \u3054\u81EA\u5B85\u3068\u540C\u3058`;
+      }
+      html += "</div>";
+    });
+    html += "<hr>";
+    html += "<h3>\u{1F468}\u200D\u{1F393} \u751F\u5F92\u60C5\u5831</h3>";
+    formData.students.forEach((s, index) => {
+      html += `<div class="mb-3"><strong>\u751F\u5F92${index + 1}: ${s.lastName} ${s.firstName}</strong>`;
+      html += `<br>\u30AB\u30CA: ${s.lastNameKana} ${s.firstNameKana}`;
+      html += `<br>\u5352\u696D\u4E88\u5B9A: ${s.graduationYear}\u5E743\u6708`;
+      if (s.email) html += `<br>Email: ${s.email}`;
+      if (s.classEmail) html += `<br>Classroom\u7528Email: ${s.classEmail}`;
+      if (s.mobilePhone) html += `<br>\u643A\u5E2F\u96FB\u8A71: ${s.mobilePhone}`;
+      if (s.postalCode) {
+        html += `<br>\u4F4F\u6240: \u3012${s.postalCode} ${s.prefecture} ${s.city} ${s.street} ${s.building}`;
+      } else {
+        html += `<br>\u4F4F\u6240: \u3054\u81EA\u5B85\u3068\u540C\u3058`;
+      }
+      html += "</div>";
+    });
+    html += "</div>";
+    contentDiv.innerHTML = html;
+    document.getElementById("registrationForm").style.display = "none";
+    document.getElementById("confirmationSection").style.display = "block";
+    window.scrollTo(0, 0);
+  }
+  function handleFinalSubmit() {
+    return __async(this, null, function* () {
+      if (!pendingFormData) return;
+      showLoading(true);
+      document.getElementById("confirmationSection").style.display = "none";
+      try {
+        const state = store.getState();
+        let result;
+        if (state.mode === "edit") {
+          if (!state.householdId) {
+            throw new Error("\u4E16\u5E2FID\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093\u3002");
+          }
+          result = yield runServerFunction("updateHouseholdData", state.householdId, pendingFormData);
+        } else {
+          result = yield runServerFunction("submitRegistration", pendingFormData);
+        }
+        showLoading(false);
+        if (result.success) {
+          showMessage(result.message, "success");
+          document.getElementById("confirmationSection").innerHTML = `
         <div class="text-center py-5">
           <h2 class="text-success mb-4">\u9001\u4FE1\u5B8C\u4E86</h2>
-          <p>${o.message}</p>
+          <p>${result.message}</p>
           <p>\u3053\u306E\u753B\u9762\u3092\u9589\u3058\u3066\u304F\u3060\u3055\u3044\u3002</p>
         </div>
-      `,document.getElementById("confirmationSection").style.display="block"):(d(o.message,"danger"),document.getElementById("registrationForm").style.display="block")}catch(e){u(!1),d("\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F: "+e.message,"danger"),document.getElementById("registrationForm").style.display="block"}}})}function P(e){return p(this,null,function*(){e.preventDefault();let o=I();if(!o.valid){o.message&&d(o.message,"danger");return}let s=O();V(s)})}function h(e,o,s,t){return p(this,null,function*(){let n=document.getElementById(e);if(!n)return;let l=n.value.replace(/-/g,"");if(l.length!==7){d("\u90F5\u4FBF\u756A\u53F7\u306F7\u6841\u3067\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\u3002","danger");return}u(!0);try{let r=yield(yield fetch("https://zipcloud.ibsnet.co.jp/api/search?zipcode="+l)).json();if(u(!1),r.results){let i=r.results[0];document.getElementById(o).value=i.address1,document.getElementById(s).value=i.address2,document.getElementById(t).value=i.address3,d("\u4F4F\u6240\u3092\u81EA\u52D5\u5165\u529B\u3057\u307E\u3057\u305F\u3002","success")}else d("\u90F5\u4FBF\u756A\u53F7\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093\u3067\u3057\u305F\u3002","danger")}catch(a){u(!1),console.error("\u4F4F\u6240\u691C\u7D22\u30A8\u30E9\u30FC:",a),d("\u4F4F\u6240\u691C\u7D22\u306B\u5931\u6557\u3057\u307E\u3057\u305F\u3002","danger")}})}function L(e){let o=document.getElementById(`separate_address_${e}`),s=document.getElementById(`address_fields_${e}`);o&&s&&(s.style.display=o.checked?"block":"none")}window.addGuardian=g;window.addStudent=y;window.authenticateEdit=q;window.requestMagicLink=w;window.handleBack=A;window.handleFinalSubmit=N;window.onerror=function(e,o,s){return alert(`System Error (Please report this):
-`+e+`
-Line: `+s),!1};document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll('input[name="mode"]').forEach(s=>{s.addEventListener("change",_)}),_();let e=document.getElementById("registrationForm");e&&e.addEventListener("submit",P);let o=document.getElementById("searchAddressBtn");o&&o.addEventListener("click",()=>{h("postalCode","prefecture","city","street")}),document.addEventListener("click",s=>{let t=s.target;if(t.matches("[data-remove-guardian]")){let n=t.getAttribute("data-remove-guardian");B(n)}if(t.matches("[data-remove-student]")){let n=t.getAttribute("data-remove-student");x(n)}if(t.matches("[data-search-address]")){let n=t.getAttribute("data-search-address");n.startsWith("s_")?h(`postalCode_${n}`,`prefecture_${n}`,`city_${n}`,`street_${n}`):h(`postalCode_${n}`,`prefecture_${n}`,`city_${n}`,`street_${n}`)}}),document.addEventListener("change",s=>{let t=s.target;if(t.matches("[data-toggle-address]")){let n=t.getAttribute("data-toggle-address");L(n)}t.matches(".priority-select")&&k(s)})});})();
+      `;
+          document.getElementById("confirmationSection").style.display = "block";
+        } else {
+          showMessage(result.message, "danger");
+          document.getElementById("registrationForm").style.display = "block";
+        }
+      } catch (error) {
+        showLoading(false);
+        showMessage("\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F: " + error.message, "danger");
+        document.getElementById("registrationForm").style.display = "block";
+      }
+    });
+  }
+  function handleSubmit(e) {
+    return __async(this, null, function* () {
+      e.preventDefault();
+      const validation = validateForm();
+      if (!validation.valid) {
+        if (validation.message) showMessage(validation.message, "danger");
+        return;
+      }
+      const formData = collectFormData();
+      showConfirmation(formData);
+    });
+  }
+  function searchAddress(postalCodeInputId, prefectureId, cityId, streetId) {
+    return __async(this, null, function* () {
+      const postalCodeInput = document.getElementById(postalCodeInputId);
+      if (!postalCodeInput) return;
+      const postalCode = postalCodeInput.value.replace(/-/g, "");
+      if (postalCode.length !== 7) {
+        showMessage("\u90F5\u4FBF\u756A\u53F7\u306F7\u6841\u3067\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\u3002", "danger");
+        return;
+      }
+      showLoading(true);
+      try {
+        const response = yield fetch("https://zipcloud.ibsnet.co.jp/api/search?zipcode=" + postalCode);
+        const data = yield response.json();
+        showLoading(false);
+        if (data.results) {
+          const result = data.results[0];
+          document.getElementById(prefectureId).value = result.address1;
+          document.getElementById(cityId).value = result.address2;
+          document.getElementById(streetId).value = result.address3;
+          showMessage("\u4F4F\u6240\u3092\u81EA\u52D5\u5165\u529B\u3057\u307E\u3057\u305F\u3002", "success");
+        } else {
+          showMessage("\u90F5\u4FBF\u756A\u53F7\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093\u3067\u3057\u305F\u3002", "danger");
+        }
+      } catch (error) {
+        showLoading(false);
+        console.error("\u4F4F\u6240\u691C\u7D22\u30A8\u30E9\u30FC:", error);
+        showMessage("\u4F4F\u6240\u691C\u7D22\u306B\u5931\u6557\u3057\u307E\u3057\u305F\u3002", "danger");
+      }
+    });
+  }
+  function toggleAddress(id) {
+    const checkbox = document.getElementById(`separate_address_${id}`);
+    const fields = document.getElementById(`address_fields_${id}`);
+    if (checkbox && fields) {
+      fields.style.display = checkbox.checked ? "block" : "none";
+    }
+  }
+
+  // src/client/main.js
+  window.addGuardian = addGuardian;
+  window.addStudent = addStudent;
+  window.authenticateEdit = authenticateEdit;
+  window.requestMagicLink = requestMagicLink;
+  window.handleFinalSubmit = handleFinalSubmit;
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('input[name="mode"]').forEach((radio) => {
+      radio.addEventListener("change", handleModeChange);
+    });
+    handleModeChange();
+    const form = document.getElementById("registrationForm");
+    if (form) {
+      form.addEventListener("submit", handleSubmit);
+    }
+    const searchBtn = document.getElementById("searchAddressBtn");
+    if (searchBtn) {
+      searchBtn.addEventListener("click", () => {
+        searchAddress("postalCode", "prefecture", "city", "street");
+      });
+    }
+    document.addEventListener("click", (e) => {
+      const target = e.target;
+      if (target.matches("[data-remove-guardian]")) {
+        const id = target.getAttribute("data-remove-guardian");
+        removeGuardian(id);
+      }
+      if (target.matches("[data-remove-student]")) {
+        const id = target.getAttribute("data-remove-student");
+        removeStudent(id);
+      }
+      if (target.matches("[data-search-address]")) {
+        const id = target.getAttribute("data-search-address");
+        if (id.startsWith("s_")) {
+          searchAddress(`postalCode_${id}`, `prefecture_${id}`, `city_${id}`, `street_${id}`);
+        } else {
+          searchAddress(`postalCode_${id}`, `prefecture_${id}`, `city_${id}`, `street_${id}`);
+        }
+      }
+    });
+    document.addEventListener("change", (e) => {
+      const target = e.target;
+      if (target.matches("[data-toggle-address]")) {
+        const id = target.getAttribute("data-toggle-address");
+        toggleAddress(id);
+      }
+      if (target.matches(".priority-select")) {
+        handlePriorityChange(e);
+      }
+    });
+  });
+})();
 
 </script>
