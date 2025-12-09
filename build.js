@@ -16,7 +16,7 @@ async function build() {
         bundle: true,
         outfile: 'dist/script.temp.js',
         format: 'iife',
-        target: 'es2015',
+        target: 'es5',
       });
 
       // Wrap in <script> tag and write to script.html
