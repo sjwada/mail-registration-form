@@ -54,7 +54,9 @@ function createFormHtml(mode, householdData) {
   template.guardians = householdData ? householdData.guardians : [];
   template.students = householdData ? householdData.students : [];
   template.config = {
-    showContactMethodField: CONFIG.SHOW_CONTACT_METHOD_FIELD
+    showContactMethodField: CONFIG.SHOW_CONTACT_METHOD_FIELD,
+    showAddressInNormalMode: CONFIG.SHOW_ADDRESS_IN_NORMAL_MODE,
+    emailFromName: CONFIG.EMAIL_FROM_NAME
   };
 
   return template.evaluate()

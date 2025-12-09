@@ -19,6 +19,12 @@ window.requestMagicLink = requestMagicLink;
 window.handleBack = handleBack;
 window.handleFinalSubmit = handleFinalSubmit;
 
+// DEBUG: Alert on JS Error
+window.onerror = function(msg, url, line) {
+  alert("System Error (Please report this):\n" + msg + "\nLine: " + line);
+  return false;
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   // Mode selection
   document.querySelectorAll('input[name="mode"]').forEach(radio => {
