@@ -9,7 +9,7 @@
     "push": "npm run build && clasp push",
     "deploy": "npm run build && clasp push && clasp deploy",
     "watch": "nodemon --watch src --exec 'npm run build'",
-    "git-push": "npm run build && git add . && git commit && git push"
+    "git-push": "npm run build && git add . && git commit -m \"Update\" && git push"
   },
   "keywords": [],
   "author": "",

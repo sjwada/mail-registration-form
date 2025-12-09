@@ -64,11 +64,13 @@ const DataSourceAdapter = {
   
   /**
    * Append an object to a sheet, mapping keys to headers automatically.
+   * Optionally applies number formats to specific columns.
    * @param {string} sheetName
    * @param {Object} dataObj
+   * @param {Object} [formats] Key-value pair of Header Name -> Format String (e.g. { 'Phone': '@' })
    * @returns {Result<void>}
    */
-  appendObject: (sheetName, dataObj) => {
+  appendObject: (sheetName, dataObj, formats = {}) => {
     return Result.fromTry(() => {
       const ss = SpreadsheetApp.getActiveSpreadsheet();
       const sheet = ss.getSheetByName(sheetName);
@@ -81,13 +83,25 @@ const DataSourceAdapter = {
       
       // Map object to array based on headers
       const row = headers.map(header => {
-        // Check if property exists, else empty string
         return dataObj.hasOwnProperty(header) ? dataObj[header] : '';
       });
       
-      sheet.appendRow(row);
-      // Optional: Set specific formats if needed (like zip codes) here or via separate call
-      // For now, we rely on sheet formatting or pre-formatted strings.
+      // Calculate next row
+      const nextRow = sheet.getLastRow() + 1;
+      
+      // Apply Formats if provided
+      if (formats && Object.keys(formats).length > 0) {
+        Object.keys(formats).forEach(header => {
+          const colIndex = headers.indexOf(header);
+          if (colIndex !== -1) {
+            // colIndex is 0-based, getRange is 1-based
+            sheet.getRange(nextRow, colIndex + 1).setNumberFormat(formats[header]);
+          }
+        });
+      }
+      
+      // Write Data
+      sheet.getRange(nextRow, 1, 1, row.length).setValues([row]);
       
       return true;
     });

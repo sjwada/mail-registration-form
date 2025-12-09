@@ -24,28 +24,25 @@ class HouseholdRepositoryClean { // extends HouseholdRepositoryInterface
   findByEmail(email) {
     // 1. Check Guardians
     // 2. Check Students
-    // This looks complex because the original data model is spread across sheets.
-    // In a clean repository, we coordinate the adapter reads.
     
-    return this.adapter.readTable('保護者マスタ')
+    return this.adapter.readTable(CONFIG.SHEET_GUARDIAN)
       .flatMap(guardians => {
-        const found = guardians.find(g => g['連絡用メールアドレス'] === email);
+        // Correct header: '連絡用メール' from InitializeSheet.js
+        const found = guardians.find(g => g['連絡用メール'] === email);
         if (found) {
-          // Found in guardian, get the Household ID
           return Result.ok(found['世帯登録番号']);
         }
         
         // Not found in guardians, check students
-        return this.adapter.readTable('生徒マスタ')
+        return this.adapter.readTable(CONFIG.SHEET_STUDENT)
           .map(students => {
-             const foundStudent = students.find(s => s['連絡用メールアドレス'] === email);
+             // Correct header: '連絡用メール' from InitializeSheet.js
+             const foundStudent = students.find(s => s['連絡用メール'] === email);
              return foundStudent ? foundStudent['世帯登録番号'] : null;
           });
       })
       .flatMap(householdId => {
-        if (!householdId) return Result.ok(null); // Not found anywhere
-        
-        // If found, fetch full household data
+        if (!householdId) return Result.ok(null);
         return this.getHouseholdData(householdId);
       });
   }
@@ -55,46 +52,35 @@ class HouseholdRepositoryClean { // extends HouseholdRepositoryInterface
    * @param {string} householdId 
    */
   getHouseholdData(householdId) {
-    // Parallel-ish fetch (in sequential GAS)
-    // We need Household, Guardians, Students
-    
-    // We strive to use Result combinators here. 
-    // Ideally: Result.all([readH, readG, readS])
-    // For now, simple nesting or helper.
-    
     let householdRecord = null;
     let guardianRecords = [];
     let studentRecords = [];
     
-    return this.adapter.readTable('世帯マスタ')
+    // Use CONFIG constants
+    return this.adapter.readTable(CONFIG.SHEET_HOUSEHOLD)
       .flatMap(rows => {
-        // Find latest version of household?
-        // Legacy 'getHouseholdRecord' logic: find row with matching ID and max version.
         const matches = rows.filter(r => r['世帯登録番号'] === householdId);
         if (matches.length === 0) return Result.ok(null);
 
-        // Sort by version desc (assuming version col is known or we parse it)
-        // Original: row[12] is version. Adapter uses headers.
-        // Assuming header 'バージョン' exists.
+        // Sort by version desc (header 'バージョン')
         matches.sort((a, b) => Number(b['バージョン']) - Number(a['バージョン']));
         householdRecord = matches[0];
         
         if (!householdRecord) return Result.ok(null);
 
-        return this.adapter.readTable('保護者マスタ');
+        return this.adapter.readTable(CONFIG.SHEET_GUARDIAN);
       })
       .flatMap(guardians => {
         if (!householdRecord) return Result.ok(null);
-        // Filter by householdId
         guardianRecords = guardians.filter(g => g['世帯登録番号'] === householdId);
         
-        return this.adapter.readTable('生徒マスタ');
+        return this.adapter.readTable(CONFIG.SHEET_STUDENT);
       })
       .map(students => {
         if (!householdRecord) return null;
+        // Filter by householdId
         studentRecords = students.filter(s => s['世帯登録番号'] === householdId);
         
-        // Construct Aggregate
         return {
           household: householdRecord,
           guardians: guardianRecords,
@@ -104,27 +90,12 @@ class HouseholdRepositoryClean { // extends HouseholdRepositoryInterface
   }
 
   /**
-   * Save plain household object.
-   * (Logic for generating IDs etc should be in Service, Repository just saves)
-   * But preserving legacy 'id generation' inside repository for now if needed?
-   * No, New Service should handle ID generation. Repository just takes data.
-   */
-  /**
    * Save plain household object (Create or Update).
    * @param {object} householdData 
    * @returns {Result<object, Error>} { householdId, editCode, ... }
    */
   save(householdData) {
     // 1. Generate IDs if new
-    // We need to know if it's new or update.
-    // If householdId is missing, it's new.
-    
-    // For now, let's implement Creation flow logic.
-    // If update, we might need a separate method or flag.
-    // Legacy 'saveHouseholdData' was for NEW registration. 'updateHouseholdData' was for update.
-    // Let's stick to CREATE for now as per correct CRUD separation or handle both.
-    // Given the legacy code separation, let's make this 'create'.
-    
     const isNew = !householdData.household || !householdData.household.householdId;
     
     if (isNew) {
@@ -141,121 +112,151 @@ class HouseholdRepositoryClean { // extends HouseholdRepositoryInterface
          const editCode = this._generateEditCode();
          const now = new Date(); 
          const nowStr = Utilities.formatDate(now, Session.getScriptTimeZone(), 'yyyy/MM/dd HH:mm:ss');
+         const userEmail = data.guardians[0].email;
          
          const householdRow = {
            '世帯登録番号': householdId,
-           'Core世帯ID': '', // Assuming 'Core世帯ID' is the header for coreHouseholdId based on typical implementation, or empty string if not used by column mapping? 
-           // Wait, I should better not guess headers that I am unsure of.
-           // However, appendObject simply skips keys if header not found (or rather map logic in adapter handles it). 
-           // Adapter loops headers and looks up obj. So extra keys in obj are ignored. Missing keys in obj result in empty string.
-           // So I should define keys that I KNOW exist.
+           '基幹世帯ID': '', // Correct Header
            '登録日時': nowStr,
-           '更新日時': nowStr,
+           '最終更新日時': nowStr, 
            '編集コード': editCode,
-           '郵便番号': data.household.postalCode,
-           '都道府県': data.household.prefecture,
-           '市区町村': data.household.city,
-           '町名・番地': data.household.street,
-           '建物名等': data.household.building,
+           'ご自宅郵便番号': data.household.postalCode, // Correct Header
+           'ご自宅都道府県': data.household.prefecture,
+           'ご自宅市区町村': data.household.city,
+           'ご自宅町名・番地・号': data.household.street,
+           'ご自宅建物名・部屋番号': data.household.building,
            '備考': data.household.notes,
            '連携ステータス': '',
            'バージョン': 1,
            '削除フラグ': false,
-           '更新者': data.guardians[0].email 
+           '更新日時': nowStr,
+           '更新者メール': userEmail // Correct Header
          };
 
          // Save Household
-         return this.adapter.appendObject('世帯マスタ', householdRow)
-           .map(() => ({ householdId, editCode, nowStr }));
+         const householdFormats = {
+           'ご自宅郵便番号': '@'
+         };
+         return this.adapter.appendObject(CONFIG.SHEET_HOUSEHOLD, householdRow, householdFormats)
+           .map(() => ({ householdId, editCode, nowStr, userEmail }));
        })
        .flatMap(ctx => {
-         // Save Guardians
-         const saveGuardians = data.guardians.map((g, index) => {
-           const row = {
-             '世帯登録番号': ctx.householdId,
-             '連絡優先順位': g.contactPriority,
-             '氏名（氏）': g.lastName,
-             '氏名（名）': g.firstName,
-             '氏名（カナ・氏）': g.lastNameKana,
-             '氏名（カナ・名）': g.firstNameKana,
-             '続柄': g.relationship,
-             '郵便番号': g.postalCode,
-             '都道府県': g.prefecture,
-             '市区町村': g.city,
-             '町名・番地': g.street,
-             '建物名等': g.building,
-             '携帯電話番号': g.mobilePhone,
-             '自宅電話番号': g.homePhone,
-             '連絡用メールアドレス': g.email,
-             'バージョン': 1,
-             '削除フラグ': false,
-             '更新日時': ctx.nowStr,
-             '更新者': g.email
-           };
-           return this.adapter.appendObject('保護者マスタ', row);
-         });
-         
-         // In a robust implementation, we would wait for all.
-         // Since GAS is synchronous, this map actually executes them one by one.
-         // But we need to check if any failed? 
-         // appendObject returns Result.
-         // We should verify they are all Ok.
-         const failures = saveGuardians.filter(r => r.isErr());
-         if (failures.length > 0) {
-            return Result.err(new Error("Failed to save some guardians: " + failures[0]._error));
-         }
-
-         return Result.ok(ctx);
+         // Generate & Save Guardians
+         return this._generateSubIds(CONFIG.SHEET_GUARDIAN, '保護者登録番号', 'G', data.guardians.length)
+             .flatMap(guardianIds => {
+                 const saveGuardians = data.guardians.map((g, index) => {
+                   const row = {
+                     '世帯登録番号': ctx.householdId,
+                     '保護者登録番号': guardianIds[index],
+                     '基幹保護者ID': '',
+                     '続柄': g.relationship,
+                     '続柄その他詳細': '', 
+                     '連絡優先順位': g.contactPriority,
+                     '連絡手段': g.contactMethod || '電話', 
+                     '姓': g.lastName,
+                     '名': g.firstName,
+                     'フリガナ姓': g.lastNameKana,
+                     'フリガナ名': g.firstNameKana,
+                     '連絡用メール': g.email,
+                     'オンライン面談用メール': g.meetingEmail || '',
+                     '携帯電話番号': g.mobilePhone,
+                     '自宅電話番号': g.homePhone,
+                     '保護者郵便番号': g.postalCode,
+                     '保護者都道府県': g.prefecture,
+                     '保護者市区町村': g.city,
+                     '保護者町名・番地・号': g.street,
+                     '保護者建物名・部屋番号': g.building,
+                     'バージョン': 1,
+                     '削除フラグ': false,
+                     '更新日時': ctx.nowStr,
+                     '更新者メール': ctx.userEmail
+                   };
+                   
+                   const guardianFormats = {
+                     '携帯電話番号': '@',
+                     '自宅電話番号': '@',
+                     '保護者郵便番号': '@'
+                   };
+                   return this.adapter.appendObject(CONFIG.SHEET_GUARDIAN, row, guardianFormats);
+                 });
+                 
+                 const failures = saveGuardians.filter(r => r.isErr());
+                 if (failures.length > 0) return Result.err(new Error("Failed to save some guardians: " + failures[0]._error));
+                 return Result.ok(ctx);
+             });
        })
        .flatMap(ctx => {
-          // Save Students
-          const saveStudents = data.students.map(s => {
-            const row = {
-              '世帯登録番号': ctx.householdId,
-              '氏名（氏）': s.lastName,
-              '氏名（名）': s.firstName,
-              '氏名（カナ・氏）': s.lastNameKana,
-              '氏名（カナ・名）': s.firstNameKana,
-              '卒業予定年度': s.graduationYear,
-              '郵便番号': s.postalCode,
-              '都道府県': s.prefecture,
-              '市区町村': s.city,
-              '町名・番地': s.street,
-              '建物名等': s.building,
-              '携帯電話番号': s.mobilePhone,
-              '連絡用メールアドレス': s.email,
-              'クラス配信メール': s.classEmail,
-               'バージョン': 1,
-               '削除フラグ': false,
-               '更新日時': ctx.nowStr,
-               '更新者': data.guardians[0].email
-            };
-            return this.adapter.appendObject('生徒マスタ', row);
-          });
-          
-          const failures = saveStudents.filter(r => r.isErr());
-          if (failures.length > 0) {
-             return Result.err(new Error("Failed to save some students"));
-          }
-
-          return Result.ok({ householdId: ctx.householdId, editCode: ctx.editCode });
+          // Generate & Save Students
+          return this._generateSubIds(CONFIG.SHEET_STUDENT, '生徒登録番号', 'S', data.students.length)
+             .flatMap(studentIds => {
+                 const saveStudents = data.students.map((s, index) => {
+                    const row = {
+                      '世帯登録番号': ctx.householdId,
+                      '生徒登録番号': studentIds[index],
+                      '基幹生徒ID': '',
+                      '姓': s.lastName,
+                      '名': s.firstName,
+                      'フリガナ姓': s.lastNameKana,
+                      'フリガナ名': s.firstNameKana,
+                      '高校卒業予定年': s.graduationYear,
+                      '連絡用メール': s.email,
+                      'オンライン授業用メール': s.classEmail || '',
+                      '携帯電話番号': s.mobilePhone,
+                      '住所フラグ': '', // Default?
+                      '生徒郵便番号': s.postalCode,
+                      '生徒都道府県': s.prefecture,
+                      '生徒市区町村': s.city,
+                      '生徒町名・番地・号': s.street,
+                      '生徒建物名・部屋番号': s.building,
+                      'バージョン': 1,
+                      '削除フラグ': false,
+                      '更新日時': ctx.nowStr,
+                      '更新者メール': ctx.userEmail
+                    };
+                    
+                    const studentFormats = {
+                       '携帯電話番号': '@',
+                       '生徒郵便番号': '@'
+                    };
+                    return this.adapter.appendObject(CONFIG.SHEET_STUDENT, row, studentFormats);
+                 });
+                 
+                 const failures = saveStudents.filter(r => r.isErr());
+                 if (failures.length > 0) return Result.err(new Error("Failed to save some students"));
+                 return Result.ok({ householdId: ctx.householdId, editCode: ctx.editCode });
+             });
        });
   }
 
   // Helpers
   _generateHouseholdId() {
-    return this.adapter.readTable('世帯マスタ')
-      .map(rows => {
-        let maxId = 0;
-        rows.forEach(r => {
-          const id = r['世帯登録番号'];
-          if (id && id.startsWith('HH')) {
-            const num = parseInt(id.substring(2), 10);
-            if (!isNaN(num) && num > maxId) maxId = num;
-          }
+    return this._generateId(CONFIG.SHEET_HOUSEHOLD, '世帯登録番号', 'HH');
+  }
+
+  _generateSubIds(sheetName, idColumn, prefix, count) {
+      // Need 'count' consecutive IDs.
+      // Scan once, find max, then generate array.
+      return this.adapter.readTable(sheetName)
+        .map(rows => {
+           let maxId = 0;
+           rows.forEach(r => {
+             const idStr = r[idColumn];
+             if (idStr && idStr.startsWith(prefix)) {
+                 const num = parseInt(idStr.substring(prefix.length), 10);
+                 if (!isNaN(num) && num > maxId) maxId = num;
+             }
+           });
+           
+           const ids = [];
+           for (let i = 1; i <= count; i++) {
+               ids.push(prefix + String(maxId + i).padStart(5, '0'));
+           }
+           return ids;
         });
-        return 'HH' + ('00000' + (maxId + 1)).slice(-5);
-      });
+  }
+
+  _generateId(sheetName, idColumn, prefix) {
+      return this._generateSubIds(sheetName, idColumn, prefix, 1).map(ids => ids[0]);
   }
 
   _generateEditCode() {
