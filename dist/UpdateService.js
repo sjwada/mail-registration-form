@@ -32,6 +32,16 @@ class UpdateService {
     return this.householdRepo.save(formData)
        .map(result => {
            // Success
+           
+           // Send Notification Email (Side Effect)
+           try {
+             // Use current time as approximation of update time
+             sendEditNotificationEmails(formData.guardians, new Date());
+           } catch (e) {
+             console.error("Failed to send email: " + e.toString());
+             // Suppress email error to ensure save success is returned
+           }
+
            return {
                success: true,
                message: '修正内容を保存しました。',

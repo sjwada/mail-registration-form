@@ -272,78 +272,7 @@ function updateHouseholdData(householdId, formData) {
 
 
 
-/**
- * フォームデータのバリデーション
- * @param {object} formData - フォームデータ
- * @return {object} バリデーション結果
- */
-function validateFormData(formData) {
-  // 保護者チェック
-  if (!formData.guardians || formData.guardians.length === 0) {
-    return { valid: false, message: '保護者を最低1人登録してください。' };
-  }
 
-  // 保護者のバリデーション
-  const priorities = [];
-  for (let guardian of formData.guardians) {
-    // 電話番号チェック（携帯または自宅のどちらか必須）
-    if (!guardian.mobilePhone && !guardian.homePhone) {
-      return {
-        valid: false,
-        message: '保護者の携帯電話番号または自宅電話番号のどちらか1つは必須です。'
-      };
-    }
-
-    // 連絡優先順位の収集
-    if (guardian.contactPriority) {
-      priorities.push(guardian.contactPriority);
-    }
-
-    // 個別住所チェック
-    if (guardian.postalCode) {
-      if (!guardian.prefecture || !guardian.city || !guardian.street) {
-        return {
-          valid: false,
-          message: '個別の住所を登録する場合は、都道府県、市区町村、町名・番地・号は必須です。'
-        };
-      }
-    }
-  }
-
-  // 連絡優先順位の整合性チェック
-  if (formData.guardians.length > 1) {
-    const uniquePriorities = new Set(priorities);
-    if (uniquePriorities.size !== formData.guardians.length) {
-      return { valid: false, message: '保護者の連絡優先順位が重複しています。' };
-    }
-    // 1から人数分までの連番かチェック（簡易的）
-    for (let i = 1; i <= formData.guardians.length; i++) {
-      if (!priorities.includes(i)) {
-        return { valid: false, message: '保護者の連絡優先順位が正しくありません。' };
-      }
-    }
-  }
-
-  // 生徒チェック
-  if (!formData.students || formData.students.length === 0) {
-    return { valid: false, message: '生徒を最低1人登録してください。' };
-  }
-
-  // 生徒のバリデーション
-  for (let student of formData.students) {
-    // 個別住所チェック
-    if (student.postalCode) {
-      if (!student.prefecture || !student.city || !student.street) {
-        return {
-          valid: false,
-          message: '生徒の個別の住所を登録する場合は、都道府県、市区町村、町名・番地・号は必須です。'
-        };
-      }
-    }
-  }
-
-  return { valid: true };
-}
 
 /**
  * HTMLテンプレート内で別のファイルをインクルードするための関数
