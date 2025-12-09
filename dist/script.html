@@ -104,9 +104,9 @@
     const guardians = document.querySelectorAll(".guardian-card");
     for (let card of guardians) {
       const id = card.id;
-      const mobile = card.querySelector(`[name="mobile_phone_${id}"]`).value;
-      const home = card.querySelector(`[name="home_phone_${id}"]`).value;
-      const postalCode = card.querySelector(`[name="postalCode_${id}"]`).value;
+      const mobile = card.querySelector('[name="mobile_phone_'.concat(id, '"]')).value;
+      const home = card.querySelector('[name="home_phone_'.concat(id, '"]')).value;
+      const postalCode = card.querySelector('[name="postalCode_'.concat(id, '"]')).value;
       if (!mobile && !home) {
         return { valid: false, message: "\u4FDD\u8B77\u8005\u306E\u643A\u5E2F\u96FB\u8A71\u307E\u305F\u306F\u81EA\u5B85\u96FB\u8A71\u306E\u3069\u3061\u3089\u304B1\u3064\u306F\u5FC5\u9808\u3067\u3059\u3002" };
       }
@@ -123,8 +123,8 @@
     const students = document.querySelectorAll(".student-card");
     for (let card of students) {
       const id = card.id;
-      const mobile = card.querySelector(`[name="s_mobile_phone_${id}"]`).value;
-      const postalCode = card.querySelector(`[name="postalCode_s_${id}"]`).value;
+      const mobile = card.querySelector('[name="s_mobile_phone_'.concat(id, '"]')).value;
+      const postalCode = card.querySelector('[name="postalCode_s_'.concat(id, '"]')).value;
       if (mobile && !phoneRegex.test(mobile)) {
         return { valid: false, message: "\u751F\u5F92\u306E\u643A\u5E2F\u96FB\u8A71\u756A\u53F7\u306E\u5F62\u5F0F\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093\u3002" };
       }
@@ -142,129 +142,7 @@
     store.setState({ guardianCount });
     const id = "guardian_" + guardianCount;
     const hasSeparateAddress = data && (data.postalCode || data.prefecture || data.city || data.street);
-    const html = `
-    <div class="guardian-card fade-in" id="${id}">
-      <input type="hidden" name="guardianId_${id}" value="${data ? data.guardianId || "" : ""}">
-      <div class="card-header">
-        <h3>\u4FDD\u8B77\u8005${guardianCount}</h3>
-        ${guardianCount > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn" data-remove-guardian="${id}">\u524A\u9664</button>` : ""}
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group col-md-4">
-          <label>\u7D9A\u67C4 <span class="required">*</span></label>
-          <select class="form-control" name="relationship_${id}" required>
-            <option value="">\u9078\u629E</option>
-            <option value="\u7236" ${data && data.relationship === "\u7236" ? "selected" : ""}>\u7236</option>
-            <option value="\u6BCD" ${data && data.relationship === "\u6BCD" ? "selected" : ""}>\u6BCD</option>
-            <option value="\u7956\u7236" ${data && data.relationship === "\u7956\u7236" ? "selected" : ""}>\u7956\u7236</option>
-            <option value="\u7956\u6BCD" ${data && data.relationship === "\u7956\u6BCD" ? "selected" : ""}>\u7956\u6BCD</option>
-            <option value="\u305D\u306E\u4ED6" ${data && data.relationship === "\u305D\u306E\u4ED6" ? "selected" : ""}>\u305D\u306E\u4ED6</option>
-          </select>
-        </div>
-        <div class="form-group col-md-4">
-          <label>\u9023\u7D61\u512A\u5148\u9806\u4F4D <span class="required">*</span></label>
-          <select class="form-control priority-select" name="priority_${id}" required data-initial-priority="${data ? data.contactPriority || "" : ""}">
-            <!-- Dynamically generated -->
-          </select>
-        </div>
-        <div class="form-group col-md-4">
-          <label>\u9023\u7D61\u624B\u6BB5</label>
-          <select class="form-control" name="contact_method_${id}">
-            <option value="\u643A\u5E2F\u96FB\u8A71" ${!data || data.contactMethod === "\u643A\u5E2F\u96FB\u8A71" ? "selected" : ""}>\u643A\u5E2F\u96FB\u8A71</option>
-            <option value="\u81EA\u5B85\u96FB\u8A71" ${data && data.contactMethod === "\u81EA\u5B85\u96FB\u8A71" ? "selected" : ""}>\u81EA\u5B85\u96FB\u8A71</option>
-            <option value="\u30E1\u30FC\u30EB" ${data && data.contactMethod === "\u30E1\u30FC\u30EB" ? "selected" : ""}>\u30E1\u30FC\u30EB</option>
-          </select>
-        </div>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group col-md-6">
-          <label>\u59D3 <span class="required">*</span></label>
-          <input type="text" class="form-control" name="last_name_${id}" value="${data ? data.lastName : ""}" required>
-        </div>
-        <div class="form-group col-md-6">
-          <label>\u540D <span class="required">*</span></label>
-          <input type="text" class="form-control" name="first_name_${id}" value="${data ? data.firstName : ""}" required>
-        </div>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group col-md-6">
-          <label>\u30D5\u30EA\u30AC\u30CA\uFF08\u59D3\uFF09 <span class="required">*</span></label>
-          <input type="text" class="form-control" name="last_name_kana_${id}" value="${data ? data.lastNameKana : ""}" pattern="[\u30A1-\u30F6\u30FC]+" required>
-        </div>
-        <div class="form-group col-md-6">
-          <label>\u30D5\u30EA\u30AC\u30CA\uFF08\u540D\uFF09 <span class="required">*</span></label>
-          <input type="text" class="form-control" name="first_name_kana_${id}" value="${data ? data.firstNameKana : ""}" pattern="[\u30A1-\u30F6\u30FC]+" required>
-        </div>
-      </div>
-      
-      <div class="form-group">
-        <label>\u9023\u7D61\u7528\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9 <span class="required">*</span></label>
-        <input type="email" class="form-control" name="email_${id}" value="${data ? data.email : ""}" required>
-      </div>
-      
-      <div class="form-group">
-        <label>\u30AA\u30F3\u30E9\u30A4\u30F3\u9762\u8AC7\u7528\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\uFF08\u4EFB\u610F\uFF09</label>
-        <input type="email" class="form-control" name="meeting_email_${id}" value="${data ? data.meetingEmail || "" : ""}">
-        <small class="form-text">\u{1F4A1} PC/\u30BF\u30D6\u30EC\u30C3\u30C8\u3067\u78BA\u8A8D\u3057\u3084\u3059\u3044\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u63A8\u5968</small>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group col-md-6">
-          <label>\u643A\u5E2F\u96FB\u8A71\u756A\u53F7</label>
-          <input type="tel" class="form-control" name="mobile_phone_${id}" value="${data ? data.mobilePhone || "" : ""}" placeholder="090-1234-5678">
-        </div>
-        <div class="form-group col-md-6">
-          <label>\u81EA\u5B85\u96FB\u8A71\u756A\u53F7</label>
-          <input type="tel" class="form-control" name="home_phone_${id}" value="${data ? data.homePhone || "" : ""}" placeholder="03-1234-5678">
-        </div>
-      </div>
-      <small class="form-text">\u{1F4DE} \u643A\u5E2F\u96FB\u8A71\u307E\u305F\u306F\u81EA\u5B85\u96FB\u8A71\u306E\u3069\u3061\u3089\u304B1\u3064\u306F\u5FC5\u305A\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044</small>
-
-      <!-- Address Input -->
-      <div class="form-group mt-3">
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="separate_address_${id}" data-toggle-address="${id}" ${hasSeparateAddress ? "checked" : ""}>
-          <label class="form-check-label" for="separate_address_${id}">
-            \u3054\u81EA\u5B85\u3068\u7570\u306A\u308B\u4F4F\u6240\u3092\u767B\u9332\u3059\u308B\uFF08\u5358\u8EAB\u8D74\u4EFB\u7B49\uFF09
-          </label>
-        </div>
-      </div>
-      
-      <div id="address_fields_${id}" style="display: ${hasSeparateAddress ? "block" : "none"};" class="bg-light p-3 rounded">
-        <div class="form-row">
-          <div class="form-group col-md-4">
-            <label>\u90F5\u4FBF\u756A\u53F7</label>
-            <input type="text" id="postalCode_${id}" name="postalCode_${id}" class="form-control" placeholder="123-4567" maxlength="8" value="${data ? data.postalCode || "" : ""}">
-            <button type="button" class="btn btn-sm btn-secondary mt-1" data-search-address="${id}">\u4F4F\u6240\u691C\u7D22</button>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group col-md-4">
-            <label>\u90FD\u9053\u5E9C\u770C</label>
-            <select id="prefecture_${id}" name="prefecture_${id}" class="form-control">
-              <option value="">\u9078\u629E</option>
-              ${generatePrefectureOptions(data ? data.prefecture : "")}
-            </select>
-          </div>
-          <div class="form-group col-md-8">
-            <label>\u5E02\u533A\u753A\u6751</label>
-            <input type="text" id="city_${id}" name="city_${id}" class="form-control" value="${data ? data.city || "" : ""}">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>\u753A\u540D\u30FB\u756A\u5730\u30FB\u53F7</label>
-          <input type="text" id="street_${id}" name="street_${id}" class="form-control" value="${data ? data.street || "" : ""}">
-        </div>
-        <div class="form-group">
-          <label>\u5EFA\u7269\u540D\u30FB\u90E8\u5C4B\u756A\u53F7</label>
-          <input type="text" id="building_${id}" name="building_${id}" class="form-control" value="${data ? data.building || "" : ""}">
-        </div>
-      </div>
-    </div>
-  `;
+    const html = '\n    <div class="guardian-card fade-in" id="'.concat(id, '">\n      <input type="hidden" name="guardianId_').concat(id, '" value="').concat(data ? data.guardianId || "" : "", '">\n      <div class="card-header">\n        <h3>\u4FDD\u8B77\u8005').concat(guardianCount, "</h3>\n        ").concat(guardianCount > 1 ? '<button type="button" class="btn btn-danger btn-sm remove-btn" data-remove-guardian="'.concat(id, '">\u524A\u9664</button>') : "", '\n      </div>\n      \n      <div class="form-row">\n        <div class="form-group col-md-4">\n          <label>\u7D9A\u67C4 <span class="required">*</span></label>\n          <select class="form-control" name="relationship_').concat(id, '" required>\n            <option value="">\u9078\u629E</option>\n            <option value="\u7236" ').concat(data && data.relationship === "\u7236" ? "selected" : "", '>\u7236</option>\n            <option value="\u6BCD" ').concat(data && data.relationship === "\u6BCD" ? "selected" : "", '>\u6BCD</option>\n            <option value="\u7956\u7236" ').concat(data && data.relationship === "\u7956\u7236" ? "selected" : "", '>\u7956\u7236</option>\n            <option value="\u7956\u6BCD" ').concat(data && data.relationship === "\u7956\u6BCD" ? "selected" : "", '>\u7956\u6BCD</option>\n            <option value="\u305D\u306E\u4ED6" ').concat(data && data.relationship === "\u305D\u306E\u4ED6" ? "selected" : "", '>\u305D\u306E\u4ED6</option>\n          </select>\n        </div>\n        <div class="form-group col-md-4">\n          <label>\u9023\u7D61\u512A\u5148\u9806\u4F4D <span class="required">*</span></label>\n          <select class="form-control priority-select" name="priority_').concat(id, '" required data-initial-priority="').concat(data ? data.contactPriority || "" : "", '">\n            <!-- Dynamically generated -->\n          </select>\n        </div>\n        <div class="form-group col-md-4">\n          <label>\u9023\u7D61\u624B\u6BB5</label>\n          <select class="form-control" name="contact_method_').concat(id, '">\n            <option value="\u643A\u5E2F\u96FB\u8A71" ').concat(!data || data.contactMethod === "\u643A\u5E2F\u96FB\u8A71" ? "selected" : "", '>\u643A\u5E2F\u96FB\u8A71</option>\n            <option value="\u81EA\u5B85\u96FB\u8A71" ').concat(data && data.contactMethod === "\u81EA\u5B85\u96FB\u8A71" ? "selected" : "", '>\u81EA\u5B85\u96FB\u8A71</option>\n            <option value="\u30E1\u30FC\u30EB" ').concat(data && data.contactMethod === "\u30E1\u30FC\u30EB" ? "selected" : "", '>\u30E1\u30FC\u30EB</option>\n          </select>\n        </div>\n      </div>\n      \n      <div class="form-row">\n        <div class="form-group col-md-6">\n          <label>\u59D3 <span class="required">*</span></label>\n          <input type="text" class="form-control" name="last_name_').concat(id, '" value="').concat(data ? data.lastName : "", '" required>\n        </div>\n        <div class="form-group col-md-6">\n          <label>\u540D <span class="required">*</span></label>\n          <input type="text" class="form-control" name="first_name_').concat(id, '" value="').concat(data ? data.firstName : "", '" required>\n        </div>\n      </div>\n      \n      <div class="form-row">\n        <div class="form-group col-md-6">\n          <label>\u30D5\u30EA\u30AC\u30CA\uFF08\u59D3\uFF09 <span class="required">*</span></label>\n          <input type="text" class="form-control" name="last_name_kana_').concat(id, '" value="').concat(data ? data.lastNameKana : "", '" pattern="[\u30A1-\u30F6\u30FC]+" required>\n        </div>\n        <div class="form-group col-md-6">\n          <label>\u30D5\u30EA\u30AC\u30CA\uFF08\u540D\uFF09 <span class="required">*</span></label>\n          <input type="text" class="form-control" name="first_name_kana_').concat(id, '" value="').concat(data ? data.firstNameKana : "", '" pattern="[\u30A1-\u30F6\u30FC]+" required>\n        </div>\n      </div>\n      \n      <div class="form-group">\n        <label>\u9023\u7D61\u7528\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9 <span class="required">*</span></label>\n        <input type="email" class="form-control" name="email_').concat(id, '" value="').concat(data ? data.email : "", '" required>\n      </div>\n      \n      <div class="form-group">\n        <label>\u30AA\u30F3\u30E9\u30A4\u30F3\u9762\u8AC7\u7528\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\uFF08\u4EFB\u610F\uFF09</label>\n        <input type="email" class="form-control" name="meeting_email_').concat(id, '" value="').concat(data ? data.meetingEmail || "" : "", '">\n        <small class="form-text">\u{1F4A1} PC/\u30BF\u30D6\u30EC\u30C3\u30C8\u3067\u78BA\u8A8D\u3057\u3084\u3059\u3044\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u63A8\u5968</small>\n      </div>\n      \n      <div class="form-row">\n        <div class="form-group col-md-6">\n          <label>\u643A\u5E2F\u96FB\u8A71\u756A\u53F7</label>\n          <input type="tel" class="form-control" name="mobile_phone_').concat(id, '" value="').concat(data ? data.mobilePhone || "" : "", '" placeholder="090-1234-5678">\n        </div>\n        <div class="form-group col-md-6">\n          <label>\u81EA\u5B85\u96FB\u8A71\u756A\u53F7</label>\n          <input type="tel" class="form-control" name="home_phone_').concat(id, '" value="').concat(data ? data.homePhone || "" : "", '" placeholder="03-1234-5678">\n        </div>\n      </div>\n      <small class="form-text">\u{1F4DE} \u643A\u5E2F\u96FB\u8A71\u307E\u305F\u306F\u81EA\u5B85\u96FB\u8A71\u306E\u3069\u3061\u3089\u304B1\u3064\u306F\u5FC5\u305A\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044</small>\n\n      <!-- Address Input -->\n      <div class="form-group mt-3">\n        <div class="form-check">\n          <input class="form-check-input" type="checkbox" id="separate_address_').concat(id, '" data-toggle-address="').concat(id, '" ').concat(hasSeparateAddress ? "checked" : "", '>\n          <label class="form-check-label" for="separate_address_').concat(id, '">\n            \u3054\u81EA\u5B85\u3068\u7570\u306A\u308B\u4F4F\u6240\u3092\u767B\u9332\u3059\u308B\uFF08\u5358\u8EAB\u8D74\u4EFB\u7B49\uFF09\n          </label>\n        </div>\n      </div>\n      \n      <div id="address_fields_').concat(id, '" style="display: ').concat(hasSeparateAddress ? "block" : "none", ';" class="bg-light p-3 rounded">\n        <div class="form-row">\n          <div class="form-group col-md-4">\n            <label>\u90F5\u4FBF\u756A\u53F7</label>\n            <input type="text" id="postalCode_').concat(id, '" name="postalCode_').concat(id, '" class="form-control" placeholder="123-4567" maxlength="8" value="').concat(data ? data.postalCode || "" : "", '">\n            <button type="button" class="btn btn-sm btn-secondary mt-1" data-search-address="').concat(id, '">\u4F4F\u6240\u691C\u7D22</button>\n          </div>\n        </div>\n        <div class="form-row">\n          <div class="form-group col-md-4">\n            <label>\u90FD\u9053\u5E9C\u770C</label>\n            <select id="prefecture_').concat(id, '" name="prefecture_').concat(id, '" class="form-control">\n              <option value="">\u9078\u629E</option>\n              ').concat(generatePrefectureOptions(data ? data.prefecture : ""), '\n            </select>\n          </div>\n          <div class="form-group col-md-8">\n            <label>\u5E02\u533A\u753A\u6751</label>\n            <input type="text" id="city_').concat(id, '" name="city_').concat(id, '" class="form-control" value="').concat(data ? data.city || "" : "", '">\n          </div>\n        </div>\n        <div class="form-group">\n          <label>\u753A\u540D\u30FB\u756A\u5730\u30FB\u53F7</label>\n          <input type="text" id="street_').concat(id, '" name="street_').concat(id, '" class="form-control" value="').concat(data ? data.street || "" : "", '">\n        </div>\n        <div class="form-group">\n          <label>\u5EFA\u7269\u540D\u30FB\u90E8\u5C4B\u756A\u53F7</label>\n          <input type="text" id="building_').concat(id, '" name="building_').concat(id, '" class="form-control" value="').concat(data ? data.building || "" : "", '">\n        </div>\n      </div>\n    </div>\n  ');
     document.getElementById("guardiansList").insertAdjacentHTML("beforeend", html);
     updateGuardianPriorities();
   }
@@ -288,7 +166,7 @@
       }
       let options = "";
       for (let i = 1; i <= count; i++) {
-        options += `<option value="${i}" ${currentValue == i ? "selected" : ""}>${i}</option>`;
+        options += '<option value="'.concat(i, '" ').concat(currentValue == i ? "selected" : "", ">").concat(i, "</option>");
       }
       select.innerHTML = options;
       select.setAttribute("data-current-value", select.value);
@@ -363,7 +241,7 @@
       "\u6C96\u7E04\u770C"
     ];
     return prefectures.map(
-      (pref) => `<option value="${pref}" ${selectedPrefecture === pref ? "selected" : ""}>${pref}</option>`
+      (pref) => '<option value="'.concat(pref, '" ').concat(selectedPrefecture === pref ? "selected" : "", ">").concat(pref, "</option>")
     ).join("");
   }
 
@@ -374,106 +252,7 @@
     store.setState({ studentCount });
     const id = "student_" + studentCount;
     const hasSeparateAddress = data && (data.postalCode || data.prefecture || data.city || data.street);
-    const html = `
-    <div class="student-card fade-in" id="${id}">
-      <input type="hidden" name="studentId_${id}" value="${data ? data.studentId || "" : ""}">
-      <div class="card-header">
-        <h3>\u751F\u5F92${studentCount}</h3>
-        ${studentCount > 1 ? `<button type="button" class="btn btn-danger btn-sm remove-btn" data-remove-student="${id}">\u524A\u9664</button>` : ""}
-      </div>
-      
-      <div class="form-row">
-
-
-
-        <div class="form-group col-md-6">
-          <label>\u59D3 <span class="required">*</span></label>
-          <input type="text" class="form-control" name="s_last_name_${id}" value="${data ? data.lastName : ""}" required>
-        </div>
-        <div class="form-group col-md-6">
-          <label>\u540D <span class="required">*</span></label>
-          <input type="text" class="form-control" name="s_first_name_${id}" value="${data ? data.firstName : ""}" required>
-        </div>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group col-md-6">
-          <label>\u30D5\u30EA\u30AC\u30CA\uFF08\u59D3\uFF09 <span class="required">*</span></label>
-          <input type="text" class="form-control" name="s_last_name_kana_${id}" value="${data ? data.lastNameKana : ""}" pattern="[\u30A1-\u30F6\u30FC]+" required>
-        </div>
-        <div class="form-group col-md-6">
-          <label>\u30D5\u30EA\u30AC\u30CA\uFF08\u540D\uFF09 <span class="required">*</span></label>
-          <input type="text" class="form-control" name="s_first_name_kana_${id}" value="${data ? data.firstNameKana : ""}" pattern="[\u30A1-\u30F6\u30FC]+" required>
-        </div>
-      </div>
-      
-      <div class="form-group">
-        <label>\u9AD8\u6821\u5352\u696D\uFF08\u4E88\u5B9A\uFF09\u5E74 <span class="required">*</span></label>
-        <select class="form-control" name="graduation_year_${id}" required>
-          <option value="">\u9078\u629E</option>
-          ${generateYearOptions(data ? data.graduationYear : null)}
-        </select>
-      </div>
-      
-      <div class="form-group">
-        <label>\u9023\u7D61\u7528\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9 <span class="required">*</span></label>
-        <input type="email" class="form-control" name="s_email_${id}" value="${data ? data.email : ""}" required>
-      </div>
-      
-      <div class="form-group">
-        <label>\u30AA\u30F3\u30E9\u30A4\u30F3\u6388\u696D\u7528\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\uFF08\u4EFB\u610F\uFF09</label>
-        <input type="email" class="form-control" name="s_class_email_${id}" value="${data ? data.classEmail || "" : ""}">
-        <small class="form-text">\u{1F4A1} PC/\u30BF\u30D6\u30EC\u30C3\u30C8\u3067\u78BA\u8A8D\u3057\u3084\u3059\u3044\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u63A8\u5968</small>
-      </div>
-      
-      <div class="form-group">
-        <label>\u643A\u5E2F\u96FB\u8A71\u756A\u53F7\uFF08\u4EFB\u610F\uFF09</label>
-        <input type="tel" class="form-control" name="s_mobile_phone_${id}" value="${data ? data.mobilePhone || "" : ""}" placeholder="090-1234-5678">
-        <small class="form-text">\u{1F4F1} \u304A\u6301\u3061\u306E\u5834\u5408\u306F\u5FC5\u305A\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044</small>
-      </div>
-
-       <!-- Address Input -->
-      <div class="form-group mt-3">
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="separate_address_s_${id}" data-toggle-address="s_${id}" ${hasSeparateAddress ? "checked" : ""}>
-          <label class="form-check-label" for="separate_address_s_${id}">
-            \u3054\u81EA\u5B85\u3068\u7570\u306A\u308B\u4F4F\u6240\u3092\u767B\u9332\u3059\u308B\uFF08\u5BEE\u751F\u6D3B\u7B49\uFF09
-          </label>
-        </div>
-      </div>
-      
-      <div id="address_fields_s_${id}" style="display: ${hasSeparateAddress ? "block" : "none"};" class="bg-light p-3 rounded">
-        <div class="form-row">
-          <div class="form-group col-md-4">
-            <label>\u90F5\u4FBF\u756A\u53F7</label>
-            <input type="text" id="postalCode_s_${id}" name="postalCode_s_${id}" class="form-control" placeholder="123-4567" maxlength="8" value="${data ? data.postalCode || "" : ""}">
-            <button type="button" class="btn btn-sm btn-secondary mt-1" data-search-address="s_${id}">\u4F4F\u6240\u691C\u7D22</button>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group col-md-4">
-            <label>\u90FD\u9053\u5E9C\u770C</label>
-            <select id="prefecture_s_${id}" name="prefecture_s_${id}" class="form-control">
-              <option value="">\u9078\u629E</option>
-              ${generatePrefectureOptions2(data ? data.prefecture : "")}
-            </select>
-          </div>
-          <div class="form-group col-md-8">
-            <label>\u5E02\u533A\u753A\u6751</label>
-            <input type="text" id="city_s_${id}" name="city_s_${id}" class="form-control" value="${data ? data.city || "" : ""}">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>\u753A\u540D\u30FB\u756A\u5730\u30FB\u53F7</label>
-          <input type="text" id="street_s_${id}" name="street_s_${id}" class="form-control" value="${data ? data.street || "" : ""}">
-        </div>
-        <div class="form-group">
-          <label>\u5EFA\u7269\u540D\u30FB\u90E8\u5C4B\u756A\u53F7</label>
-          <input type="text" id="building_s_${id}" name="building_s_${id}" class="form-control" value="${data ? data.building || "" : ""}">
-        </div>
-      </div>
-    </div>
-  `;
+    const html = '\n    <div class="student-card fade-in" id="'.concat(id, '">\n      <input type="hidden" name="studentId_').concat(id, '" value="').concat(data ? data.studentId || "" : "", '">\n      <div class="card-header">\n        <h3>\u751F\u5F92').concat(studentCount, "</h3>\n        ").concat(studentCount > 1 ? '<button type="button" class="btn btn-danger btn-sm remove-btn" data-remove-student="'.concat(id, '">\u524A\u9664</button>') : "", '\n      </div>\n      \n      <div class="form-row">\n\n\n\n        <div class="form-group col-md-6">\n          <label>\u59D3 <span class="required">*</span></label>\n          <input type="text" class="form-control" name="s_last_name_').concat(id, '" value="').concat(data ? data.lastName : "", '" required>\n        </div>\n        <div class="form-group col-md-6">\n          <label>\u540D <span class="required">*</span></label>\n          <input type="text" class="form-control" name="s_first_name_').concat(id, '" value="').concat(data ? data.firstName : "", '" required>\n        </div>\n      </div>\n      \n      <div class="form-row">\n        <div class="form-group col-md-6">\n          <label>\u30D5\u30EA\u30AC\u30CA\uFF08\u59D3\uFF09 <span class="required">*</span></label>\n          <input type="text" class="form-control" name="s_last_name_kana_').concat(id, '" value="').concat(data ? data.lastNameKana : "", '" pattern="[\u30A1-\u30F6\u30FC]+" required>\n        </div>\n        <div class="form-group col-md-6">\n          <label>\u30D5\u30EA\u30AC\u30CA\uFF08\u540D\uFF09 <span class="required">*</span></label>\n          <input type="text" class="form-control" name="s_first_name_kana_').concat(id, '" value="').concat(data ? data.firstNameKana : "", '" pattern="[\u30A1-\u30F6\u30FC]+" required>\n        </div>\n      </div>\n      \n      <div class="form-group">\n        <label>\u9AD8\u6821\u5352\u696D\uFF08\u4E88\u5B9A\uFF09\u5E74 <span class="required">*</span></label>\n        <select class="form-control" name="graduation_year_').concat(id, '" required>\n          <option value="">\u9078\u629E</option>\n          ').concat(generateYearOptions(data ? data.graduationYear : null), '\n        </select>\n      </div>\n      \n      <div class="form-group">\n        <label>\u9023\u7D61\u7528\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9 <span class="required">*</span></label>\n        <input type="email" class="form-control" name="s_email_').concat(id, '" value="').concat(data ? data.email : "", '" required>\n      </div>\n      \n      <div class="form-group">\n        <label>\u30AA\u30F3\u30E9\u30A4\u30F3\u6388\u696D\u7528\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\uFF08\u4EFB\u610F\uFF09</label>\n        <input type="email" class="form-control" name="s_class_email_').concat(id, '" value="').concat(data ? data.classEmail || "" : "", '">\n        <small class="form-text">\u{1F4A1} PC/\u30BF\u30D6\u30EC\u30C3\u30C8\u3067\u78BA\u8A8D\u3057\u3084\u3059\u3044\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u63A8\u5968</small>\n      </div>\n      \n      <div class="form-group">\n        <label>\u643A\u5E2F\u96FB\u8A71\u756A\u53F7\uFF08\u4EFB\u610F\uFF09</label>\n        <input type="tel" class="form-control" name="s_mobile_phone_').concat(id, '" value="').concat(data ? data.mobilePhone || "" : "", '" placeholder="090-1234-5678">\n        <small class="form-text">\u{1F4F1} \u304A\u6301\u3061\u306E\u5834\u5408\u306F\u5FC5\u305A\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044</small>\n      </div>\n\n       <!-- Address Input -->\n      <div class="form-group mt-3">\n        <div class="form-check">\n          <input class="form-check-input" type="checkbox" id="separate_address_s_').concat(id, '" data-toggle-address="s_').concat(id, '" ').concat(hasSeparateAddress ? "checked" : "", '>\n          <label class="form-check-label" for="separate_address_s_').concat(id, '">\n            \u3054\u81EA\u5B85\u3068\u7570\u306A\u308B\u4F4F\u6240\u3092\u767B\u9332\u3059\u308B\uFF08\u5BEE\u751F\u6D3B\u7B49\uFF09\n          </label>\n        </div>\n      </div>\n      \n      <div id="address_fields_s_').concat(id, '" style="display: ').concat(hasSeparateAddress ? "block" : "none", ';" class="bg-light p-3 rounded">\n        <div class="form-row">\n          <div class="form-group col-md-4">\n            <label>\u90F5\u4FBF\u756A\u53F7</label>\n            <input type="text" id="postalCode_s_').concat(id, '" name="postalCode_s_').concat(id, '" class="form-control" placeholder="123-4567" maxlength="8" value="').concat(data ? data.postalCode || "" : "", '">\n            <button type="button" class="btn btn-sm btn-secondary mt-1" data-search-address="s_').concat(id, '">\u4F4F\u6240\u691C\u7D22</button>\n          </div>\n        </div>\n        <div class="form-row">\n          <div class="form-group col-md-4">\n            <label>\u90FD\u9053\u5E9C\u770C</label>\n            <select id="prefecture_s_').concat(id, '" name="prefecture_s_').concat(id, '" class="form-control">\n              <option value="">\u9078\u629E</option>\n              ').concat(generatePrefectureOptions2(data ? data.prefecture : ""), '\n            </select>\n          </div>\n          <div class="form-group col-md-8">\n            <label>\u5E02\u533A\u753A\u6751</label>\n            <input type="text" id="city_s_').concat(id, '" name="city_s_').concat(id, '" class="form-control" value="').concat(data ? data.city || "" : "", '">\n          </div>\n        </div>\n        <div class="form-group">\n          <label>\u753A\u540D\u30FB\u756A\u5730\u30FB\u53F7</label>\n          <input type="text" id="street_s_').concat(id, '" name="street_s_').concat(id, '" class="form-control" value="').concat(data ? data.street || "" : "", '">\n        </div>\n        <div class="form-group">\n          <label>\u5EFA\u7269\u540D\u30FB\u90E8\u5C4B\u756A\u53F7</label>\n          <input type="text" id="building_s_').concat(id, '" name="building_s_').concat(id, '" class="form-control" value="').concat(data ? data.building || "" : "", '">\n        </div>\n      </div>\n    </div>\n  ');
     document.getElementById("studentsList").insertAdjacentHTML("beforeend", html);
   }
   function removeStudent(id) {
@@ -487,7 +266,7 @@
     for (let i = -5; i <= 10; i++) {
       const year = currentYear + i;
       const selected = selectedYear && selectedYear == year ? "selected" : "";
-      years.push(`<option value="${year}" ${selected}>${year}\u5E74</option>`);
+      years.push('<option value="'.concat(year, '" ').concat(selected, ">").concat(year, "\u5E74</option>"));
     }
     return years.join("");
   }
@@ -542,7 +321,7 @@
       "\u6C96\u7E04\u770C"
     ];
     return prefectures.map(
-      (pref) => `<option value="${pref}" ${selectedPrefecture === pref ? "selected" : ""}>${pref}</option>`
+      (pref) => '<option value="'.concat(pref, '" ').concat(selectedPrefecture === pref ? "selected" : "", ">").concat(pref, "</option>")
     ).join("");
   }
 
@@ -716,58 +495,58 @@
     document.querySelectorAll(".guardian-card").forEach((card) => {
       const id = card.id;
       const getVal = (name) => {
-        const el = card.querySelector(`[name="${name}"]`);
+        const el = card.querySelector('[name="'.concat(name, '"]'));
         return el ? el.value : "";
       };
-      const separateAddressCheckbox = document.getElementById(`separate_address_${id}`);
+      const separateAddressCheckbox = document.getElementById("separate_address_".concat(id));
       const useSeparateAddress = separateAddressCheckbox && separateAddressCheckbox.checked;
       formData.guardians.push({
-        guardianId: getVal(`guardianId_${id}`),
+        guardianId: getVal("guardianId_".concat(id)),
         // Collect hidden ID
-        relationship: getVal(`relationship_${id}`),
-        contactPriority: getVal(`priority_${id}`) ? parseInt(getVal(`priority_${id}`)) : "",
-        contactMethod: getVal(`contact_method_${id}`),
-        lastName: getVal(`last_name_${id}`),
-        firstName: getVal(`first_name_${id}`),
-        lastNameKana: getVal(`last_name_kana_${id}`),
-        firstNameKana: getVal(`first_name_kana_${id}`),
-        email: getVal(`email_${id}`),
-        meetingEmail: getVal(`meeting_email_${id}`),
-        mobilePhone: getVal(`mobile_phone_${id}`),
-        homePhone: getVal(`home_phone_${id}`),
+        relationship: getVal("relationship_".concat(id)),
+        contactPriority: getVal("priority_".concat(id)) ? parseInt(getVal("priority_".concat(id))) : "",
+        contactMethod: getVal("contact_method_".concat(id)),
+        lastName: getVal("last_name_".concat(id)),
+        firstName: getVal("first_name_".concat(id)),
+        lastNameKana: getVal("last_name_kana_".concat(id)),
+        firstNameKana: getVal("first_name_kana_".concat(id)),
+        email: getVal("email_".concat(id)),
+        meetingEmail: getVal("meeting_email_".concat(id)),
+        mobilePhone: getVal("mobile_phone_".concat(id)),
+        homePhone: getVal("home_phone_".concat(id)),
         // Address fields - clear if not using separate address
-        postalCode: useSeparateAddress ? getVal(`postalCode_${id}`) : "",
-        prefecture: useSeparateAddress ? getVal(`prefecture_${id}`) : "",
-        city: useSeparateAddress ? getVal(`city_${id}`) : "",
-        street: useSeparateAddress ? getVal(`street_${id}`) : "",
-        building: useSeparateAddress ? getVal(`building_${id}`) : ""
+        postalCode: useSeparateAddress ? getVal("postalCode_".concat(id)) : "",
+        prefecture: useSeparateAddress ? getVal("prefecture_".concat(id)) : "",
+        city: useSeparateAddress ? getVal("city_".concat(id)) : "",
+        street: useSeparateAddress ? getVal("street_".concat(id)) : "",
+        building: useSeparateAddress ? getVal("building_".concat(id)) : ""
       });
     });
     document.querySelectorAll(".student-card").forEach((card) => {
       const id = card.id;
       const getVal = (name) => {
-        const el = card.querySelector(`[name="${name}"]`);
+        const el = card.querySelector('[name="'.concat(name, '"]'));
         return el ? el.value : "";
       };
-      const separateAddressCheckbox = document.getElementById(`separate_address_s_${id}`);
+      const separateAddressCheckbox = document.getElementById("separate_address_s_".concat(id));
       const useSeparateAddress = separateAddressCheckbox && separateAddressCheckbox.checked;
       formData.students.push({
-        studentId: getVal(`studentId_${id}`),
+        studentId: getVal("studentId_".concat(id)),
         // Collect hidden ID
-        lastName: getVal(`s_last_name_${id}`),
-        firstName: getVal(`s_first_name_${id}`),
-        lastNameKana: getVal(`s_last_name_kana_${id}`),
-        firstNameKana: getVal(`s_first_name_kana_${id}`),
-        graduationYear: getVal(`graduation_year_${id}`),
-        email: getVal(`s_email_${id}`),
-        classEmail: getVal(`s_class_email_${id}`),
-        mobilePhone: getVal(`s_mobile_phone_${id}`),
+        lastName: getVal("s_last_name_".concat(id)),
+        firstName: getVal("s_first_name_".concat(id)),
+        lastNameKana: getVal("s_last_name_kana_".concat(id)),
+        firstNameKana: getVal("s_first_name_kana_".concat(id)),
+        graduationYear: getVal("graduation_year_".concat(id)),
+        email: getVal("s_email_".concat(id)),
+        classEmail: getVal("s_class_email_".concat(id)),
+        mobilePhone: getVal("s_mobile_phone_".concat(id)),
         // Address fields - clear if not using separate address
-        postalCode: useSeparateAddress ? getVal(`postalCode_s_${id}`) : "",
-        prefecture: useSeparateAddress ? getVal(`prefecture_s_${id}`) : "",
-        city: useSeparateAddress ? getVal(`city_s_${id}`) : "",
-        street: useSeparateAddress ? getVal(`street_s_${id}`) : "",
-        building: useSeparateAddress ? getVal(`building_s_${id}`) : ""
+        postalCode: useSeparateAddress ? getVal("postalCode_s_".concat(id)) : "",
+        prefecture: useSeparateAddress ? getVal("prefecture_s_".concat(id)) : "",
+        city: useSeparateAddress ? getVal("city_s_".concat(id)) : "",
+        street: useSeparateAddress ? getVal("street_s_".concat(id)) : "",
+        building: useSeparateAddress ? getVal("building_s_".concat(id)) : ""
       });
     });
     return formData;
@@ -779,43 +558,43 @@
     if (!contentDiv) return;
     let html = '<div class="confirmation-details">';
     html += "<h3>\u{1F4CD} \u3054\u81EA\u5B85\u4F4F\u6240</h3>";
-    html += `<p>\u3012${formData.household.postalCode}<br>`;
-    html += `${formData.household.prefecture} ${formData.household.city} ${formData.household.street} ${formData.household.building}</p>`;
+    html += "<p>\u3012".concat(formData.household.postalCode, "<br>");
+    html += "".concat(formData.household.prefecture, " ").concat(formData.household.city, " ").concat(formData.household.street, " ").concat(formData.household.building, "</p>");
     if (formData.household.notes) {
-      html += `<p><strong>\u5099\u8003:</strong><br>${formData.household.notes.replace(/\n/g, "<br>")}</p>`;
+      html += "<p><strong>\u5099\u8003:</strong><br>".concat(formData.household.notes.replace(/\n/g, "<br>"), "</p>");
     }
     html += "<hr>";
     html += "<h3>\u{1F468}\u200D\u{1F469}\u200D\u{1F467}\u200D\u{1F466} \u4FDD\u8B77\u8005\u60C5\u5831</h3>";
     formData.guardians.forEach((g, index) => {
-      html += `<div class="mb-3"><strong>\u4FDD\u8B77\u8005${index + 1}: ${g.lastName} ${g.firstName}</strong>`;
-      html += `<br>\u30AB\u30CA: ${g.lastNameKana} ${g.firstNameKana}`;
-      html += `<br>\u7D9A\u67C4: ${g.relationship}`;
-      html += `<br>\u9023\u7D61\u512A\u5148\u9806\u4F4D: ${g.contactPriority}\u4F4D`;
-      html += `<br>\u9023\u7D61\u65B9\u6CD5: ${g.contactMethod}`;
-      if (g.mobilePhone) html += `<br>\u643A\u5E2F\u96FB\u8A71: ${g.mobilePhone}`;
-      if (g.homePhone) html += `<br>\u81EA\u5B85\u96FB\u8A71: ${g.homePhone}`;
-      html += `<br>Email: ${g.email}`;
-      if (g.meetingEmail) html += `<br>\u30AA\u30F3\u30E9\u30A4\u30F3\u9762\u8AC7\u7528Email: ${g.meetingEmail}`;
+      html += '<div class="mb-3"><strong>\u4FDD\u8B77\u8005'.concat(index + 1, ": ").concat(g.lastName, " ").concat(g.firstName, "</strong>");
+      html += "<br>\u30AB\u30CA: ".concat(g.lastNameKana, " ").concat(g.firstNameKana);
+      html += "<br>\u7D9A\u67C4: ".concat(g.relationship);
+      html += "<br>\u9023\u7D61\u512A\u5148\u9806\u4F4D: ".concat(g.contactPriority, "\u4F4D");
+      html += "<br>\u9023\u7D61\u65B9\u6CD5: ".concat(g.contactMethod);
+      if (g.mobilePhone) html += "<br>\u643A\u5E2F\u96FB\u8A71: ".concat(g.mobilePhone);
+      if (g.homePhone) html += "<br>\u81EA\u5B85\u96FB\u8A71: ".concat(g.homePhone);
+      html += "<br>Email: ".concat(g.email);
+      if (g.meetingEmail) html += "<br>\u30AA\u30F3\u30E9\u30A4\u30F3\u9762\u8AC7\u7528Email: ".concat(g.meetingEmail);
       if (g.postalCode) {
-        html += `<br>\u4F4F\u6240: \u3012${g.postalCode} ${g.prefecture} ${g.city} ${g.street} ${g.building}`;
+        html += "<br>\u4F4F\u6240: \u3012".concat(g.postalCode, " ").concat(g.prefecture, " ").concat(g.city, " ").concat(g.street, " ").concat(g.building);
       } else {
-        html += `<br>\u4F4F\u6240: \u3054\u81EA\u5B85\u3068\u540C\u3058`;
+        html += "<br>\u4F4F\u6240: \u3054\u81EA\u5B85\u3068\u540C\u3058";
       }
       html += "</div>";
     });
     html += "<hr>";
     html += "<h3>\u{1F468}\u200D\u{1F393} \u751F\u5F92\u60C5\u5831</h3>";
     formData.students.forEach((s, index) => {
-      html += `<div class="mb-3"><strong>\u751F\u5F92${index + 1}: ${s.lastName} ${s.firstName}</strong>`;
-      html += `<br>\u30AB\u30CA: ${s.lastNameKana} ${s.firstNameKana}`;
-      html += `<br>\u5352\u696D\u4E88\u5B9A: ${s.graduationYear}\u5E743\u6708`;
-      if (s.email) html += `<br>Email: ${s.email}`;
-      if (s.classEmail) html += `<br>Classroom\u7528Email: ${s.classEmail}`;
-      if (s.mobilePhone) html += `<br>\u643A\u5E2F\u96FB\u8A71: ${s.mobilePhone}`;
+      html += '<div class="mb-3"><strong>\u751F\u5F92'.concat(index + 1, ": ").concat(s.lastName, " ").concat(s.firstName, "</strong>");
+      html += "<br>\u30AB\u30CA: ".concat(s.lastNameKana, " ").concat(s.firstNameKana);
+      html += "<br>\u5352\u696D\u4E88\u5B9A: ".concat(s.graduationYear, "\u5E743\u6708");
+      if (s.email) html += "<br>Email: ".concat(s.email);
+      if (s.classEmail) html += "<br>Classroom\u7528Email: ".concat(s.classEmail);
+      if (s.mobilePhone) html += "<br>\u643A\u5E2F\u96FB\u8A71: ".concat(s.mobilePhone);
       if (s.postalCode) {
-        html += `<br>\u4F4F\u6240: \u3012${s.postalCode} ${s.prefecture} ${s.city} ${s.street} ${s.building}`;
+        html += "<br>\u4F4F\u6240: \u3012".concat(s.postalCode, " ").concat(s.prefecture, " ").concat(s.city, " ").concat(s.street, " ").concat(s.building);
       } else {
-        html += `<br>\u4F4F\u6240: \u3054\u81EA\u5B85\u3068\u540C\u3058`;
+        html += "<br>\u4F4F\u6240: \u3054\u81EA\u5B85\u3068\u540C\u3058";
       }
       html += "</div>";
     });
@@ -844,13 +623,7 @@
         showLoading(false);
         if (result.success) {
           showMessage(result.message, "success");
-          document.getElementById("confirmationSection").innerHTML = `
-        <div class="text-center py-5">
-          <h2 class="text-success mb-4">\u9001\u4FE1\u5B8C\u4E86</h2>
-          <p>${result.message}</p>
-          <p>\u3053\u306E\u753B\u9762\u3092\u9589\u3058\u3066\u304F\u3060\u3055\u3044\u3002</p>
-        </div>
-      `;
+          document.getElementById("confirmationSection").innerHTML = '\n        <div class="text-center py-5">\n          <h2 class="text-success mb-4">\u9001\u4FE1\u5B8C\u4E86</h2>\n          <p>'.concat(result.message, "</p>\n          <p>\u3053\u306E\u753B\u9762\u3092\u9589\u3058\u3066\u304F\u3060\u3055\u3044\u3002</p>\n        </div>\n      ");
           document.getElementById("confirmationSection").style.display = "block";
         } else {
           showMessage(result.message, "danger");
@@ -906,8 +679,8 @@
     });
   }
   function toggleAddress(id) {
-    const checkbox = document.getElementById(`separate_address_${id}`);
-    const fields = document.getElementById(`address_fields_${id}`);
+    const checkbox = document.getElementById("separate_address_".concat(id));
+    const fields = document.getElementById("address_fields_".concat(id));
     if (checkbox && fields) {
       fields.style.display = checkbox.checked ? "block" : "none";
     }
@@ -947,9 +720,9 @@
       if (target.matches("[data-search-address]")) {
         const id = target.getAttribute("data-search-address");
         if (id.startsWith("s_")) {
-          searchAddress(`postalCode_${id}`, `prefecture_${id}`, `city_${id}`, `street_${id}`);
+          searchAddress("postalCode_".concat(id), "prefecture_".concat(id), "city_".concat(id), "street_".concat(id));
         } else {
-          searchAddress(`postalCode_${id}`, `prefecture_${id}`, `city_${id}`, `street_${id}`);
+          searchAddress("postalCode_".concat(id), "prefecture_".concat(id), "city_".concat(id), "street_".concat(id));
         }
       }
     });

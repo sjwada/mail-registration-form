@@ -3,10 +3,11 @@ const fs = require('fs');
 const path = require('path');
 
 async function build() {
-  // Ensure dist directory exists
-  if (!fs.existsSync('dist')) {
-    fs.mkdirSync('dist');
+  // Ensure dist directory exists & clean it
+  if (fs.existsSync('dist')) {
+    fs.rmSync('dist', { recursive: true, force: true });
   }
+  fs.mkdirSync('dist');
 
   // Bundle client-side JS
   // Only build if entry point exists
@@ -16,7 +17,11 @@ async function build() {
         bundle: true,
         outfile: 'dist/script.temp.js',
         format: 'iife',
-        target: 'es5',
+        target: 'es2015',
+        supported: {
+          'template-literal': false
+        },
+        logLevel: 'info',
       });
 
       // Wrap in <script> tag and write to script.html
