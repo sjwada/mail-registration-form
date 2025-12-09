@@ -239,67 +239,35 @@ function validateMagicLinkToken(token, expiresStr) {
  * @param {object} formData - フォームデータ
  * @return {object} 処理結果
  */
+/**
+ * 世帯データ更新
+ * @param {string} householdId - 世帯登録番号
+ * @param {object} formData - フォームデータ
+ * @return {object} 処理結果
+ */
 function updateHouseholdData(householdId, formData) {
-  try {
-    // バリデーション
-    const validationResult = validateFormData(formData);
-    if (!validationResult.valid) {
-      return { success: false, message: validationResult.message };
-    }
+  const updateService = new UpdateService();
+  
+  // Inject householdId into formData if missing, to satisfy Service/Repo contract
+  if (!formData.household) formData.household = {};
+  formData.household.householdId = householdId;
 
-    // 新しいバージョン番号を決定
-    const currentVersion = getLatestVersion('世帯マスタ', 0, householdId);
-    const newVersion = currentVersion + 1;
-
-    // 新しいデータを保存（世帯登録番号は維持）
-    const now = getCurrentDateTime();
-    const nowStr = formatDateTime(now);
-
-    // 世帯マスタを更新
-    const oldHousehold = getHouseholdRecord(householdId);
-    saveHouseholdRecord({
-      householdId: householdId,
-      coreHouseholdId: oldHousehold.coreHouseholdId,
-      registeredAt: oldHousehold.registeredAt,
-      updatedAt: nowStr,
-      editCode: oldHousehold.editCode,
-      postalCode: formData.household.postalCode,
-      prefecture: formData.household.prefecture,
-      city: normalizeAddress(formData.household.city),
-      street: normalizeAddress(formData.household.street),
-      building: normalizeAddress(formData.household.building),
-      notes: formData.household.notes,
-      integrationStatus: oldHousehold.integrationStatus
-    }, null, newVersion);
-
-    // 保護者・生徒を保存
-    formData.guardians.forEach(guardian => {
-      saveGuardianRecord(householdId, guardian, null, newVersion);
-    });
-
-    formData.students.forEach(student => {
-      saveStudentRecord(householdId, student, null, newVersion);
-    });
-
-    // 削除されたレコードの処理（今回のリストに含まれていないものを論理削除）
-    softDeleteGuardiansNotInList(householdId, formData.guardians, null, newVersion);
-    softDeleteStudentsNotInList(householdId, formData.students, null, newVersion);
-
-    // 全保護者に変更通知メール送信
-    sendEditNotificationEmails(formData.guardians, now);
-
-    return {
+  // Execute
+  const result = updateService.update(formData);
+  
+  return result.match({
+    ok: (res) => ({
       success: true,
       message: '登録内容を更新しました。'
-    };
-
-  } catch (error) {
-    Logger.log('更新エラー: ' + error.toString());
-    return {
-      success: false,
-      message: 'エラーが発生しました。'
-    };
-  }
+    }), 
+    err: (error) => {
+      // Logger.log('Update Error: ' + error.message);
+      return {
+        success: false,
+        message: '更新に失敗しました: ' + error.message
+      };
+    }
+  });
 }
 
 

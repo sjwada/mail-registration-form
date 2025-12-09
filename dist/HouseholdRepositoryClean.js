@@ -82,18 +82,31 @@ class HouseholdRepositoryClean { // extends HouseholdRepositoryInterface
         
         if (!householdRecord) return Result.ok(null);
 
-        return this.adapter.readTable(CONFIG.SHEET_GUARDIAN);
+        const currentVersion = householdRecord['バージョン'];
+
+        return this.adapter.readTable(CONFIG.SHEET_GUARDIAN)
       })
       .flatMap(guardians => {
-        if (!householdRecord) return Result.ok(null);
-        guardianRecords = guardians.filter(g => g['世帯登録番号'] === householdId);
+        if (!householdRecord) return Result.ok(null); // Should be unreachable given check above but safe
+        
+        // Filter by Household ID AND Version equality
+        // (Assuming version lock-step strategy enforced by _update)
+        const currentVersion = householdRecord['バージョン'];
+        guardianRecords = guardians.filter(g => 
+            String(g['世帯登録番号']) === String(householdId) &&
+            String(g['バージョン']) === String(currentVersion)
+        );
         
         return this.adapter.readTable(CONFIG.SHEET_STUDENT);
       })
       .map(students => {
         if (!householdRecord) return null;
-        // Filter by householdId
-        studentRecords = students.filter(s => s['世帯登録番号'] === householdId);
+        
+        const currentVersion = householdRecord['バージョン'];
+        studentRecords = students.filter(s => 
+            String(s['世帯登録番号']) === String(householdId) &&
+            String(s['バージョン']) === String(currentVersion)
+        );
         
         return {
           household: householdRecord,
