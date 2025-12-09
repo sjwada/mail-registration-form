@@ -78,6 +78,44 @@ class AuthService {
       });
   }
 
+  /**
+   * Authenticate a user with Email and Edit Code.
+   * @param {string} email 
+   * @param {string} editCode 
+   * @returns {Result<object, Error>} Household Data or Error
+   */
+  authenticate(email, editCode) {
+    return this.householdRepo.findByEmail(email)
+      .flatMap(householdId => {
+        if (!householdId) {
+            return Result.err(new Error('メールアドレスが見つかりませんでした。'));
+        }
+        return this.householdRepo.getHouseholdData(householdId);
+      })
+      .flatMap(data => {
+        if (!data || !data.household) {
+           return Result.err(new Error('世帯データが見つかりませんでした。'));
+        }
+
+        // Validate Edit Code
+        const storedCode = String(data.household['編集コード']); // Check header key if different? Repo uses '編集コード'
+        if (storedCode !== String(editCode)) {
+           return Result.err(new Error('編集コードが正しくありません。'));
+        }
+
+        // Validate Email is Active (belongs to a current guardian or student)
+        // Access strictly via header keys
+        const isGuardian = data.guardians.some(g => g['連絡用メール'] === email);
+        const isStudent = data.students.some(s => s['連絡用メール'] === email || s['オンライン授業用メール'] === email);
+        
+        if (!isGuardian && !isStudent) {
+            return Result.err(new Error('このメールアドレスは現在有効ではありません（削除された可能性があります）。'));
+        }
+
+        return Result.ok(data);
+      });
+  }
+
   // Helper
   _generateToken() {
     return Utilities.getUuid();
