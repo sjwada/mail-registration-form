@@ -68,51 +68,26 @@ function createFormHtml(mode, householdData) {
  * @return {object} 処理結果
  */
 function submitRegistration(formData) {
-  try {
-    // 重複チェック
-    const primaryGuardian = formData.guardians.find(g => g.contactPriority === 1);
-    if (!primaryGuardian) {
-      return { success: false, message: '連絡優先順位1位の保護者が設定されていません。' };
-    }
-
-    const existingHousehold = findHouseholdByEmail(primaryGuardian.email);
-    if (existingHousehold) {
-      return {
-        success: false,
-        message: 'このメールアドレスは既に登録されています。編集モードをご利用ください。',
-        duplicate: true
-      };
-    }
-
-    // バリデーション
-    const validationResult = validateFormData(formData);
-    if (!validationResult.valid) {
-      return { success: false, message: validationResult.message };
-    }
-
-    // データ保存
-    const result = saveHouseholdData(formData);
-
-    // 確認メール送信
-    const householdData = getHouseholdData(result.householdId);
-    sendConfirmationEmail(primaryGuardian.email, householdData, result.editCode);
-
-    // 管理者通知
-    sendAdminNotificationEmail(householdData);
-
-    return {
+  const service = new RegistrationService();
+  const result = service.register(formData);
+  
+  return result.match({
+    ok: (data) => ({
       success: true,
       message: '登録が完了しました。確認メールをご確認ください。',
-      householdId: result.householdId
-    };
-
-  } catch (error) {
-    Logger.log('登録エラー: ' + error.toString());
-    return {
-      success: false,
-      message: 'エラーが発生しました: ' + error.toString() + '\n' + error.stack
-    };
-  }
+      householdId: data.householdId
+    }),
+    err: (error) => {
+      // Legacy frontend expects specific duplicate flag?
+      // "このメールアドレスは既に登録されています" is the message.
+      const isDuplicate = error.message.includes('既に登録されています');
+      return {
+        success: false,
+        message: error.message,
+        duplicate: isDuplicate
+      };
+    }
+  });
 }
 
 /**
@@ -191,45 +166,26 @@ function authenticateWithEditCode(email, editCode) {
  * @return {object} 処理結果
  */
 function requestMagicLink(email) {
-  try {
-    const householdData = findHouseholdByEmail(email);
-
-    if (!householdData) {
+  // Use the new Functional AuthService
+  const authService = new AuthService();
+  
+  // Execute the chain
+  const result = authService.requestMagicLink(email);
+  
+  // Handle the Result (Unwrap for legacy frontend expectation)
+  return result.match({
+    ok: (message) => ({
+      success: true,
+      message: message
+    }),
+    err: (error) => {
+      Logger.log('AuthService Error: ' + error.message);
       return {
         success: false,
-        message: 'メールアドレスが見つかりませんでした。'
+        message: error.message || 'エラーが発生しました。'
       };
     }
-
-    const token = generateMagicLinkToken();
-    const expiryTime = new Date();
-    expiryTime.setMinutes(expiryTime.getMinutes() + CONFIG.MAGIC_LINK_EXPIRY_MINUTES);
-
-    // トークンをPropertiesServiceに保存（一時保存）
-    const properties = PropertiesService.getScriptProperties();
-    properties.setProperty(
-      'magiclink_' + token,
-      JSON.stringify({
-        householdId: householdData.household.householdId,
-        expires: expiryTime.getTime()
-      })
-    );
-
-    // Magic Link送信
-    sendMagicLinkEmail(email, token);
-
-    return {
-      success: true,
-      message: '編集リンクをメールで送信しました。メールをご確認ください。'
-    };
-
-  } catch (error) {
-    Logger.log('Magic Link送信エラー: ' + error.toString());
-    return {
-      success: false,
-      message: 'エラーが発生しました。'
-    };
-  }
+  });
 }
 
 /**
@@ -239,34 +195,16 @@ function requestMagicLink(email) {
  * @return {object|null} 世帯データまたはnull
  */
 function validateMagicLinkToken(token, expiresStr) {
-  try {
-    const properties = PropertiesService.getScriptProperties();
-    const dataStr = properties.getProperty('magiclink_' + token);
-
-    if (!dataStr) {
+  const authService = new AuthService();
+  const result = authService.validateToken(token);
+  
+  return result.match({
+    ok: (data) => data,
+    err: (error) => {
+      Logger.log('Token Validation Error: ' + error.message);
       return null;
     }
-
-    const data = JSON.parse(dataStr);
-    const now = new Date().getTime();
-
-    // 有効期限チェック
-    if (now > data.expires) {
-      // 期限切れのトークンを削除
-      properties.deleteProperty('magiclink_' + token);
-      return null;
-    }
-
-    // トークン使用後は削除（ワンタイム）
-    properties.deleteProperty('magiclink_' + token);
-
-    // 世帯データを取得
-    return getHouseholdData(data.householdId);
-
-  } catch (error) {
-    Logger.log('Magic Link検証エラー: ' + error.toString());
-    return null;
-  }
+  });
 }
 
 /**
