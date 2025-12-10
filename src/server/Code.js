@@ -259,7 +259,8 @@ function updateHouseholdData(householdId, formData) {
   return result.match({
     ok: (res) => ({
       success: true,
-      message: '登録内容を更新しました。'
+      message: '登録内容を更新しました。',
+      householdData: JSON.stringify(mapToFrontendDto(res.householdData))
     }), 
     err: (error) => {
       // Logger.log('Update Error: ' + error.message);

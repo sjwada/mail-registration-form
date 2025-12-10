@@ -43,11 +43,22 @@ class UpdateService {
            }
 
            return {
-               success: true,
-               message: '修正内容を保存しました。',
                householdId: result.householdId,
                version: result.version
            };
+       })
+       .flatMap(ctx => {
+           // Fetch the fully persisted updated data
+           return this.householdRepo.getHouseholdData(ctx.householdId)
+             .map(fullData => {
+                 return {
+                     success: true,
+                     message: '修正内容を保存しました。',
+                     householdId: ctx.householdId,
+                     version: ctx.version,
+                     householdData: fullData
+                 };
+             });
        });
   }
 }
