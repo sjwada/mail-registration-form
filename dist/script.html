@@ -707,6 +707,7 @@
     }
   }
   function fillTestData() {
+    const timestamp = Date.now();
     const setVal = (id, val) => {
       const el = document.getElementById(id);
       if (el) el.value = val;
@@ -716,7 +717,7 @@
     setVal("city", "\u5343\u4EE3\u7530\u533A");
     setVal("street", "\u5343\u4EE3\u75301-1");
     setVal("building", "\u30D1\u30EC\u30B9\u30CF\u30A4\u30C4101");
-    setVal("notes", "\u30C6\u30B9\u30C8\u5165\u529B\u3067\u3059\u3002");
+    setVal("notes", "\u30C6\u30B9\u30C8\u5099\u8003\u5165\u529B\n\u78BA\u8A8D\u7528\u30BF\u30A4\u30E0\u30B9\u30BF\u30F3\u30D7: ".concat(timestamp));
     if (store.getState().guardianCount === 0) addGuardian();
     setTimeout(() => {
       document.querySelectorAll(".guardian-card").forEach((card, index) => {
@@ -726,15 +727,18 @@
           const el = card.querySelector('[name="'.concat(name, "_guardian_").concat(idSuffix, '"]'));
           if (el) el.value = val;
         };
+        const idx = index + 1;
         setField("relationship", index === 0 ? "\u7236" : "\u6BCD");
-        setField("priority", (index + 1).toString());
+        setField("priority", idx.toString());
         setField("contact_method", "\u30E1\u30FC\u30EB");
-        setField("last_name", "\u30C6\u30B9\u30C8\u4FDD\u8B77\u8005" + (index + 1));
-        setField("first_name", "\u540D\u524D" + (index + 1));
-        setField("last_name_kana", "\u30C6\u30B9\u30C8\u30DB\u30B4\u30B7\u30E3");
-        setField("first_name_kana", "\u30CA\u30DE\u30A8");
-        setField("email", "test_g_".concat(index, "_").concat(Date.now(), "@example.com"));
-        setField("mobile_phone", "090-1111-" + (2222 + index));
+        setField("last_name", "\u30C6\u30B9\u30C8\u4FDD\u8B77\u8005".concat(idx));
+        setField("first_name", "\u540D\u524D".concat(idx));
+        setField("last_name_kana", "\u30C6\u30B9\u30C8\u30DB\u30B4\u30B7\u30E3".concat(idx));
+        setField("first_name_kana", "\u30CA\u30DE\u30A8".concat(idx));
+        setField("email", "guardian".concat(idx, "_").concat(timestamp, "@example.com"));
+        setField("meeting_email", "guardian".concat(idx, "_meet_").concat(timestamp, "@example.com"));
+        setField("mobile_phone", "090-1111-" + String(1e3 + idx));
+        setField("home_phone", "03-1111-" + String(2e3 + idx));
       });
     }, 100);
     if (store.getState().studentCount === 0) addStudent();
@@ -746,15 +750,18 @@
           const el = card.querySelector('[name="'.concat(name, "_student_").concat(idSuffix, '"]'));
           if (el) el.value = val;
         };
-        setField("s_last_name", "\u30C6\u30B9\u30C8\u751F\u5F92" + (index + 1));
-        setField("s_first_name", "\u540D\u524D" + (index + 1));
-        setField("s_last_name_kana", "\u30C6\u30B9\u30C8\u30BB\u30A4\u30C8");
-        setField("s_first_name_kana", "\u30CA\u30DE\u30A8");
-        setField("graduation_year", (/* @__PURE__ */ new Date()).getFullYear() + 1 + index);
-        setField("s_email", "test_s_".concat(index, "_").concat(Date.now(), "@example.com"));
+        const idx = index + 1;
+        setField("s_last_name", "\u30C6\u30B9\u30C8\u751F\u5F92".concat(idx));
+        setField("s_first_name", "\u540D\u524D".concat(idx));
+        setField("s_last_name_kana", "\u30C6\u30B9\u30C8\u30BB\u30A4\u30C8".concat(idx));
+        setField("s_first_name_kana", "\u30CA\u30DE\u30A8".concat(idx));
+        setField("graduation_year", (/* @__PURE__ */ new Date()).getFullYear() + idx);
+        setField("s_email", "student".concat(idx, "_").concat(timestamp, "@example.com"));
+        setField("s_class_email", "student".concat(idx, "_class_").concat(timestamp, "@example.com"));
+        setField("s_mobile_phone", "070-9999-" + String(1e3 + idx));
       });
     }, 100);
-    showMessage("\u5168\u30C7\u30FC\u30BF\u3092\u81EA\u52D5\u5165\u529B\u3057\u307E\u3057\u305F", "success");
+    showMessage("\u5168\u30D5\u30A3\u30FC\u30EB\u30C9\uFF08\u4EFB\u610F\u9805\u76EE\u542B\u3080\uFF09\u306B\u30C6\u30B9\u30C8\u30C7\u30FC\u30BF\u3092\u5165\u529B\u3057\u307E\u3057\u305F", "success");
   }
   function mountDevTools() {
     if (document.getElementById("dev-fill-btn")) return;

@@ -495,6 +495,8 @@ export function toggleAddress(id) {
 // Dev Tools
 // ============================================
 export function fillTestData() {
+  const timestamp = Date.now();
+  
   // Household
   const setVal = (id, val) => {
       const el = document.getElementById(id);
@@ -506,13 +508,11 @@ export function fillTestData() {
   setVal('city', '千代田区');
   setVal('street', '千代田1-1');
   setVal('building', 'パレスハイツ101');
-  setVal('notes', 'テスト入力です。');
+  setVal('notes', `テスト備考入力\n確認用タイムスタンプ: ${timestamp}`);
 
   // Multi-Guardian Support
-  // If 0 guardians, add one.
   if (store.getState().guardianCount === 0) addGuardian();
 
-  // Wait for potential DOM update then fill ALL
   setTimeout(() => {
     document.querySelectorAll('.guardian-card').forEach((card, index) => {
         const idParts = card.id.split('_');
@@ -523,15 +523,22 @@ export function fillTestData() {
             if (el) el.value = val;
         };
 
+        const idx = index + 1;
         setField('relationship', index === 0 ? '父' : '母');
-        setField('priority', (index + 1).toString());
-        setField('contact_method', 'メール');
-        setField('last_name', 'テスト保護者' + (index + 1));
-        setField('first_name', '名前' + (index + 1));
-        setField('last_name_kana', 'テストホゴシャ');
-        setField('first_name_kana', 'ナマエ');
-        setField('email', `test_g_${index}_${Date.now()}@example.com`);
-        setField('mobile_phone', '090-1111-' + (2222 + index));
+        setField('priority', idx.toString());
+        setField('contact_method', 'メール'); // Explicitly set
+        setField('last_name', `テスト保護者${idx}`);
+        setField('first_name', `名前${idx}`);
+        setField('last_name_kana', `テストホゴシャ${idx}`);
+        setField('first_name_kana', `ナマエ${idx}`);
+        
+        // Emails
+        setField('email', `guardian${idx}_${timestamp}@example.com`);
+        setField('meeting_email', `guardian${idx}_meet_${timestamp}@example.com`);
+        
+        // Phones (Fill both to test validation/persistence)
+        setField('mobile_phone', '090-1111-' + String(1000 + idx));
+        setField('home_phone', '03-1111-' + String(2000 + idx));
     });
   }, 100);
 
@@ -548,16 +555,21 @@ export function fillTestData() {
             if (el) el.value = val;
         };
 
-        setField('s_last_name', 'テスト生徒' + (index + 1));
-        setField('s_first_name', '名前' + (index + 1));
-        setField('s_last_name_kana', 'テストセイト');
-        setField('s_first_name_kana', 'ナマエ');
-        setField('graduation_year', new Date().getFullYear() + 1 + index);
-        setField('s_email', `test_s_${index}_${Date.now()}@example.com`);
+        const idx = index + 1;
+        setField('s_last_name', `テスト生徒${idx}`);
+        setField('s_first_name', `名前${idx}`);
+        setField('s_last_name_kana', `テストセイト${idx}`);
+        setField('s_first_name_kana', `ナマエ${idx}`);
+        setField('graduation_year', new Date().getFullYear() + idx); // Different grad years
+        
+        // Student Emails
+        setField('s_email', `student${idx}_${timestamp}@example.com`);
+        setField('s_class_email', `student${idx}_class_${timestamp}@example.com`);
+        setField('s_mobile_phone', '070-9999-' + String(1000 + idx));
     });
   }, 100);
   
-  showMessage('全データを自動入力しました', 'success');
+  showMessage('全フィールド（任意項目含む）にテストデータを入力しました', 'success');
 }
 
 // Ensure button exists (Idempotent)
