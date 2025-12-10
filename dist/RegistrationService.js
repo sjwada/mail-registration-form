@@ -19,9 +19,14 @@ class RegistrationService {
    * @returns {Result<object, Error>} { householdId, ... }
    */
   register(formData) {
-    // Pipeline: Validate -> Check Duplicate -> Save -> Send Email
+    // Pipeline: Filter Empty -> Validate -> Check Duplicate -> Save -> Send Email
+    
+    // 0. Filter Empty Entries (Silent Cleanup)
+    formData.guardians = formData.guardians.filter(g => g.lastName && g.firstName);
+    formData.students = formData.students.filter(s => s.lastName && s.firstName);
     
     return this._validate(formData)
+      .flatMap(() => this._checkDuplicate(formData))
       .flatMap(() => this._checkDuplicate(formData))
       .flatMap(() => this.householdRepo.save(formData))
       .flatMap(saveResult => {

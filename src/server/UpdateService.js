@@ -28,6 +28,10 @@ class UpdateService {
     // 2. Map Frontend DTO to Domain Entity (if mismatch exists)
     // Actually, Repo expects a similar structure but checks logical IDs.
     
+    // 0. Filter Empty Entries
+    formData.guardians = formData.guardians.filter(g => g.lastName && g.firstName);
+    formData.students = formData.students.filter(s => s.lastName && s.firstName);
+
     // 3. Save (Repository handles versioning)
     return this.householdRepo.save(formData)
        .map(result => {
