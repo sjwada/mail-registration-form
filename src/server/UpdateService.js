@@ -20,40 +20,36 @@ class UpdateService {
    * @returns {Result<object, Error>}
    */
   update(formData) {
-    // 1. Validation (Delegate to RegistrationService-like logic or standalone)
-    // For now, assume basic validity or reuse RegistrationService._validate?
-    // We should ideally reuse validation logic.
-    // But for this step, we trust the repo to handle saving.
-    
-    // 2. Map Frontend DTO to Domain Entity (if mismatch exists)
-    // Actually, Repo expects a similar structure but checks logical IDs.
-    
     // 0. Filter Empty Entries
     formData.guardians = formData.guardians.filter(g => g.lastName && g.firstName);
     formData.students = formData.students.filter(s => s.lastName && s.firstName);
 
-    // 1. Fetch Current Data to check for changes
-    if (formData.household && formData.household.householdId) {
-      return this.householdRepo.getHouseholdData(formData.household.householdId)
-        .flatMap(currentData => {
-           if (!this._isDataChanged(currentData, formData)) {
-             // No changes detected - return early success
-             return Result.ok({
-               success: true,
-               message: '変更がないため、保存をスキップしました。', // Custom message or standard
-               householdId: formData.household.householdId,
-               version: currentData.household.currentVersion, 
-               householdData: currentData
-             });
-           }
-           
-           // Changes exist, proceed to save
-           return this._performSave(formData);
-        });
-    }
+    // 1. Validate
+    return ValidationService.validate(formData)
+      .flatMap(() => {
+        // 2. Fetch Current Data to check for changes
+        if (formData.household && formData.household.householdId) {
+          return this.householdRepo.getHouseholdData(formData.household.householdId)
+            .flatMap(currentData => {
+               if (!this._isDataChanged(currentData, formData)) {
+                 // No changes detected - return early success
+                 return Result.ok({
+                   success: true,
+                   message: '変更がないため、保存をスキップしました。',
+                   householdId: formData.household.householdId,
+                   version: currentData.household.currentVersion, 
+                   householdData: currentData
+                 });
+               }
+               
+               // Changes exist, proceed to save
+               return this._performSave(formData);
+            });
+        }
 
-    // New Registration or ID missing (should not happen in UpdateService but fallback)
-    return this._performSave(formData);
+        // New Registration or ID missing (should not happen in UpdateService but fallback)
+        return this._performSave(formData);
+      });
   }
 
   /**

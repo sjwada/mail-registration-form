@@ -94,39 +94,46 @@ export function addGuardian(data = null) {
       <small class="form-text">📞 携帯電話または自宅電話のどちらか1つは必ず入力してください</small>
 
       <!-- Address Input -->
-      <div class="form-group mt-3">
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="separate_address_${id}" data-toggle-address="${id}" ${hasSeparateAddress ? 'checked' : ''}>
-          <label class="form-check-label" for="separate_address_${id}">
-            ご自宅と異なる住所を登録する（単身赴任等）
-          </label>
+      ${guardianCount === 1 ? `
+        <div class="form-group mt-3">
+          <h4>📍 ご自宅住所 <span class="required">*</span></h4>
+          <small class="form-text text-muted">保護者1の住所が世帯の住所として登録されます</small>
         </div>
-      </div>
+      ` : `
+        <div class="form-group mt-3">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="separate_address_${id}" data-toggle-address="${id}" ${hasSeparateAddress ? 'checked' : ''}>
+            <label class="form-check-label" for="separate_address_${id}">
+              ご自宅と異なる住所を登録する（単身赴任等）
+            </label>
+          </div>
+        </div>
+      `}
       
-      <div id="address_fields_${id}" style="display: ${hasSeparateAddress ? 'block' : 'none'};" class="bg-light p-3 rounded">
+      <div id="address_fields_${id}" style="display: ${guardianCount === 1 || hasSeparateAddress ? 'block' : 'none'};" class="bg-light p-3 rounded">
         <div class="form-row">
           <div class="form-group col-md-4">
-            <label>郵便番号</label>
-            <input type="text" id="postalCode_${id}" name="postalCode_${id}" class="form-control" placeholder="123-4567" maxlength="8" value="${data ? data.postalCode || '' : ''}">
+            <label>郵便番号 ${guardianCount === 1 ? '<span class="required">*</span>' : ''}</label>
+            <input type="text" id="postalCode_${id}" name="postalCode_${id}" class="form-control" placeholder="123-4567" maxlength="8" value="${data ? data.postalCode || '' : ''}" ${guardianCount === 1 ? 'required' : ''}>
             <button type="button" class="btn btn-sm btn-secondary mt-1" data-search-address="${id}">住所検索</button>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group col-md-4">
-            <label>都道府県</label>
-            <select id="prefecture_${id}" name="prefecture_${id}" class="form-control">
+            <label>都道府県 ${guardianCount === 1 ? '<span class="required">*</span>' : ''}</label>
+            <select id="prefecture_${id}" name="prefecture_${id}" class="form-control" ${guardianCount === 1 ? 'required' : ''}>
               <option value="">選択</option>
               ${generatePrefectureOptions(data ? data.prefecture : '')}
             </select>
           </div>
           <div class="form-group col-md-8">
-            <label>市区町村</label>
-            <input type="text" id="city_${id}" name="city_${id}" class="form-control" value="${data ? data.city || '' : ''}">
+            <label>市区町村 ${guardianCount === 1 ? '<span class="required">*</span>' : ''}</label>
+            <input type="text" id="city_${id}" name="city_${id}" class="form-control" value="${data ? data.city || '' : ''}" ${guardianCount === 1 ? 'required' : ''}>
           </div>
         </div>
         <div class="form-group">
-          <label>町名・番地・号</label>
-          <input type="text" id="street_${id}" name="street_${id}" class="form-control" value="${data ? data.street || '' : ''}">
+          <label>町名・番地・号 ${guardianCount === 1 ? '<span class="required">*</span>' : ''}</label>
+          <input type="text" id="street_${id}" name="street_${id}" class="form-control" value="${data ? data.street || '' : ''}" ${guardianCount === 1 ? 'required' : ''}>
         </div>
         <div class="form-group">
           <label>建物名・部屋番号</label>

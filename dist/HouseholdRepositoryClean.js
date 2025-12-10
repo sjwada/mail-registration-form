@@ -16,33 +16,26 @@ class HouseholdRepositoryClean { // extends HouseholdRepositoryInterface
   }
 
   /**
-   * Find a household by email.
-   * Scans both Guardian and Student tables (as per legacy logic), but cleanly.
-   * @param {string} email
+   * Find household by login email address.
+   * @param {string} email - Login email address
    * @returns {Result<Object|null, Error>}
    */
   findByEmail(email) {
-    // 1. Check Guardians
-    // 2. Check Students
-    
-    return this.adapter.readTable(CONFIG.SHEET_GUARDIAN)
-      .flatMap(guardians => {
-        // Correct header: '連絡用メール' from InitializeSheet.js
-        const found = guardians.find(g => g['連絡用メール'] === email);
-        if (found) {
-          return Result.ok(found['世帯登録番号']);
+    return this.adapter.readTable(CONFIG.SHEET_HOUSEHOLD)
+      .flatMap(households => {
+        // Find household with matching login email
+        const matches = households.filter(h => h['ログイン用メールアドレス'] === email);
+        
+        if (matches.length === 0) {
+          return Result.ok(null); // Not found
         }
         
-        // Not found in guardians, check students
-        return this.adapter.readTable(CONFIG.SHEET_STUDENT)
-          .map(students => {
-             // Correct header: '連絡用メール' from InitializeSheet.js
-             const foundStudent = students.find(s => s['連絡用メール'] === email);
-             return foundStudent ? foundStudent['世帯登録番号'] : null;
-          });
-      })
-      .flatMap(householdId => {
-        if (!householdId) return Result.ok(null);
+        if (matches.length > 1) {
+          // Should not happen if uniqueness is enforced, but check anyway
+          throw new Error('このメールアドレスは既に登録されています');
+        }
+        
+        const householdId = matches[0]['世帯登録番号'];
         return this.getHouseholdData(householdId);
       });
   }
@@ -147,35 +140,54 @@ class HouseholdRepositoryClean { // extends HouseholdRepositoryInterface
              return Result.err(new Error(`更新対象の世帯データが見つかりません (ID: ${householdId})`));
           }
           
-          const currentVersion = Number(current.household['バージョン'] || 0);
-          const newVersion = currentVersion + 1;
-          const nowStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy/MM/dd HH:mm:ss');
-          const userEmail = data.guardians[0].email; // Assuming 1st guardian is updater, or passed in context
+           const currentVersion = Number(current.household['バージョン'] || 0);
+           const newVersion = currentVersion + 1;
+           const nowStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy/MM/dd HH:mm:ss');
+           const userEmail = data.guardians[0].email;
+           
+           // Check login email uniqueness if it's being changed
+           const loginEmail = data.household.loginEmail;
+           const currentLoginEmail = current.household['ログイン用メールアドレス'];
+           
+           if (loginEmail !== currentLoginEmail) {
+             // Email is being changed, check uniqueness
+             return this.adapter.readTable(CONFIG.SHEET_HOUSEHOLD)
+               .flatMap(households => {
+                 const existing = households.find(h => 
+                   h['ログイン用メールアドレス'] === loginEmail &&
+                   h['世帯登録番号'] !== householdId
+                 );
+                 if (existing) {
+                   return Result.err(new Error('このメールアドレスは既に登録されています'));
+                 }
+                 return Result.ok({ householdId, newVersion, nowStr, userEmail, current, loginEmail });
+               });
+           }
+           
+           return Result.ok({ householdId, newVersion, nowStr, userEmail, current, loginEmail: currentLoginEmail });
           
-          // 1. Save Household (New Version)
-          const householdRow = {
-            '世帯登録番号': householdId,
-            '基幹世帯ID': current.household['基幹世帯ID'], // Inherit
-            '登録日時': current.household['登録日時'], // Inherit
-            '最終更新日時': nowStr,
-            '編集コード': current.household['編集コード'], // Inherit
-            'ご自宅郵便番号': data.household.postalCode,
-            'ご自宅都道府県': data.household.prefecture,
-            'ご自宅市区町村': data.household.city,
-            'ご自宅町名・番地・号': data.household.street,
-            'ご自宅建物名・部屋番号': data.household.building,
-            '備考': data.household.notes,
-            '連携ステータス': current.household['連携ステータス'],
-            'バージョン': newVersion,
-            '削除フラグ': false,
-            '更新日時': nowStr,
-            '更新者メール': userEmail
-          };
-          
-          const householdFormats = { 'ご自宅郵便番号': '@' };
+        })
+        .flatMap(ctx => {
+           // 1. Save Household (New Version)
+           const householdRow = {
+             '世帯登録番号': ctx.householdId,
+             '基幹世帯ID': ctx.current.household['基幹世帯ID'],
+             '登録日時': ctx.current.household['登録日時'],
+             '最終更新日時': ctx.nowStr,
+             '編集コード': ctx.current.household['編集コード'],
+             'ログイン用メールアドレス': ctx.loginEmail,
+             '備考': data.household.notes || '',
+             '連携ステータス': ctx.current.household['連携ステータス'],
+             'バージョン': ctx.newVersion,
+             '削除フラグ': false,
+             '更新日時': ctx.nowStr,
+             '更新者メール': ctx.userEmail
+           };
+           
+           const householdFormats = {};
 
           return this.adapter.appendObject(CONFIG.SHEET_HOUSEHOLD, householdRow, householdFormats)
-             .map(() => ({ householdId, newVersion, nowStr, userEmail, current }));
+             .map(() => ({ householdId: ctx.householdId, newVersion: ctx.newVersion, nowStr: ctx.nowStr, userEmail: ctx.userEmail, current: ctx.current }));
        })
        .flatMap(ctx => {
           // 2. Save Guardians
@@ -311,36 +323,45 @@ class HouseholdRepositoryClean { // extends HouseholdRepositoryInterface
    * @param {object} data
    */
   _create(data) {
-     return this._generateHouseholdId()
+     // 1. Check login email uniqueness
+     const loginEmail = data.household.loginEmail;
+     if (!loginEmail) {
+       return Result.err(new Error('ログイン用メールアドレスは必須です'));
+     }
+     
+     return this.adapter.readTable(CONFIG.SHEET_HOUSEHOLD)
+       .flatMap(households => {
+         // Check if login email already exists
+         const existing = households.find(h => h['ログイン用メールアドレス'] === loginEmail);
+         if (existing) {
+           return Result.err(new Error('このメールアドレスは既に登録されています'));
+         }
+         
+         return this._generateHouseholdId();
+       })
        .flatMap(householdId => {
          const editCode = this._generateEditCode();
          const now = new Date(); 
          const nowStr = Utilities.formatDate(now, Session.getScriptTimeZone(), 'yyyy/MM/dd HH:mm:ss');
          const userEmail = data.guardians[0].email;
          
-         const householdRow = {
-           '世帯登録番号': householdId,
-           '基幹世帯ID': '', // Correct Header
-           '登録日時': nowStr,
-           '最終更新日時': nowStr, 
-           '編集コード': editCode,
-           'ご自宅郵便番号': data.household.postalCode, // Correct Header
-           'ご自宅都道府県': data.household.prefecture,
-           'ご自宅市区町村': data.household.city,
-           'ご自宅町名・番地・号': data.household.street,
-           'ご自宅建物名・部屋番号': data.household.building,
-           '備考': data.household.notes,
-           '連携ステータス': '',
-           'バージョン': 1,
-           '削除フラグ': false,
-           '更新日時': nowStr,
-           '更新者メール': userEmail // Correct Header
-         };
+          const householdRow = {
+            '世帯登録番号': householdId,
+            '基幹世帯ID': '',
+            '登録日時': nowStr,
+            '最終更新日時': nowStr, 
+            '編集コード': editCode,
+            'ログイン用メールアドレス': loginEmail,
+            '備考': data.household.notes || '',
+            '連携ステータス': '',
+            'バージョン': 1,
+            '削除フラグ': false,
+            '更新日時': nowStr,
+            '更新者メール': userEmail
+          };
 
-         // Save Household
-         const householdFormats = {
-           'ご自宅郵便番号': '@'
-         };
+          // Save Household
+          const householdFormats = {};
          return this.adapter.appendObject(CONFIG.SHEET_HOUSEHOLD, householdRow, householdFormats)
            .map(() => ({ householdId, editCode, nowStr, userEmail }));
        })

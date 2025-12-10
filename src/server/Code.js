@@ -187,11 +187,6 @@ function mapToFrontendDto(data) {
    };
 }
 
-/**
- * Magic Link送信
- * @param {string} email - メールアドレス
- * @return {object} 処理結果
- */
 function requestMagicLink(email) {
   // Use the new Functional AuthService
   const authService = new AuthService();
@@ -201,10 +196,14 @@ function requestMagicLink(email) {
   
   // Handle the Result (Unwrap for legacy frontend expectation)
   return result.match({
-    ok: (message) => ({
-      success: true,
-      message: message
-    }),
+    ok: (data) => {
+      // data is now {message, debugLink} object from AuthService
+      return {
+        success: true,
+        message: data.message || data, // Fallback if it's still a string
+        debugLink: data.debugLink || null
+      };
+    },
     err: (error) => {
       Logger.log('AuthService Error: ' + error.message);
       return {

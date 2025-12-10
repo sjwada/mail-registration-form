@@ -51,7 +51,7 @@ export function handleModeChange() {
   store.setState({ mode });
 
   const editAuthSection = document.getElementById('editAuthSection');
-  const householdSection = document.getElementById('householdSection');
+  const loginSection = document.getElementById('loginSection');
   const guardiansSection = document.getElementById('guardiansSection');
   const studentsSection = document.getElementById('studentsSection');
   const notesSection = document.getElementById('notesSection');
@@ -59,7 +59,7 @@ export function handleModeChange() {
 
   if (mode === 'new') {
     if (editAuthSection) editAuthSection.style.display = 'none';
-    if (householdSection) householdSection.style.display = 'block';
+    if (loginSection) loginSection.style.display = 'block';
     if (guardiansSection) guardiansSection.style.display = 'block';
     if (studentsSection) studentsSection.style.display = 'block';
     if (notesSection) notesSection.style.display = 'block';
@@ -70,7 +70,7 @@ export function handleModeChange() {
     if (state.studentCount === 0) addStudent();
   } else {
     if (editAuthSection) editAuthSection.style.display = 'block';
-    if (householdSection) householdSection.style.display = 'none';
+    if (loginSection) loginSection.style.display = 'none';
     if (guardiansSection) guardiansSection.style.display = 'none';
     if (studentsSection) studentsSection.style.display = 'none';
     if (notesSection) notesSection.style.display = 'none';
@@ -183,7 +183,7 @@ export function loadHouseholdData(householdData) {
   }
 
   // Show form sections
-  document.getElementById('householdSection').style.display = 'block';
+  document.getElementById('loginSection').style.display = 'block';
   document.getElementById('guardiansSection').style.display = 'block';
   document.getElementById('studentsSection').style.display = 'block';
   document.getElementById('notesSection').style.display = 'block';
@@ -203,12 +203,11 @@ export function loadHouseholdData(householdData) {
     // Store householdId in state for update
     store.setState({ householdId: h.householdId });
     
-    document.getElementById('postalCode').value = h.postalCode || '';
-    document.getElementById('prefecture').value = h.prefecture || '';
-    document.getElementById('city').value = h.city || '';
-    document.getElementById('street').value = h.street || '';
-    document.getElementById('building').value = h.building || '';
-    document.getElementById('notes').value = h.notes || '';
+    const loginEmailEl = document.getElementById('loginEmail');
+    if (loginEmailEl) loginEmailEl.value = h.loginEmail || '';
+    
+    const notesEl = document.getElementById('notes');
+    if (notesEl) notesEl.value = h.notes || '';
   }
 
   // Guardians
@@ -239,12 +238,8 @@ export function loadHouseholdData(householdData) {
 export function collectFormData() {
   const formData = {
     household: {
-      postalCode: document.getElementById('postalCode').value,
-      prefecture: document.getElementById('prefecture').value,
-      city: document.getElementById('city').value,
-      street: document.getElementById('street').value,
-      building: document.getElementById('building').value,
-      notes: document.getElementById('notes').value
+      loginEmail: document.getElementById('loginEmail')?.value || '',
+      notes: document.getElementById('notes')?.value || ''
     },
     guardians: [],
     students: []
@@ -328,10 +323,9 @@ export function showConfirmation(formData) {
 
   let html = '<div class="confirmation-details">';
 
-  // 世帯情報
-  html += '<h3>📍 ご自宅住所</h3>';
-  html += `<p>〒${formData.household.postalCode}<br>`;
-  html += `${formData.household.prefecture} ${formData.household.city} ${formData.household.street} ${formData.household.building}</p>`;
+  // ログイン情報
+  html += '<h3>🔐 ログイン情報</h3>';
+  html += `<p>ログイン用メールアドレス: ${formData.household.loginEmail}</p>`;
   if (formData.household.notes) {
     html += `<p><strong>備考:</strong><br>${formData.household.notes.replace(/\n/g, '<br>')}</p>`;
   }
@@ -519,17 +513,13 @@ export function toggleAddress(id) {
 export function fillTestData() {
   const timestamp = Date.now();
   
-  // Household
+  // Login Email
   const setVal = (id, val) => {
       const el = document.getElementById(id);
       if (el) el.value = val;
   };
   
-  setVal('postalCode', '100-0001');
-  setVal('prefecture', '東京都');
-  setVal('city', '千代田区');
-  setVal('street', '千代田1-1');
-  setVal('building', 'パレスハイツ101');
+  setVal('loginEmail', `test_login_${timestamp}@example.com`);
   setVal('notes', `テスト備考入力\n確認用タイムスタンプ: ${timestamp}`);
 
   // Multi-Guardian Support
@@ -647,8 +637,16 @@ export function fillTestData() {
 // Ensure button exists (Idempotent)
 function mountDevTools() {
     // Only show in debug mode (check URL parameter)
-    const urlParams = new URLSearchParams(window.location.search);
-    const isDebugMode = urlParams.get('debug') === 'true';
+    // In GAS iframe, need to check parent window URL
+    let isDebugMode = false;
+    try {
+        const url = window.top.location.href;
+        isDebugMode = url.includes('debug=true');
+    } catch (e) {
+        // Cross-origin restriction, fallback to current window
+        const urlParams = new URLSearchParams(window.location.search);
+        isDebugMode = urlParams.get('debug') === 'true';
+    }
     
     if (!isDebugMode) return; // Don't mount in production
     if (document.getElementById('dev-fill-btn')) return;

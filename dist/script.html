@@ -142,7 +142,7 @@
     store.setState({ guardianCount });
     const id = "guardian_" + guardianCount;
     const hasSeparateAddress = data && (data.postalCode || data.prefecture || data.city || data.street);
-    const html = '\n    <div class="guardian-card fade-in" id="'.concat(id, '">\n      <input type="hidden" name="guardianId_').concat(id, '" value="').concat(data ? data.guardianId || "" : "", '">\n      <div class="card-header">\n        <h3>\u4FDD\u8B77\u8005').concat(guardianCount, "</h3>\n        ").concat(guardianCount > 1 ? '<button type="button" class="btn btn-danger btn-sm remove-btn" data-remove-guardian="'.concat(id, '">\u524A\u9664</button>') : "", '\n      </div>\n      \n      <div class="form-row">\n        <div class="form-group col-md-4">\n          <label>\u7D9A\u67C4 <span class="required">*</span></label>\n          <select class="form-control" name="relationship_').concat(id, '" required>\n            <option value="">\u9078\u629E</option>\n            <option value="\u7236" ').concat(data && data.relationship === "\u7236" ? "selected" : "", '>\u7236</option>\n            <option value="\u6BCD" ').concat(data && data.relationship === "\u6BCD" ? "selected" : "", '>\u6BCD</option>\n            <option value="\u7956\u7236" ').concat(data && data.relationship === "\u7956\u7236" ? "selected" : "", '>\u7956\u7236</option>\n            <option value="\u7956\u6BCD" ').concat(data && data.relationship === "\u7956\u6BCD" ? "selected" : "", '>\u7956\u6BCD</option>\n            <option value="\u305D\u306E\u4ED6" ').concat(data && data.relationship === "\u305D\u306E\u4ED6" ? "selected" : "", '>\u305D\u306E\u4ED6</option>\n          </select>\n        </div>\n        <div class="form-group col-md-4">\n          <label>\u9023\u7D61\u512A\u5148\u9806\u4F4D <span class="required">*</span></label>\n          <select class="form-control priority-select" name="priority_').concat(id, '" required data-initial-priority="').concat(data ? data.contactPriority || "" : "", '">\n            <!-- Dynamically generated -->\n          </select>\n        </div>\n        <div class="form-group col-md-4">\n          <label>\u9023\u7D61\u624B\u6BB5</label>\n          <select class="form-control" name="contact_method_').concat(id, '">\n            <option value="\u643A\u5E2F\u96FB\u8A71" ').concat(!data || data.contactMethod === "\u643A\u5E2F\u96FB\u8A71" ? "selected" : "", '>\u643A\u5E2F\u96FB\u8A71</option>\n            <option value="\u81EA\u5B85\u96FB\u8A71" ').concat(data && data.contactMethod === "\u81EA\u5B85\u96FB\u8A71" ? "selected" : "", '>\u81EA\u5B85\u96FB\u8A71</option>\n            <option value="\u30E1\u30FC\u30EB" ').concat(data && data.contactMethod === "\u30E1\u30FC\u30EB" ? "selected" : "", '>\u30E1\u30FC\u30EB</option>\n          </select>\n        </div>\n      </div>\n      \n      <div class="form-row">\n        <div class="form-group col-md-6">\n          <label>\u59D3 <span class="required">*</span></label>\n          <input type="text" class="form-control" name="last_name_').concat(id, '" value="').concat(data ? data.lastName : "", '" required>\n        </div>\n        <div class="form-group col-md-6">\n          <label>\u540D <span class="required">*</span></label>\n          <input type="text" class="form-control" name="first_name_').concat(id, '" value="').concat(data ? data.firstName : "", '" required>\n        </div>\n      </div>\n      \n      <div class="form-row">\n        <div class="form-group col-md-6">\n          <label>\u30D5\u30EA\u30AC\u30CA\uFF08\u59D3\uFF09 <span class="required">*</span></label>\n          <input type="text" class="form-control" name="last_name_kana_').concat(id, '" value="').concat(data ? data.lastNameKana : "", '" pattern="[\u30A1-\u30F6\u30FC]+" required>\n        </div>\n        <div class="form-group col-md-6">\n          <label>\u30D5\u30EA\u30AC\u30CA\uFF08\u540D\uFF09 <span class="required">*</span></label>\n          <input type="text" class="form-control" name="first_name_kana_').concat(id, '" value="').concat(data ? data.firstNameKana : "", '" pattern="[\u30A1-\u30F6\u30FC]+" required>\n        </div>\n      </div>\n      \n      <div class="form-group">\n        <label>\u9023\u7D61\u7528\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9 <span class="required">*</span></label>\n        <input type="email" class="form-control" name="email_').concat(id, '" value="').concat(data ? data.email : "", '" required>\n      </div>\n      \n      <div class="form-group">\n        <label>\u30AA\u30F3\u30E9\u30A4\u30F3\u9762\u8AC7\u7528\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\uFF08\u4EFB\u610F\uFF09</label>\n        <input type="email" class="form-control" name="meeting_email_').concat(id, '" value="').concat(data ? data.meetingEmail || "" : "", '">\n        <small class="form-text">\u{1F4A1} PC/\u30BF\u30D6\u30EC\u30C3\u30C8\u3067\u78BA\u8A8D\u3057\u3084\u3059\u3044\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u63A8\u5968</small>\n      </div>\n      \n      <div class="form-row">\n        <div class="form-group col-md-6">\n          <label>\u643A\u5E2F\u96FB\u8A71\u756A\u53F7</label>\n          <input type="tel" class="form-control" name="mobile_phone_').concat(id, '" value="').concat(data ? data.mobilePhone || "" : "", '" placeholder="090-1234-5678">\n        </div>\n        <div class="form-group col-md-6">\n          <label>\u81EA\u5B85\u96FB\u8A71\u756A\u53F7</label>\n          <input type="tel" class="form-control" name="home_phone_').concat(id, '" value="').concat(data ? data.homePhone || "" : "", '" placeholder="03-1234-5678">\n        </div>\n      </div>\n      <small class="form-text">\u{1F4DE} \u643A\u5E2F\u96FB\u8A71\u307E\u305F\u306F\u81EA\u5B85\u96FB\u8A71\u306E\u3069\u3061\u3089\u304B1\u3064\u306F\u5FC5\u305A\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044</small>\n\n      <!-- Address Input -->\n      <div class="form-group mt-3">\n        <div class="form-check">\n          <input class="form-check-input" type="checkbox" id="separate_address_').concat(id, '" data-toggle-address="').concat(id, '" ').concat(hasSeparateAddress ? "checked" : "", '>\n          <label class="form-check-label" for="separate_address_').concat(id, '">\n            \u3054\u81EA\u5B85\u3068\u7570\u306A\u308B\u4F4F\u6240\u3092\u767B\u9332\u3059\u308B\uFF08\u5358\u8EAB\u8D74\u4EFB\u7B49\uFF09\n          </label>\n        </div>\n      </div>\n      \n      <div id="address_fields_').concat(id, '" style="display: ').concat(hasSeparateAddress ? "block" : "none", ';" class="bg-light p-3 rounded">\n        <div class="form-row">\n          <div class="form-group col-md-4">\n            <label>\u90F5\u4FBF\u756A\u53F7</label>\n            <input type="text" id="postalCode_').concat(id, '" name="postalCode_').concat(id, '" class="form-control" placeholder="123-4567" maxlength="8" value="').concat(data ? data.postalCode || "" : "", '">\n            <button type="button" class="btn btn-sm btn-secondary mt-1" data-search-address="').concat(id, '">\u4F4F\u6240\u691C\u7D22</button>\n          </div>\n        </div>\n        <div class="form-row">\n          <div class="form-group col-md-4">\n            <label>\u90FD\u9053\u5E9C\u770C</label>\n            <select id="prefecture_').concat(id, '" name="prefecture_').concat(id, '" class="form-control">\n              <option value="">\u9078\u629E</option>\n              ').concat(generatePrefectureOptions(data ? data.prefecture : ""), '\n            </select>\n          </div>\n          <div class="form-group col-md-8">\n            <label>\u5E02\u533A\u753A\u6751</label>\n            <input type="text" id="city_').concat(id, '" name="city_').concat(id, '" class="form-control" value="').concat(data ? data.city || "" : "", '">\n          </div>\n        </div>\n        <div class="form-group">\n          <label>\u753A\u540D\u30FB\u756A\u5730\u30FB\u53F7</label>\n          <input type="text" id="street_').concat(id, '" name="street_').concat(id, '" class="form-control" value="').concat(data ? data.street || "" : "", '">\n        </div>\n        <div class="form-group">\n          <label>\u5EFA\u7269\u540D\u30FB\u90E8\u5C4B\u756A\u53F7</label>\n          <input type="text" id="building_').concat(id, '" name="building_').concat(id, '" class="form-control" value="').concat(data ? data.building || "" : "", '">\n        </div>\n      </div>\n    </div>\n  ');
+    const html = '\n    <div class="guardian-card fade-in" id="'.concat(id, '">\n      <input type="hidden" name="guardianId_').concat(id, '" value="').concat(data ? data.guardianId || "" : "", '">\n      <div class="card-header">\n        <h3>\u4FDD\u8B77\u8005').concat(guardianCount, "</h3>\n        ").concat(guardianCount > 1 ? '<button type="button" class="btn btn-danger btn-sm remove-btn" data-remove-guardian="'.concat(id, '">\u524A\u9664</button>') : "", '\n      </div>\n      \n      <div class="form-row">\n        <div class="form-group col-md-4">\n          <label>\u7D9A\u67C4 <span class="required">*</span></label>\n          <select class="form-control" name="relationship_').concat(id, '" required>\n            <option value="">\u9078\u629E</option>\n            <option value="\u7236" ').concat(data && data.relationship === "\u7236" ? "selected" : "", '>\u7236</option>\n            <option value="\u6BCD" ').concat(data && data.relationship === "\u6BCD" ? "selected" : "", '>\u6BCD</option>\n            <option value="\u7956\u7236" ').concat(data && data.relationship === "\u7956\u7236" ? "selected" : "", '>\u7956\u7236</option>\n            <option value="\u7956\u6BCD" ').concat(data && data.relationship === "\u7956\u6BCD" ? "selected" : "", '>\u7956\u6BCD</option>\n            <option value="\u305D\u306E\u4ED6" ').concat(data && data.relationship === "\u305D\u306E\u4ED6" ? "selected" : "", '>\u305D\u306E\u4ED6</option>\n          </select>\n        </div>\n        <div class="form-group col-md-4">\n          <label>\u9023\u7D61\u512A\u5148\u9806\u4F4D <span class="required">*</span></label>\n          <select class="form-control priority-select" name="priority_').concat(id, '" required data-initial-priority="').concat(data ? data.contactPriority || "" : "", '">\n            <!-- Dynamically generated -->\n          </select>\n        </div>\n        <div class="form-group col-md-4">\n          <label>\u9023\u7D61\u624B\u6BB5</label>\n          <select class="form-control" name="contact_method_').concat(id, '">\n            <option value="\u643A\u5E2F\u96FB\u8A71" ').concat(!data || data.contactMethod === "\u643A\u5E2F\u96FB\u8A71" ? "selected" : "", '>\u643A\u5E2F\u96FB\u8A71</option>\n            <option value="\u81EA\u5B85\u96FB\u8A71" ').concat(data && data.contactMethod === "\u81EA\u5B85\u96FB\u8A71" ? "selected" : "", '>\u81EA\u5B85\u96FB\u8A71</option>\n            <option value="\u30E1\u30FC\u30EB" ').concat(data && data.contactMethod === "\u30E1\u30FC\u30EB" ? "selected" : "", '>\u30E1\u30FC\u30EB</option>\n          </select>\n        </div>\n      </div>\n      \n      <div class="form-row">\n        <div class="form-group col-md-6">\n          <label>\u59D3 <span class="required">*</span></label>\n          <input type="text" class="form-control" name="last_name_').concat(id, '" value="').concat(data ? data.lastName : "", '" required>\n        </div>\n        <div class="form-group col-md-6">\n          <label>\u540D <span class="required">*</span></label>\n          <input type="text" class="form-control" name="first_name_').concat(id, '" value="').concat(data ? data.firstName : "", '" required>\n        </div>\n      </div>\n      \n      <div class="form-row">\n        <div class="form-group col-md-6">\n          <label>\u30D5\u30EA\u30AC\u30CA\uFF08\u59D3\uFF09 <span class="required">*</span></label>\n          <input type="text" class="form-control" name="last_name_kana_').concat(id, '" value="').concat(data ? data.lastNameKana : "", '" pattern="[\u30A1-\u30F6\u30FC]+" required>\n        </div>\n        <div class="form-group col-md-6">\n          <label>\u30D5\u30EA\u30AC\u30CA\uFF08\u540D\uFF09 <span class="required">*</span></label>\n          <input type="text" class="form-control" name="first_name_kana_').concat(id, '" value="').concat(data ? data.firstNameKana : "", '" pattern="[\u30A1-\u30F6\u30FC]+" required>\n        </div>\n      </div>\n      \n      <div class="form-group">\n        <label>\u9023\u7D61\u7528\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9 <span class="required">*</span></label>\n        <input type="email" class="form-control" name="email_').concat(id, '" value="').concat(data ? data.email : "", '" required>\n      </div>\n      \n      <div class="form-group">\n        <label>\u30AA\u30F3\u30E9\u30A4\u30F3\u9762\u8AC7\u7528\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\uFF08\u4EFB\u610F\uFF09</label>\n        <input type="email" class="form-control" name="meeting_email_').concat(id, '" value="').concat(data ? data.meetingEmail || "" : "", '">\n        <small class="form-text">\u{1F4A1} PC/\u30BF\u30D6\u30EC\u30C3\u30C8\u3067\u78BA\u8A8D\u3057\u3084\u3059\u3044\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u63A8\u5968</small>\n      </div>\n      \n      <div class="form-row">\n        <div class="form-group col-md-6">\n          <label>\u643A\u5E2F\u96FB\u8A71\u756A\u53F7</label>\n          <input type="tel" class="form-control" name="mobile_phone_').concat(id, '" value="').concat(data ? data.mobilePhone || "" : "", '" placeholder="090-1234-5678">\n        </div>\n        <div class="form-group col-md-6">\n          <label>\u81EA\u5B85\u96FB\u8A71\u756A\u53F7</label>\n          <input type="tel" class="form-control" name="home_phone_').concat(id, '" value="').concat(data ? data.homePhone || "" : "", '" placeholder="03-1234-5678">\n        </div>\n      </div>\n      <small class="form-text">\u{1F4DE} \u643A\u5E2F\u96FB\u8A71\u307E\u305F\u306F\u81EA\u5B85\u96FB\u8A71\u306E\u3069\u3061\u3089\u304B1\u3064\u306F\u5FC5\u305A\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044</small>\n\n      <!-- Address Input -->\n      ').concat(guardianCount === 1 ? '\n        <div class="form-group mt-3">\n          <h4>\u{1F4CD} \u3054\u81EA\u5B85\u4F4F\u6240 <span class="required">*</span></h4>\n          <small class="form-text text-muted">\u4FDD\u8B77\u80051\u306E\u4F4F\u6240\u304C\u4E16\u5E2F\u306E\u4F4F\u6240\u3068\u3057\u3066\u767B\u9332\u3055\u308C\u307E\u3059</small>\n        </div>\n      ' : '\n        <div class="form-group mt-3">\n          <div class="form-check">\n            <input class="form-check-input" type="checkbox" id="separate_address_'.concat(id, '" data-toggle-address="').concat(id, '" ').concat(hasSeparateAddress ? "checked" : "", '>\n            <label class="form-check-label" for="separate_address_').concat(id, '">\n              \u3054\u81EA\u5B85\u3068\u7570\u306A\u308B\u4F4F\u6240\u3092\u767B\u9332\u3059\u308B\uFF08\u5358\u8EAB\u8D74\u4EFB\u7B49\uFF09\n            </label>\n          </div>\n        </div>\n      '), '\n      \n      <div id="address_fields_').concat(id, '" style="display: ').concat(guardianCount === 1 || hasSeparateAddress ? "block" : "none", ';" class="bg-light p-3 rounded">\n        <div class="form-row">\n          <div class="form-group col-md-4">\n            <label>\u90F5\u4FBF\u756A\u53F7 ').concat(guardianCount === 1 ? '<span class="required">*</span>' : "", '</label>\n            <input type="text" id="postalCode_').concat(id, '" name="postalCode_').concat(id, '" class="form-control" placeholder="123-4567" maxlength="8" value="').concat(data ? data.postalCode || "" : "", '" ').concat(guardianCount === 1 ? "required" : "", '>\n            <button type="button" class="btn btn-sm btn-secondary mt-1" data-search-address="').concat(id, '">\u4F4F\u6240\u691C\u7D22</button>\n          </div>\n        </div>\n        <div class="form-row">\n          <div class="form-group col-md-4">\n            <label>\u90FD\u9053\u5E9C\u770C ').concat(guardianCount === 1 ? '<span class="required">*</span>' : "", '</label>\n            <select id="prefecture_').concat(id, '" name="prefecture_').concat(id, '" class="form-control" ').concat(guardianCount === 1 ? "required" : "", '>\n              <option value="">\u9078\u629E</option>\n              ').concat(generatePrefectureOptions(data ? data.prefecture : ""), '\n            </select>\n          </div>\n          <div class="form-group col-md-8">\n            <label>\u5E02\u533A\u753A\u6751 ').concat(guardianCount === 1 ? '<span class="required">*</span>' : "", '</label>\n            <input type="text" id="city_').concat(id, '" name="city_').concat(id, '" class="form-control" value="').concat(data ? data.city || "" : "", '" ').concat(guardianCount === 1 ? "required" : "", '>\n          </div>\n        </div>\n        <div class="form-group">\n          <label>\u753A\u540D\u30FB\u756A\u5730\u30FB\u53F7 ').concat(guardianCount === 1 ? '<span class="required">*</span>' : "", '</label>\n          <input type="text" id="street_').concat(id, '" name="street_').concat(id, '" class="form-control" value="').concat(data ? data.street || "" : "", '" ').concat(guardianCount === 1 ? "required" : "", '>\n        </div>\n        <div class="form-group">\n          <label>\u5EFA\u7269\u540D\u30FB\u90E8\u5C4B\u756A\u53F7</label>\n          <input type="text" id="building_').concat(id, '" name="building_').concat(id, '" class="form-control" value="').concat(data ? data.building || "" : "", '">\n        </div>\n      </div>\n    </div>\n  ');
     document.getElementById("guardiansList").insertAdjacentHTML("beforeend", html);
     updateGuardianPriorities();
   }
@@ -357,14 +357,14 @@
     const mode = modeInput.value;
     store.setState({ mode });
     const editAuthSection = document.getElementById("editAuthSection");
-    const householdSection = document.getElementById("householdSection");
+    const loginSection = document.getElementById("loginSection");
     const guardiansSection = document.getElementById("guardiansSection");
     const studentsSection = document.getElementById("studentsSection");
     const notesSection = document.getElementById("notesSection");
     const submitSection = document.getElementById("submitSection");
     if (mode === "new") {
       if (editAuthSection) editAuthSection.style.display = "none";
-      if (householdSection) householdSection.style.display = "block";
+      if (loginSection) loginSection.style.display = "block";
       if (guardiansSection) guardiansSection.style.display = "block";
       if (studentsSection) studentsSection.style.display = "block";
       if (notesSection) notesSection.style.display = "block";
@@ -374,7 +374,7 @@
       if (state.studentCount === 0) addStudent();
     } else {
       if (editAuthSection) editAuthSection.style.display = "block";
-      if (householdSection) householdSection.style.display = "none";
+      if (loginSection) loginSection.style.display = "none";
       if (guardiansSection) guardiansSection.style.display = "none";
       if (studentsSection) studentsSection.style.display = "none";
       if (notesSection) notesSection.style.display = "none";
@@ -460,7 +460,7 @@
     if (modeSections.length > 0) {
       modeSections[0].style.display = "none";
     }
-    document.getElementById("householdSection").style.display = "block";
+    document.getElementById("loginSection").style.display = "block";
     document.getElementById("guardiansSection").style.display = "block";
     document.getElementById("studentsSection").style.display = "block";
     document.getElementById("notesSection").style.display = "block";
@@ -473,12 +473,10 @@
     if (householdData.household) {
       const h = householdData.household;
       store.setState({ householdId: h.householdId });
-      document.getElementById("postalCode").value = h.postalCode || "";
-      document.getElementById("prefecture").value = h.prefecture || "";
-      document.getElementById("city").value = h.city || "";
-      document.getElementById("street").value = h.street || "";
-      document.getElementById("building").value = h.building || "";
-      document.getElementById("notes").value = h.notes || "";
+      const loginEmailEl = document.getElementById("loginEmail");
+      if (loginEmailEl) loginEmailEl.value = h.loginEmail || "";
+      const notesEl = document.getElementById("notes");
+      if (notesEl) notesEl.value = h.notes || "";
     }
     document.getElementById("guardiansList").innerHTML = "";
     store.setState({ guardianCount: 0 });
@@ -496,14 +494,11 @@
     }
   }
   function collectFormData() {
+    var _a, _b;
     const formData = {
       household: {
-        postalCode: document.getElementById("postalCode").value,
-        prefecture: document.getElementById("prefecture").value,
-        city: document.getElementById("city").value,
-        street: document.getElementById("street").value,
-        building: document.getElementById("building").value,
-        notes: document.getElementById("notes").value
+        loginEmail: ((_a = document.getElementById("loginEmail")) == null ? void 0 : _a.value) || "",
+        notes: ((_b = document.getElementById("notes")) == null ? void 0 : _b.value) || ""
       },
       guardians: [],
       students: []
@@ -573,9 +568,8 @@
     const contentDiv = document.getElementById("confirmationContent");
     if (!contentDiv) return;
     let html = '<div class="confirmation-details">';
-    html += "<h3>\u{1F4CD} \u3054\u81EA\u5B85\u4F4F\u6240</h3>";
-    html += "<p>\u3012".concat(formData.household.postalCode, "<br>");
-    html += "".concat(formData.household.prefecture, " ").concat(formData.household.city, " ").concat(formData.household.street, " ").concat(formData.household.building, "</p>");
+    html += "<h3>\u{1F510} \u30ED\u30B0\u30A4\u30F3\u60C5\u5831</h3>";
+    html += "<p>\u30ED\u30B0\u30A4\u30F3\u7528\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9: ".concat(formData.household.loginEmail, "</p>");
     if (formData.household.notes) {
       html += "<p><strong>\u5099\u8003:</strong><br>".concat(formData.household.notes.replace(/\n/g, "<br>"), "</p>");
     }
@@ -725,11 +719,7 @@
       const el = document.getElementById(id);
       if (el) el.value = val;
     };
-    setVal("postalCode", "100-0001");
-    setVal("prefecture", "\u6771\u4EAC\u90FD");
-    setVal("city", "\u5343\u4EE3\u7530\u533A");
-    setVal("street", "\u5343\u4EE3\u75301-1");
-    setVal("building", "\u30D1\u30EC\u30B9\u30CF\u30A4\u30C4101");
+    setVal("loginEmail", "test_login_".concat(timestamp, "@example.com"));
     setVal("notes", "\u30C6\u30B9\u30C8\u5099\u8003\u5165\u529B\n\u78BA\u8A8D\u7528\u30BF\u30A4\u30E0\u30B9\u30BF\u30F3\u30D7: ".concat(timestamp));
     if (store.getState().guardianCount === 0) addGuardian();
     setTimeout(() => {
@@ -809,8 +799,14 @@
     showMessage("\u5168\u30D5\u30A3\u30FC\u30EB\u30C9\uFF08\u4EFB\u610F\u9805\u76EE\u30FB\u5225\u4F4F\u6240\u542B\u3080\uFF09\u306B\u30C6\u30B9\u30C8\u30C7\u30FC\u30BF\u3092\u5165\u529B\u3057\u307E\u3057\u305F", "success");
   }
   function mountDevTools() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const isDebugMode = urlParams.get("debug") === "true";
+    let isDebugMode = false;
+    try {
+      const url = window.top.location.href;
+      isDebugMode = url.includes("debug=true");
+    } catch (e) {
+      const urlParams = new URLSearchParams(window.location.search);
+      isDebugMode = urlParams.get("debug") === "true";
+    }
     if (!isDebugMode) return;
     if (document.getElementById("dev-fill-btn")) return;
     const btn = document.createElement("button");
