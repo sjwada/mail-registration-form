@@ -3,48 +3,51 @@
   rel="stylesheet">
 <style>
   /* ============================================
-   Glassmorphism Theme & Variables
+   Theme: Sophisticated Minimalism (Mebio Style)
    ============================================ */
   :root {
-    --glass-bg: rgba(255, 255, 255, 0.75);
-    --glass-border: rgba(255, 255, 255, 0.4);
-    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --accent-color: #764ba2;
-    --text-main: #2d3436;
-    --text-muted: #636e72;
-    --error-color: #ff7675;
-    --success-color: #00b894;
-    --radius-lg: 24px;
-    --radius-md: 16px;
-    --radius-sm: 12px;
+    /* Mebio-like deep navy blue */
+    --primary-color: #003366;
+    --primary-hover: #002244;
+    --accent-color: #0056b3;
+
+    --bg-color: #f0f2f5;
+    --card-bg: #ffffff;
+
+    --text-main: #333333;
+    --text-muted: #666666;
+
+    --border-color: #d1d5db;
+    /* Soft Silver */
+    --input-bg: #ffffff;
+
+    --error-color: #d32f2f;
+    --success-color: #2e7d32;
+
+    --radius-md: 8px;
+    --radius-sm: 4px;
+
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* Layout Fix */
   }
 
   body {
     font-family: 'Outfit', 'Noto Sans JP', sans-serif;
-    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-    background-size: 400% 400%;
-    animation: gradientBG 15s ease infinite;
-    min-height: 100vh;
+    background-color: var(--bg-color);
     color: var(--text-main);
+    min-height: 100vh;
     display: flex;
     justify-content: center;
-    padding: 20px;
+    padding: 40px 20px;
     line-height: 1.6;
-  }
-
-  @keyframes gradientBG {
-    0% {
-      background-position: 0% 50%;
-    }
-
-    50% {
-      background-position: 100% 50%;
-    }
-
-    100% {
-      background-position: 0% 50%;
-    }
   }
 
   /* ============================================
@@ -52,40 +55,33 @@
    ============================================ */
   .container {
     width: 100%;
-    max-width: 960px;
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
+    max-width: 900px;
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
     overflow: hidden;
-    transition: transform 0.3s ease;
   }
 
   /* ============================================
    Header
    ============================================ */
   header {
-    background: rgba(255, 255, 255, 0.3);
-    padding: 3rem 2rem;
+    background: var(--card-bg);
+    padding: 3rem 2rem 2rem;
     text-align: center;
-    border-bottom: 1px solid var(--glass-border);
+    border-bottom: 3px solid var(--primary-color);
   }
 
   header h1 {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
-    background: var(--primary-gradient);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--primary-color);
     margin-bottom: 0.5rem;
-    letter-spacing: -0.5px;
+    letter-spacing: 0.02em;
   }
 
   header .subtitle {
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: var(--text-muted);
     font-weight: 500;
   }
@@ -94,28 +90,29 @@
    Main Content
    ============================================ */
   main {
-    padding: 3rem 2rem;
+    padding: 3rem 4rem;
   }
 
   .form-section {
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: var(--radius-md);
-    padding: 2rem;
-    margin-bottom: 2rem;
-    border: 1px solid var(--glass-border);
-    transition: all 0.3s ease;
+    background: #ffffff;
+    margin-bottom: 2.5rem;
+    /* Clean, no borders or background for sections, just spacing */
+    /* Or gentle divider */
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #f0f0f0;
   }
 
-  .form-section:hover {
-    background: rgba(255, 255, 255, 0.8);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  .form-section:last-child {
+    border-bottom: none;
   }
 
   .form-section h2 {
-    font-size: 1.4rem;
+    font-size: 1.25rem;
     margin-bottom: 1.5rem;
-    color: var(--accent-color);
+    color: var(--primary-color);
     font-weight: 700;
+    border-left: 4px solid var(--accent-color);
+    padding-left: 12px;
     display: flex;
     align-items: center;
   }
@@ -125,39 +122,43 @@
    ============================================ */
   .form-group {
     margin-bottom: 1.5rem;
-    position: relative;
   }
 
   .form-group label {
     display: block;
     font-weight: 600;
-    color: var(--text-muted);
+    color: var(--text-main);
     margin-bottom: 0.5rem;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
 
   .required {
     color: var(--error-color);
     margin-left: 4px;
+    font-size: 0.8em;
   }
 
   .form-control {
     width: 100%;
-    padding: 12px 16px;
-    border: 2px solid transparent;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    /* Soft Silver Border */
     border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--input-bg);
     font-family: inherit;
     font-size: 1rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) inset;
+    transition: all 0.2s ease;
+    color: var(--text-main);
   }
 
   .form-control:focus {
     outline: none;
-    border-color: #a29bfe;
-    background: #fff;
-    box-shadow: 0 0 0 4px rgba(162, 155, 254, 0.3);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+  }
+
+  .form-control::placeholder {
+    color: #adb5bd;
   }
 
   /* 住所検索等のボタンを横に配置する場合 */
@@ -171,10 +172,8 @@
    ============================================ */
   .radio-group {
     display: flex;
-    gap: 1.5rem;
-    background: rgba(255, 255, 255, 0.6);
-    padding: 1rem;
-    border-radius: var(--radius-sm);
+    gap: 2rem;
+    padding: 0.5rem 0;
   }
 
   .radio-group label {
@@ -184,63 +183,70 @@
     align-items: center;
     gap: 8px;
     margin: 0;
+    color: var(--text-main);
   }
 
   input[type="radio"] {
-    transform: scale(1.2);
+    accent-color: var(--primary-color);
+    transform: scale(1.1);
   }
 
   /* ============================================
    Buttons
    ============================================ */
   .btn {
-    padding: 12px 28px;
+    padding: 10px 24px;
     border-radius: var(--radius-sm);
     font-weight: 600;
     letter-spacing: 0.5px;
     border: none;
     cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 1rem;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
     position: relative;
     overflow: hidden;
   }
 
   .btn-primary {
-    background: var(--primary-gradient);
+    background: var(--primary-color);
     color: white;
-    box-shadow: 0 4px 15px rgba(118, 75, 162, 0.4);
+    box-shadow: var(--shadow-sm);
   }
 
   .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(118, 75, 162, 0.5);
+    background: var(--primary-hover);
+    box-shadow: var(--shadow-md);
   }
 
   .btn-success {
-    background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+    background: var(--success-color);
     color: white;
-    box-shadow: 0 4px 15px rgba(0, 184, 148, 0.4);
   }
 
   .btn-success:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 184, 148, 0.5);
+    background: #1b5e20;
+    box-shadow: var(--shadow-md);
   }
 
   .btn-secondary {
-    background: rgba(99, 110, 114, 0.1);
+    background: #e9ecef;
     color: var(--text-main);
+    border: 1px solid var(--border-color);
   }
 
   .btn-secondary:hover {
-    background: rgba(99, 110, 114, 0.2);
+    background: #dde2e6;
   }
 
   .btn-lg {
     width: 100%;
-    padding: 16px;
-    font-size: 1.2rem;
+    padding: 14px;
+    font-size: 1.1rem;
+  }
+
+  .btn-sm {
+    padding: 6px 12px;
+    font-size: 0.85rem;
   }
 
   /* ============================================
@@ -248,18 +254,13 @@
    ============================================ */
   .guardian-card,
   .student-card {
-    background: rgba(255, 255, 255, 0.6);
+    background: #f8f9fa;
+    /* Very light gray for cards */
     border-radius: var(--radius-md);
-    padding: 2rem;
-    margin-bottom: 2rem;
-    border: 1px solid var(--glass-border);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border-color);
     position: relative;
-    transition: transform 0.2s;
-  }
-
-  .guardian-card:hover,
-  .student-card:hover {
-    transform: scale(1.01);
   }
 
   .card-header {
@@ -267,21 +268,27 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
-    border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
-    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 0.5rem;
   }
 
   .card-header h3 {
-    font-size: 1.2rem;
-    color: var(--accent-color);
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    font-weight: 600;
   }
 
   .remove-btn {
     color: var(--error-color);
     background: none;
     border: none;
-    font-weight: 700;
+    font-weight: 600;
     cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  .remove-btn:hover {
+    text-decoration: underline;
   }
 
   /* ============================================
@@ -311,9 +318,14 @@
   }
 
   @media (max-width: 768px) {
+    body {
+      padding: 0;
+    }
+
     .container {
       border-radius: 0;
       min-height: 100vh;
+      box-shadow: none;
     }
 
     .col-md-4,
@@ -323,11 +335,15 @@
     }
 
     header {
-      padding: 2rem 1rem;
+      padding: 2rem 1rem 1rem;
     }
 
     main {
       padding: 1.5rem 1rem;
+    }
+
+    .form-section {
+      padding: 0 0 2rem 0;
     }
   }
 
@@ -339,16 +355,20 @@
     border-radius: var(--radius-sm);
     margin-bottom: 1rem;
     font-weight: 500;
+    font-size: 0.95rem;
+    border-left: 4px solid transparent;
   }
 
   .alert-success {
-    background: rgba(0, 184, 148, 0.2);
-    color: #006266;
+    background: #e8f5e9;
+    color: #1b5e20;
+    border-left-color: var(--success-color);
   }
 
   .alert-danger {
-    background: rgba(255, 118, 117, 0.2);
-    color: #d63031;
+    background: #ffebee;
+    color: #c62828;
+    border-left-color: var(--error-color);
   }
 
   /* ============================================
@@ -357,8 +377,8 @@
   .spinner-border {
     width: 3rem;
     height: 3rem;
-    border: 0.25em solid currentColor;
-    border-right-color: transparent;
+    border: 0.25em solid var(--border-color);
+    border-right-color: var(--primary-color);
     border-radius: 50%;
     animation: spinner-border .75s linear infinite;
   }
