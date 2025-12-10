@@ -428,6 +428,15 @@
         showLoading(false);
         if (result.success) {
           showMessage(result.message, "success");
+          if (result.debugLink) {
+            const debugMsg = document.createElement("div");
+            debugMsg.className = "alert alert-warning mt-2";
+            debugMsg.innerHTML = '<strong>\u{1F6E0}\uFE0F \u30C6\u30B9\u30C8\u7528\u30EA\u30F3\u30AF:</strong><br><a href="'.concat(result.debugLink, '" target="_top">').concat(result.debugLink, "</a>");
+            const messageDiv = document.getElementById("message");
+            if (messageDiv) {
+              messageDiv.parentNode.insertBefore(debugMsg, messageDiv.nextSibling);
+            }
+          }
         } else {
           showMessage(result.message, "danger");
         }

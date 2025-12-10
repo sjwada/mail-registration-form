@@ -130,8 +130,22 @@ export async function requestMagicLink() {
   try {
     const result = await runServerFunction('requestMagicLink', email);
     showLoading(false);
+    
     if (result.success) {
       showMessage(result.message, 'success');
+      
+      // DEBUG: Show link for example.com
+      if (result.debugLink) {
+         const debugMsg = document.createElement('div');
+         debugMsg.className = 'alert alert-warning mt-2';
+         debugMsg.innerHTML = `<strong>🛠️ テスト用リンク:</strong><br><a href="${result.debugLink}" target="_top">${result.debugLink}</a>`;
+         
+         const messageDiv = document.getElementById('message');
+         if (messageDiv) {
+             messageDiv.parentNode.insertBefore(debugMsg, messageDiv.nextSibling);
+             // Auto-remove after 30s? No, keep it for testing.
+         }
+      }
     } else {
       showMessage(result.message, 'danger');
     }

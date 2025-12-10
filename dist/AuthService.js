@@ -48,7 +48,18 @@ class AuthService {
         // Ideally we wrap it too, but for now we assume it throws on error.
         return Result.fromTry(() => {
           sendMagicLinkEmail(email, token);
-          return '編集リンクをメールで送信しました。メールをご確認ください。';
+          
+          // DEBUG: Return link for example.com addresses
+          let debugLink = null;
+          if (email.endsWith('@example.com')) {
+              const scriptUrl = ScriptApp.getService().getUrl();
+              debugLink = `${scriptUrl}?token=${token}`;
+          }
+          
+          return {
+              message: '編集リンクをメールで送信しました。メールをご確認ください。',
+              debugLink: debugLink
+          };
         });
       });
   }
