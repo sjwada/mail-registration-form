@@ -707,44 +707,54 @@
     }
   }
   function fillTestData() {
-    document.getElementById("postalCode").value = "100-0001";
-    document.getElementById("prefecture").value = "\u6771\u4EAC\u90FD";
-    document.getElementById("city").value = "\u5343\u4EE3\u7530\u533A";
-    document.getElementById("street").value = "\u5343\u4EE3\u75301-1";
-    document.getElementById("building").value = "\u30D1\u30EC\u30B9\u30CF\u30A4\u30C4101";
-    document.getElementById("notes").value = "\u30C6\u30B9\u30C8\u5165\u529B\u3067\u3059\u3002";
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+    };
+    setVal("postalCode", "100-0001");
+    setVal("prefecture", "\u6771\u4EAC\u90FD");
+    setVal("city", "\u5343\u4EE3\u7530\u533A");
+    setVal("street", "\u5343\u4EE3\u75301-1");
+    setVal("building", "\u30D1\u30EC\u30B9\u30CF\u30A4\u30C4101");
+    setVal("notes", "\u30C6\u30B9\u30C8\u5165\u529B\u3067\u3059\u3002");
     if (store.getState().guardianCount === 0) addGuardian();
     setTimeout(() => {
-      const gId = "guardian_1";
-      const setVal = (name, val) => {
-        const el = document.querySelector('[name="'.concat(name, "_").concat(gId, '"]'));
-        if (el) el.value = val;
-      };
-      setVal("relationship", "\u7236");
-      setVal("priority", "1");
-      setVal("contact_method", "\u30E1\u30FC\u30EB");
-      setVal("last_name", "\u30C6\u30B9\u30C8");
-      setVal("first_name", "\u592A\u6717");
-      setVal("last_name_kana", "\u30C6\u30B9\u30C8");
-      setVal("first_name_kana", "\u30BF\u30ED\u30A6");
-      setVal("email", "test_g_".concat(Date.now(), "@example.com"));
-      setVal("mobile_phone", "090-1111-2222");
+      document.querySelectorAll(".guardian-card").forEach((card, index) => {
+        const idParts = card.id.split("_");
+        const idSuffix = idParts[1];
+        const setField = (name, val) => {
+          const el = card.querySelector('[name="'.concat(name, "_guardian_").concat(idSuffix, '"]'));
+          if (el) el.value = val;
+        };
+        setField("relationship", index === 0 ? "\u7236" : "\u6BCD");
+        setField("priority", (index + 1).toString());
+        setField("contact_method", "\u30E1\u30FC\u30EB");
+        setField("last_name", "\u30C6\u30B9\u30C8\u4FDD\u8B77\u8005" + (index + 1));
+        setField("first_name", "\u540D\u524D" + (index + 1));
+        setField("last_name_kana", "\u30C6\u30B9\u30C8\u30DB\u30B4\u30B7\u30E3");
+        setField("first_name_kana", "\u30CA\u30DE\u30A8");
+        setField("email", "test_g_".concat(index, "_").concat(Date.now(), "@example.com"));
+        setField("mobile_phone", "090-1111-" + (2222 + index));
+      });
     }, 100);
     if (store.getState().studentCount === 0) addStudent();
     setTimeout(() => {
-      const sId = "student_1";
-      const setVal = (name, val) => {
-        const el = document.querySelector('[name="'.concat(name, "_").concat(sId, '"]'));
-        if (el) el.value = val;
-      };
-      setVal("s_last_name", "\u30C6\u30B9\u30C8");
-      setVal("s_first_name", "\u82B1\u5B50");
-      setVal("s_last_name_kana", "\u30C6\u30B9\u30C8");
-      setVal("s_first_name_kana", "\u30CF\u30CA\u30B3");
-      setVal("graduation_year", (/* @__PURE__ */ new Date()).getFullYear() + 1);
-      setVal("s_email", "test_s_".concat(Date.now(), "@example.com"));
+      document.querySelectorAll(".student-card").forEach((card, index) => {
+        const idParts = card.id.split("_");
+        const idSuffix = idParts[1];
+        const setField = (name, val) => {
+          const el = card.querySelector('[name="'.concat(name, "_student_").concat(idSuffix, '"]'));
+          if (el) el.value = val;
+        };
+        setField("s_last_name", "\u30C6\u30B9\u30C8\u751F\u5F92" + (index + 1));
+        setField("s_first_name", "\u540D\u524D" + (index + 1));
+        setField("s_last_name_kana", "\u30C6\u30B9\u30C8\u30BB\u30A4\u30C8");
+        setField("s_first_name_kana", "\u30CA\u30DE\u30A8");
+        setField("graduation_year", (/* @__PURE__ */ new Date()).getFullYear() + 1 + index);
+        setField("s_email", "test_s_".concat(index, "_").concat(Date.now(), "@example.com"));
+      });
     }, 100);
-    showMessage("\u30C6\u30B9\u30C8\u30C7\u30FC\u30BF\u3092\u5165\u529B\u3057\u307E\u3057\u305F", "success");
+    showMessage("\u5168\u30C7\u30FC\u30BF\u3092\u81EA\u52D5\u5165\u529B\u3057\u307E\u3057\u305F", "success");
   }
   function mountDevTools() {
     if (document.getElementById("dev-fill-btn")) return;

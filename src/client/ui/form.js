@@ -496,54 +496,68 @@ export function toggleAddress(id) {
 // ============================================
 export function fillTestData() {
   // Household
-  document.getElementById('postalCode').value = '100-0001';
-  document.getElementById('prefecture').value = '東京都';
-  document.getElementById('city').value = '千代田区';
-  document.getElementById('street').value = '千代田1-1';
-  document.getElementById('building').value = 'パレスハイツ101';
-  document.getElementById('notes').value = 'テスト入力です。';
-
-  // Guardian 1
-  if (store.getState().guardianCount === 0) addGuardian();
+  const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+  };
   
-  // Wait for DOM
+  setVal('postalCode', '100-0001');
+  setVal('prefecture', '東京都');
+  setVal('city', '千代田区');
+  setVal('street', '千代田1-1');
+  setVal('building', 'パレスハイツ101');
+  setVal('notes', 'テスト入力です。');
+
+  // Multi-Guardian Support
+  // If 0 guardians, add one.
+  if (store.getState().guardianCount === 0) addGuardian();
+
+  // Wait for potential DOM update then fill ALL
   setTimeout(() => {
-      const gId = 'guardian_1';
-      const setVal = (name, val) => {
-          const el = document.querySelector(`[name="${name}_${gId}"]`);
-          if (el) el.value = val;
-      };
-      
-      setVal('relationship', '父');
-      setVal('priority', '1');
-      setVal('contact_method', 'メール');
-      setVal('last_name', 'テスト');
-      setVal('first_name', '太朗');
-      setVal('last_name_kana', 'テスト');
-      setVal('first_name_kana', 'タロウ');
-      setVal('email', `test_g_${Date.now()}@example.com`); // Unique email to avoid dup check if needed
-      setVal('mobile_phone', '090-1111-2222');
+    document.querySelectorAll('.guardian-card').forEach((card, index) => {
+        const idParts = card.id.split('_');
+        const idSuffix = idParts[1]; // guardian_{N}
+        
+        const setField = (name, val) => {
+            const el = card.querySelector(`[name="${name}_guardian_${idSuffix}"]`);
+            if (el) el.value = val;
+        };
+
+        setField('relationship', index === 0 ? '父' : '母');
+        setField('priority', (index + 1).toString());
+        setField('contact_method', 'メール');
+        setField('last_name', 'テスト保護者' + (index + 1));
+        setField('first_name', '名前' + (index + 1));
+        setField('last_name_kana', 'テストホゴシャ');
+        setField('first_name_kana', 'ナマエ');
+        setField('email', `test_g_${index}_${Date.now()}@example.com`);
+        setField('mobile_phone', '090-1111-' + (2222 + index));
+    });
   }, 100);
 
-  // Student 1
+  // Multi-Student Support
   if (store.getState().studentCount === 0) addStudent();
   
   setTimeout(() => {
-      const sId = 'student_1';
-      const setVal = (name, val) => {
-          const el = document.querySelector(`[name="${name}_${sId}"]`);
-          if (el) el.value = val;
-      };
+    document.querySelectorAll('.student-card').forEach((card, index) => {
+        const idParts = card.id.split('_');
+        const idSuffix = idParts[1]; // student_{N}
+        
+        const setField = (name, val) => {
+            const el = card.querySelector(`[name="${name}_student_${idSuffix}"]`);
+            if (el) el.value = val;
+        };
 
-      setVal('s_last_name', 'テスト');
-      setVal('s_first_name', '花子');
-      setVal('s_last_name_kana', 'テスト');
-      setVal('s_first_name_kana', 'ハナコ');
-      setVal('graduation_year', new Date().getFullYear() + 1);
-      setVal('s_email', `test_s_${Date.now()}@example.com`);
+        setField('s_last_name', 'テスト生徒' + (index + 1));
+        setField('s_first_name', '名前' + (index + 1));
+        setField('s_last_name_kana', 'テストセイト');
+        setField('s_first_name_kana', 'ナマエ');
+        setField('graduation_year', new Date().getFullYear() + 1 + index);
+        setField('s_email', `test_s_${index}_${Date.now()}@example.com`);
+    });
   }, 100);
   
-  showMessage('テストデータを入力しました', 'success');
+  showMessage('全データを自動入力しました', 'success');
 }
 
 // Ensure button exists (Idempotent)
