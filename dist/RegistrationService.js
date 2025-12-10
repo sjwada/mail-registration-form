@@ -57,6 +57,16 @@ class RegistrationService {
             
             return saveResult;
          });
+      })
+      .flatMap(saveResult => {
+          // Fetch the fully persisted data (including generated IDs)
+          return this.householdRepo.getHouseholdData(saveResult.householdId)
+            .map(fullData => {
+                return {
+                    ...saveResult,
+                    householdData: fullData
+                };
+            });
       });
   }
 
