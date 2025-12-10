@@ -524,13 +524,19 @@ export function fillTestData() {
         };
 
         const idx = index + 1;
+        const getKanaSuffix = (n) => {
+            const map = {1:'イチ', 2:'ニ', 3:'サン', 4:'ヨン', 5:'ゴ'};
+            return map[n] || 'タ'; // Fallback
+        };
+        const kanaSuffix = getKanaSuffix(idx);
+
         setField('relationship', index === 0 ? '父' : '母');
         setField('priority', idx.toString());
         setField('contact_method', 'メール'); // Explicitly set
         setField('last_name', `テスト保護者${idx}`);
         setField('first_name', `名前${idx}`);
-        setField('last_name_kana', `テストホゴシャ${idx}`);
-        setField('first_name_kana', `ナマエ${idx}`);
+        setField('last_name_kana', `テストホゴシャ${kanaSuffix}`);
+        setField('first_name_kana', `ナマエ${kanaSuffix}`);
         
         // Emails
         setField('email', `guardian${idx}_${timestamp}@example.com`);
@@ -571,10 +577,16 @@ export function fillTestData() {
         };
 
         const idx = index + 1;
+        const getKanaSuffix = (n) => {
+            const map = {1:'イチ', 2:'ニ', 3:'サン', 4:'ヨン', 5:'ゴ'};
+            return map[n] || 'タ';
+        };
+        const kanaSuffix = getKanaSuffix(idx);
+
         setField('s_last_name', `テスト生徒${idx}`);
         setField('s_first_name', `名前${idx}`);
-        setField('s_last_name_kana', `テストセイト${idx}`);
-        setField('s_first_name_kana', `ナマエ${idx}`);
+        setField('s_last_name_kana', `テストセイト${kanaSuffix}`);
+        setField('s_first_name_kana', `ナマエ${kanaSuffix}`);
         setField('graduation_year', new Date().getFullYear() + idx); // Different grad years
         
         // Student Emails

@@ -728,13 +728,18 @@
           if (el) el.value = val;
         };
         const idx = index + 1;
+        const getKanaSuffix = (n) => {
+          const map = { 1: "\u30A4\u30C1", 2: "\u30CB", 3: "\u30B5\u30F3", 4: "\u30E8\u30F3", 5: "\u30B4" };
+          return map[n] || "\u30BF";
+        };
+        const kanaSuffix = getKanaSuffix(idx);
         setField("relationship", index === 0 ? "\u7236" : "\u6BCD");
         setField("priority", idx.toString());
         setField("contact_method", "\u30E1\u30FC\u30EB");
         setField("last_name", "\u30C6\u30B9\u30C8\u4FDD\u8B77\u8005".concat(idx));
         setField("first_name", "\u540D\u524D".concat(idx));
-        setField("last_name_kana", "\u30C6\u30B9\u30C8\u30DB\u30B4\u30B7\u30E3".concat(idx));
-        setField("first_name_kana", "\u30CA\u30DE\u30A8".concat(idx));
+        setField("last_name_kana", "\u30C6\u30B9\u30C8\u30DB\u30B4\u30B7\u30E3".concat(kanaSuffix));
+        setField("first_name_kana", "\u30CA\u30DE\u30A8".concat(kanaSuffix));
         setField("email", "guardian".concat(idx, "_").concat(timestamp, "@example.com"));
         setField("meeting_email", "guardian".concat(idx, "_meet_").concat(timestamp, "@example.com"));
         setField("mobile_phone", "090-1111-" + String(1e3 + idx));
@@ -762,10 +767,15 @@
           if (el) el.value = val;
         };
         const idx = index + 1;
+        const getKanaSuffix = (n) => {
+          const map = { 1: "\u30A4\u30C1", 2: "\u30CB", 3: "\u30B5\u30F3", 4: "\u30E8\u30F3", 5: "\u30B4" };
+          return map[n] || "\u30BF";
+        };
+        const kanaSuffix = getKanaSuffix(idx);
         setField("s_last_name", "\u30C6\u30B9\u30C8\u751F\u5F92".concat(idx));
         setField("s_first_name", "\u540D\u524D".concat(idx));
-        setField("s_last_name_kana", "\u30C6\u30B9\u30C8\u30BB\u30A4\u30C8".concat(idx));
-        setField("s_first_name_kana", "\u30CA\u30DE\u30A8".concat(idx));
+        setField("s_last_name_kana", "\u30C6\u30B9\u30C8\u30BB\u30A4\u30C8".concat(kanaSuffix));
+        setField("s_first_name_kana", "\u30CA\u30DE\u30A8".concat(kanaSuffix));
         setField("graduation_year", (/* @__PURE__ */ new Date()).getFullYear() + idx);
         setField("s_email", "student".concat(idx, "_").concat(timestamp, "@example.com"));
         setField("s_class_email", "student".concat(idx, "_class_").concat(timestamp, "@example.com"));
