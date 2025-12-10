@@ -739,6 +739,17 @@
         setField("meeting_email", "guardian".concat(idx, "_meet_").concat(timestamp, "@example.com"));
         setField("mobile_phone", "090-1111-" + String(1e3 + idx));
         setField("home_phone", "03-1111-" + String(2e3 + idx));
+        const gCheckId = "separate_address_guardian_".concat(idSuffix);
+        const gCheck = document.getElementById(gCheckId);
+        if (gCheck) {
+          gCheck.checked = true;
+          toggleAddress("guardian_".concat(idSuffix));
+          setField("postalCode", "530-0001");
+          setField("prefecture", "\u5927\u962A\u5E9C");
+          setField("city", "\u5927\u962A\u5E02\u5317\u533A");
+          setField("street", "\u6885\u75301-1");
+          setField("building", "\u30AA\u30D5\u30A3\u30B9\u30BF\u30EF\u30FC".concat(idx));
+        }
       });
     }, 100);
     if (store.getState().studentCount === 0) addStudent();
@@ -759,9 +770,20 @@
         setField("s_email", "student".concat(idx, "_").concat(timestamp, "@example.com"));
         setField("s_class_email", "student".concat(idx, "_class_").concat(timestamp, "@example.com"));
         setField("s_mobile_phone", "070-9999-" + String(1e3 + idx));
+        const sCheckId = "separate_address_s_student_".concat(idSuffix);
+        const sCheck = document.getElementById(sCheckId);
+        if (sCheck) {
+          sCheck.checked = true;
+          toggleAddress("s_student_".concat(idSuffix));
+          setField("postalCode_s", "600-0001");
+          setField("prefecture_s", "\u4EAC\u90FD\u5E9C");
+          setField("city_s", "\u4EAC\u90FD\u5E02\u4E0B\u4EAC\u533A");
+          setField("street_s", "\u70CF\u4E381-1");
+          setField("building_s", "\u5B66\u751F\u5BEE".concat(idx));
+        }
       });
     }, 100);
-    showMessage("\u5168\u30D5\u30A3\u30FC\u30EB\u30C9\uFF08\u4EFB\u610F\u9805\u76EE\u542B\u3080\uFF09\u306B\u30C6\u30B9\u30C8\u30C7\u30FC\u30BF\u3092\u5165\u529B\u3057\u307E\u3057\u305F", "success");
+    showMessage("\u5168\u30D5\u30A3\u30FC\u30EB\u30C9\uFF08\u4EFB\u610F\u9805\u76EE\u30FB\u5225\u4F4F\u6240\u542B\u3080\uFF09\u306B\u30C6\u30B9\u30C8\u30C7\u30FC\u30BF\u3092\u5165\u529B\u3057\u307E\u3057\u305F", "success");
   }
   function mountDevTools() {
     if (document.getElementById("dev-fill-btn")) return;

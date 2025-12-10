@@ -539,6 +539,21 @@ export function fillTestData() {
         // Phones (Fill both to test validation/persistence)
         setField('mobile_phone', '090-1111-' + String(1000 + idx));
         setField('home_phone', '03-1111-' + String(2000 + idx));
+
+        // Separate Address
+        const gCheckId = `separate_address_guardian_${idSuffix}`;
+        const gCheck = document.getElementById(gCheckId);
+        if (gCheck) {
+            gCheck.checked = true;
+            toggleAddress(`guardian_${idSuffix}`); // Trigger visibility
+            
+            // Fill Address
+            setField('postalCode', '530-0001');
+            setField('prefecture', '大阪府');
+            setField('city', '大阪市北区');
+            setField('street', '梅田1-1');
+            setField('building', `オフィスタワー${idx}`);
+        }
     });
   }, 100);
 
@@ -566,10 +581,33 @@ export function fillTestData() {
         setField('s_email', `student${idx}_${timestamp}@example.com`);
         setField('s_class_email', `student${idx}_class_${timestamp}@example.com`);
         setField('s_mobile_phone', '070-9999-' + String(1000 + idx));
+
+        // Separate Address (Student)
+        // Checkbox ID logic from student.js: separate_address_s_student_{N}
+        // Toggle param: s_student_{N}
+        const sCheckId = `separate_address_s_student_${idSuffix}`;
+        const sCheck = document.getElementById(sCheckId);
+        if (sCheck) {
+            sCheck.checked = true;
+            toggleAddress(`s_student_${idSuffix}`); // Trigger visibility
+
+            // Student Address Fields (prefix is s_student_{N} ? No, wait.)
+            // In student.js: name="postalCode_s_student_{N}" ? matches names below:
+            // "postalCode_s_${id}" where id="student_{N}" -> postalCode_s_student_{N}
+            // But setField uses `[name="${name}_student_${idSuffix}"]`
+            // If I pass 'postalCode_s', it becomes `postalCode_s_student_{N}`.
+            // Correct.
+            
+            setField('postalCode_s', '600-0001');
+            setField('prefecture_s', '京都府');
+            setField('city_s', '京都市下京区');
+            setField('street_s', '烏丸1-1');
+            setField('building_s', `学生寮${idx}`);
+        }
     });
   }, 100);
   
-  showMessage('全フィールド（任意項目含む）にテストデータを入力しました', 'success');
+  showMessage('全フィールド（任意項目・別住所含む）にテストデータを入力しました', 'success');
 }
 
 // Ensure button exists (Idempotent)
