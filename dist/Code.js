@@ -277,6 +277,32 @@ function updateHouseholdData(householdId, formData) {
 
 
 /**
+ * Debug: Get latest data for Verification
+ */
+function getLatestDataForVerification() {
+  const readLast = (sheetName) => {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+    const lastRow = sheet.getLastRow();
+    if (lastRow < 2) return null; // Header only
+    
+    // Read Header
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    // Read Last Row
+    const values = sheet.getRange(lastRow, 1, 1, sheet.getLastColumn()).getValues()[0];
+    
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = values[i]);
+    return obj;
+  };
+
+  return {
+    household: readLast(CONFIG.SHEET_HOUSEHOLD),
+    guardian: readLast(CONFIG.SHEET_GUARDIAN),
+    student: readLast(CONFIG.SHEET_STUDENT)
+  };
+}
+
+/**
  * HTMLテンプレート内で別のファイルをインクルードするための関数
  * @param {string} filename - ファイル名
  * @return {string} ファイルの内容
