@@ -7,11 +7,22 @@ import { addStudent, removeStudent } from './components/student.js';
 // ============================================
 // UI Utilities
 // ============================================
+let savedScrollPosition = 0;
+
 function showLoading(show) {
   const loading = document.getElementById('loading');
   const form = document.getElementById('registrationForm');
+  
+  if (show) {
+    savedScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+  }
+  
   if (loading) loading.style.display = show ? 'block' : 'none';
   if (form) form.style.display = show ? 'none' : 'block';
+  
+  if (!show && savedScrollPosition > 0) {
+    setTimeout(() => window.scrollTo(0, savedScrollPosition), 0);
+  }
 }
 
 function showMessage(message, type) {
@@ -475,12 +486,10 @@ export async function searchAddress(postalCodeInputId, prefectureId, cityId, str
     return;
   }
 
-  showLoading(true);
-
+  // Don't use showLoading here to avoid scroll jump
   try {
     const response = await fetch('https://zipcloud.ibsnet.co.jp/api/search?zipcode=' + postalCode);
     const data = await response.json();
-    showLoading(false);
 
     if (data.results) {
       const result = data.results[0];
@@ -492,7 +501,6 @@ export async function searchAddress(postalCodeInputId, prefectureId, cityId, str
       showMessage('郵便番号が見つかりませんでした。', 'danger');
     }
   } catch (error) {
-    showLoading(false);
     console.error('住所検索エラー:', error);
     showMessage('住所検索に失敗しました。', 'danger');
   }
@@ -638,6 +646,11 @@ export function fillTestData() {
 
 // Ensure button exists (Idempotent)
 function mountDevTools() {
+    // Only show in debug mode (check URL parameter)
+    const urlParams = new URLSearchParams(window.location.search);
+    const isDebugMode = urlParams.get('debug') === 'true';
+    
+    if (!isDebugMode) return; // Don't mount in production
     if (document.getElementById('dev-fill-btn')) return;
     
     // Create floating button

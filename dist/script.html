@@ -326,11 +326,18 @@
   }
 
   // src/client/ui/form.js
+  var savedScrollPosition = 0;
   function showLoading(show) {
     const loading = document.getElementById("loading");
     const form = document.getElementById("registrationForm");
+    if (show) {
+      savedScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    }
     if (loading) loading.style.display = show ? "block" : "none";
     if (form) form.style.display = show ? "none" : "block";
+    if (!show && savedScrollPosition > 0) {
+      setTimeout(() => window.scrollTo(0, savedScrollPosition), 0);
+    }
   }
   function showMessage(message, type) {
     const messageDiv = document.getElementById("message");
@@ -687,11 +694,9 @@
         showMessage("\u90F5\u4FBF\u756A\u53F7\u306F7\u6841\u3067\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044\u3002", "danger");
         return;
       }
-      showLoading(true);
       try {
         const response = yield fetch("https://zipcloud.ibsnet.co.jp/api/search?zipcode=" + postalCode);
         const data = yield response.json();
-        showLoading(false);
         if (data.results) {
           const result = data.results[0];
           document.getElementById(prefectureId).value = result.address1;
@@ -702,7 +707,6 @@
           showMessage("\u90F5\u4FBF\u756A\u53F7\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093\u3067\u3057\u305F\u3002", "danger");
         }
       } catch (error) {
-        showLoading(false);
         console.error("\u4F4F\u6240\u691C\u7D22\u30A8\u30E9\u30FC:", error);
         showMessage("\u4F4F\u6240\u691C\u7D22\u306B\u5931\u6557\u3057\u307E\u3057\u305F\u3002", "danger");
       }
@@ -805,6 +809,9 @@
     showMessage("\u5168\u30D5\u30A3\u30FC\u30EB\u30C9\uFF08\u4EFB\u610F\u9805\u76EE\u30FB\u5225\u4F4F\u6240\u542B\u3080\uFF09\u306B\u30C6\u30B9\u30C8\u30C7\u30FC\u30BF\u3092\u5165\u529B\u3057\u307E\u3057\u305F", "success");
   }
   function mountDevTools() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isDebugMode = urlParams.get("debug") === "true";
+    if (!isDebugMode) return;
     if (document.getElementById("dev-fill-btn")) return;
     const btn = document.createElement("button");
     btn.id = "dev-fill-btn";
