@@ -491,6 +491,95 @@ export function toggleAddress(id) {
         fields.style.display = checkbox.checked ? 'block' : 'none';
     }
 }
+// ============================================
+// Dev Tools
+// ============================================
+export function fillTestData() {
+  // Household
+  document.getElementById('postalCode').value = '100-0001';
+  document.getElementById('prefecture').value = '東京都';
+  document.getElementById('city').value = '千代田区';
+  document.getElementById('street').value = '千代田1-1';
+  document.getElementById('building').value = 'パレスハイツ101';
+  document.getElementById('notes').value = 'テスト入力です。';
+
+  // Guardian 1
+  if (store.getState().guardianCount === 0) addGuardian();
+  
+  // Wait for DOM
+  setTimeout(() => {
+      const gId = 'guardian_1';
+      const setVal = (name, val) => {
+          const el = document.querySelector(`[name="${name}_${gId}"]`);
+          if (el) el.value = val;
+      };
+      
+      setVal('relationship', '父');
+      setVal('priority', '1');
+      setVal('contact_method', 'メール');
+      setVal('last_name', 'テスト');
+      setVal('first_name', '太朗');
+      setVal('last_name_kana', 'テスト');
+      setVal('first_name_kana', 'タロウ');
+      setVal('email', `test_g_${Date.now()}@example.com`); // Unique email to avoid dup check if needed
+      setVal('mobile_phone', '090-1111-2222');
+  }, 100);
+
+  // Student 1
+  if (store.getState().studentCount === 0) addStudent();
+  
+  setTimeout(() => {
+      const sId = 'student_1';
+      const setVal = (name, val) => {
+          const el = document.querySelector(`[name="${name}_${sId}"]`);
+          if (el) el.value = val;
+      };
+
+      setVal('s_last_name', 'テスト');
+      setVal('s_first_name', '花子');
+      setVal('s_last_name_kana', 'テスト');
+      setVal('s_first_name_kana', 'ハナコ');
+      setVal('graduation_year', new Date().getFullYear() + 1);
+      setVal('s_email', `test_s_${Date.now()}@example.com`);
+  }, 100);
+  
+  showMessage('テストデータを入力しました', 'success');
+}
+
+// Ensure button exists (Idempotent)
+function mountDevTools() {
+    if (document.getElementById('dev-fill-btn')) return;
+    
+    // Create floating button
+    const btn = document.createElement('button');
+    btn.id = 'dev-fill-btn';
+    btn.textContent = '🛠️ テストデータ入力';
+    btn.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+        background: #333;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 30px;
+        cursor: pointer;
+        opacity: 0.7;
+        font-size: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    `;
+    btn.onmouseover = () => btn.style.opacity = '1';
+    btn.onmouseout = () => btn.style.opacity = '0.7';
+    btn.onclick = fillTestData;
+    
+    document.body.appendChild(btn);
+}
+
+// Mount on load
+window.addEventListener('load', mountDevTools);
+window.fillTestData = fillTestData;
+
 // Expose functions to global scope for HTML inline calls
 window.handleSubmit = handleSubmit;
 window.handleBack = handleBack;

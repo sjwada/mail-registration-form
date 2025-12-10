@@ -706,6 +706,59 @@
       fields.style.display = checkbox.checked ? "block" : "none";
     }
   }
+  function fillTestData() {
+    document.getElementById("postalCode").value = "100-0001";
+    document.getElementById("prefecture").value = "\u6771\u4EAC\u90FD";
+    document.getElementById("city").value = "\u5343\u4EE3\u7530\u533A";
+    document.getElementById("street").value = "\u5343\u4EE3\u75301-1";
+    document.getElementById("building").value = "\u30D1\u30EC\u30B9\u30CF\u30A4\u30C4101";
+    document.getElementById("notes").value = "\u30C6\u30B9\u30C8\u5165\u529B\u3067\u3059\u3002";
+    if (store.getState().guardianCount === 0) addGuardian();
+    setTimeout(() => {
+      const gId = "guardian_1";
+      const setVal = (name, val) => {
+        const el = document.querySelector('[name="'.concat(name, "_").concat(gId, '"]'));
+        if (el) el.value = val;
+      };
+      setVal("relationship", "\u7236");
+      setVal("priority", "1");
+      setVal("contact_method", "\u30E1\u30FC\u30EB");
+      setVal("last_name", "\u30C6\u30B9\u30C8");
+      setVal("first_name", "\u592A\u6717");
+      setVal("last_name_kana", "\u30C6\u30B9\u30C8");
+      setVal("first_name_kana", "\u30BF\u30ED\u30A6");
+      setVal("email", "test_g_".concat(Date.now(), "@example.com"));
+      setVal("mobile_phone", "090-1111-2222");
+    }, 100);
+    if (store.getState().studentCount === 0) addStudent();
+    setTimeout(() => {
+      const sId = "student_1";
+      const setVal = (name, val) => {
+        const el = document.querySelector('[name="'.concat(name, "_").concat(sId, '"]'));
+        if (el) el.value = val;
+      };
+      setVal("s_last_name", "\u30C6\u30B9\u30C8");
+      setVal("s_first_name", "\u82B1\u5B50");
+      setVal("s_last_name_kana", "\u30C6\u30B9\u30C8");
+      setVal("s_first_name_kana", "\u30CF\u30CA\u30B3");
+      setVal("graduation_year", (/* @__PURE__ */ new Date()).getFullYear() + 1);
+      setVal("s_email", "test_s_".concat(Date.now(), "@example.com"));
+    }, 100);
+    showMessage("\u30C6\u30B9\u30C8\u30C7\u30FC\u30BF\u3092\u5165\u529B\u3057\u307E\u3057\u305F", "success");
+  }
+  function mountDevTools() {
+    if (document.getElementById("dev-fill-btn")) return;
+    const btn = document.createElement("button");
+    btn.id = "dev-fill-btn";
+    btn.textContent = "\u{1F6E0}\uFE0F \u30C6\u30B9\u30C8\u30C7\u30FC\u30BF\u5165\u529B";
+    btn.style.cssText = "\n        position: fixed;\n        bottom: 20px;\n        right: 20px;\n        z-index: 9999;\n        background: #333;\n        color: white;\n        border: none;\n        padding: 10px 15px;\n        border-radius: 30px;\n        cursor: pointer;\n        opacity: 0.7;\n        font-size: 12px;\n        box-shadow: 0 4px 6px rgba(0,0,0,0.1);\n    ";
+    btn.onmouseover = () => btn.style.opacity = "1";
+    btn.onmouseout = () => btn.style.opacity = "0.7";
+    btn.onclick = fillTestData;
+    document.body.appendChild(btn);
+  }
+  window.addEventListener("load", mountDevTools);
+  window.fillTestData = fillTestData;
   window.handleSubmit = handleSubmit;
   window.handleBack = handleBack;
   window.handleFinalSubmit = handleFinalSubmit;
