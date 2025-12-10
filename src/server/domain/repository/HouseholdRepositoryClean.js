@@ -304,7 +304,13 @@ class HouseholdRepositoryClean { // extends HouseholdRepositoryInterface
                   });
               });
        });
+  }
 
+  /**
+   * Create a new household.
+   * @param {object} data
+   */
+  _create(data) {
      return this._generateHouseholdId()
        .flatMap(householdId => {
          const editCode = this._generateEditCode();

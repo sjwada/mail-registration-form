@@ -491,3 +491,8 @@ export function toggleAddress(id) {
         fields.style.display = checkbox.checked ? 'block' : 'none';
     }
 }
+// Expose functions to global scope for HTML inline calls
+window.handleSubmit = handleSubmit;
+window.handleBack = handleBack;
+window.handleFinalSubmit = handleFinalSubmit;
+window.loadHouseholdData = loadHouseholdData;

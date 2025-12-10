@@ -604,6 +604,11 @@
     document.getElementById("confirmationSection").style.display = "block";
     window.scrollTo(0, 0);
   }
+  function handleBack() {
+    document.getElementById("confirmationSection").style.display = "none";
+    document.getElementById("registrationForm").style.display = "block";
+    window.scrollTo(0, 0);
+  }
   function handleFinalSubmit() {
     return __async(this, null, function* () {
       if (!pendingFormData) return;
@@ -701,6 +706,10 @@
       fields.style.display = checkbox.checked ? "block" : "none";
     }
   }
+  window.handleSubmit = handleSubmit;
+  window.handleBack = handleBack;
+  window.handleFinalSubmit = handleFinalSubmit;
+  window.loadHouseholdData = loadHouseholdData;
 
   // src/client/main.js
   window.addGuardian = addGuardian;
